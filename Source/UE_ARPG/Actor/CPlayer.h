@@ -31,4 +31,9 @@ private:
 	void OnMoveRight(float Axis);
 	void OnHorizonLock(float Axis);
 	void OnVerticalLock(float Axis);
+
+private:
+
+	void OnRunning();
+	void OffRunning();
 };

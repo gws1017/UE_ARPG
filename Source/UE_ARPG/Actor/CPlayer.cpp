@@ -3,6 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Actor/CAnimInstance.h"
 #include "Actor/CPlayer.h"
 #include "Global.h"
 
@@ -15,13 +16,17 @@ ACPlayer::ACPlayer()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->MaxWalkSpeed = 200.f;
 
 	USkeletalMesh* mesh;
 	UHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Character/Mesh/Eve_By_J_Gonzales.Eve_By_J_Gonzales'");
 	GetMesh()->SetSkeletalMesh(mesh);
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+
+	TSubclassOf<UAnimInstance> anim;
+	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Character/Animation/ABP_Player.ABP_Player_C'");
+	GetMesh()->SetAnimInstanceClass(anim);
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -50,6 +55,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACPlayer::OnMoveRight);
 	PlayerInputComponent->BindAxis("HorizonLock", this, &ACPlayer::OnHorizonLock);
 	PlayerInputComponent->BindAxis("VerticalLock", this, &ACPlayer::OnVerticalLock);
+
+	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Pressed, this, &ACPlayer::OnRunning);
+	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Released, this, &ACPlayer::OffRunning);
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -76,5 +84,15 @@ void ACPlayer::OnHorizonLock(float Axis)
 void ACPlayer::OnVerticalLock(float Axis)
 {
 	AddControllerPitchInput(Axis);
+}
+
+void ACPlayer::OnRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 400;
+}
+
+void ACPlayer::OffRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
