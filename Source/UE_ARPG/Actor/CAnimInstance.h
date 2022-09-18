@@ -12,12 +12,14 @@ class UE_ARPG_API UCAnimInstance : public UAnimInstance
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		float Speed;
-
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		bool bEquipped;
 public:
 	virtual void NativeBeginPlay() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
-	class ACharacter* OwnerCharacter;
+	UPROPERTY()
+		class ACharacter* OwnerCharacter;
 };

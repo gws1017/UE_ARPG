@@ -36,4 +36,16 @@ private:
 
 	void OnRunning();
 	void OffRunning();
+	void ReadyWeapon();
+	void OnAttack();
+
+private:
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	class AWeapon* Weapon;
+
+
+public:
+
+	FORCEINLINE class AWeapon* GetWeapon() { return Weapon; }
 };

@@ -3,6 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Actor/Weapon.h"
 #include "Actor/CAnimInstance.h"
 #include "Actor/CPlayer.h"
 #include "Global.h"
@@ -33,12 +34,14 @@ ACPlayer::ACPlayer()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
+
 }
 
 void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Weapon = AWeapon::Spawn(GetWorld(), this);
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -58,6 +61,10 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Pressed, this, &ACPlayer::OnRunning);
 	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Released, this, &ACPlayer::OffRunning);
+
+	PlayerInputComponent->BindAction("ReadyWeapon", EInputEvent::IE_Pressed, this, &ACPlayer::ReadyWeapon);
+
+	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ACPlayer::OnAttack);
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -96,3 +103,21 @@ void ACPlayer::OffRunning()
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
+void ACPlayer::ReadyWeapon()
+{
+	if (!!Weapon)
+	{
+		if (Weapon->GetEquipped())
+		{
+			Weapon->UnEquip();
+			return;
+		}
+
+		Weapon->Equip();
+	}
+}
+
+void ACPlayer::OnAttack()
+{
+	Weapon->Attack();
+}

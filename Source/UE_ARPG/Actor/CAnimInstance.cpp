@@ -1,5 +1,7 @@
 #include "GameFramework/Character.h"
 
+#include "Actor/CPlayer.h"
+#include "Actor/Weapon.h"
 #include "Actor/CAnimInstance.h"
 #include "Global.h"
 
@@ -18,5 +20,7 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CheckNull(OwnerCharacter);
 
 	Speed = OwnerCharacter->GetVelocity().Size2D();
+
+	bEquipped = Cast<ACPlayer>(OwnerCharacter)->GetWeapon()->GetEquipped();
 
 }
