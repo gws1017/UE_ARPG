@@ -22,13 +22,10 @@ void UCAnimNotifyState_Equip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 void UCAnimNotifyState_Equip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
-	CLog::Print("Super::NotifyEnd(MeshComp, Animation)");
 	CheckNull(MeshComp);
-	CLog::Print("CheckNull(MeshComp)");
 
 	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
 	CheckNull(player);
-	CLog::Print("CheckNull(player)");
 
 	player->GetWeapon()->End_Equip();
 }

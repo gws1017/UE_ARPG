@@ -13,8 +13,14 @@ public:
 	static AWeapon* Spawn(class UWorld* InWorld, class ACharacter* InOwner);
 
 protected:
+	UPROPERTY(VisibleDefaultsOnly)
+		class USceneComponent* Scene; 
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		class USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class UBoxComponent* WeaponCollision;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		class UAnimMontage* DrawMontage;
@@ -50,6 +56,12 @@ public:
 	virtual void Begin_Attack();
 	virtual void End_Attack();
 
+	virtual void Begin_Collision();
+	virtual void End_Collision();
+
+public:
+	UFUNCTION()
+		void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 public:
 
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
