@@ -21,6 +21,13 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Speed = OwnerCharacter->GetVelocity().Size2D();
 
-	bEquipped = Cast<ACPlayer>(OwnerCharacter)->GetWeapon()->GetEquipped();
+	Direction = CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (!!player)
+	{
+		bEquipped = player->GetWeapon()->GetEquipped();
+
+	}
 
 }

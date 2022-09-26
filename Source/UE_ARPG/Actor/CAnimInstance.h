@@ -13,6 +13,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		float Speed;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		float Direction;
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		bool bEquipped;
 public:
 	virtual void NativeBeginPlay() override;
