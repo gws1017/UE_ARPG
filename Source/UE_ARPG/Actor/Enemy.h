@@ -22,4 +22,12 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class AWeapon* Weapon;
+
+public:
+
+	FORCEINLINE class AWeapon* GetWeapon() { return Weapon; }
 };

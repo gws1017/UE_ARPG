@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "Actor/Weapon.h"
+#include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
 #include "Actor/CPlayer.h"
 #include "Global.h"
@@ -41,7 +42,7 @@ void ACPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Weapon = AWeapon::Spawn(GetWorld(), this);
+	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
 }
 
 void ACPlayer::Tick(float DeltaTime)

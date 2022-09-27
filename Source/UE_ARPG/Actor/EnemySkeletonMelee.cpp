@@ -1,5 +1,7 @@
 #include "Components/CapsuleComponent.h"
 
+#include "Actor/Weapon.h"
+#include "Actor/SkeletonSword.h"
 #include "Actor/EnemySkeletonMelee.h"
 #include "Global.h"
 
@@ -17,6 +19,13 @@ AEnemySkeletonMelee::AEnemySkeletonMelee()
 	TSubclassOf<UAnimInstance> anim;
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Enemy/SkeletonMelee/Animation/ABP_SkeletonMelee.ABP_SkeletonMelee_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
-
+	
 	//GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+}
+
+void AEnemySkeletonMelee::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Weapon = AWeapon::Spawn<ASkeletonSword>(GetWorld(), this);
 }

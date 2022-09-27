@@ -16,4 +16,7 @@ class UE_ARPG_API AEnemySkeletonMelee : public AEnemy
 	
 public:
 	AEnemySkeletonMelee();
+
+protected:
+	virtual void BeginPlay() override;
 };

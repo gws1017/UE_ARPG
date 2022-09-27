@@ -10,7 +10,15 @@ class UE_ARPG_API AWeapon : public AActor
 	GENERATED_BODY()
 
 public:
-	static AWeapon* Spawn(class UWorld* InWorld, class ACharacter* InOwner);
+	template<typename T>
+	static AWeapon* Spawn(class UWorld* InWorld, class ACharacter* InOwner)
+	{
+		FActorSpawnParameters params;
+		params.Owner = InOwner;
+		
+		return InWorld->SpawnActor<T>(params);
+		
+	}
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -30,7 +38,7 @@ protected:
 		class UAnimMontage* AttackMontage;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		FName RHandSocket = "SwordSocket";
+		FName WeaponSocket = "SwordSocket";
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		FName SheathSocket = "SheathSocket";
 public:	
@@ -68,7 +76,7 @@ public:
 	FORCEINLINE bool GetEquipping() { return bEquipping; }
 	FORCEINLINE bool GetAttacking() { return bAttacking; }
 
-private:
+protected:
 	class ACharacter* OwnerCharacter;
 
 	bool bEquipped;
