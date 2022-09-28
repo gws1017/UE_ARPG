@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Animation/AnimMontage.h"
 
+#include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
 #include "Global.h"
 
@@ -32,6 +33,8 @@ void AWeapon::BeginPlay()
 
 	//이거 안해줘서 자꾸터졌다
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
+	SetInstigator(OwnerCharacter->GetController());
 
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), SheathSocket);
 	
@@ -80,17 +83,30 @@ void AWeapon::End_Attack()
 
 void AWeapon::Begin_Collision()
 {
-	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ActivateCollision();
 }
 
 void AWeapon::End_Collision()
 {
-	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DeactivateCollision();
 }
 
 void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CLog::Print("Weapon BeginOverlap!");
+	//CLog::Print("Weapon BeginOverlap!");
+	
+	if (!!OtherActor)
+	{
+		AEnemy* enemy = Cast<AEnemy>(OtherActor);
+		
+		CheckNull(enemy);
+		//피격 이펙트 및 사운드 추가부분
+		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
+		enemy->Hit();
+		UGameplayStatics::ApplyDamage(enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+
+	}
+
 }
 
 void AWeapon::Attack()
@@ -114,6 +130,9 @@ void AWeapon::Equip()
 	bEquipping = true;
 
 	OwnerCharacter->PlayAnimMontage(DrawMontage);
+
+	SetInstigator(OwnerCharacter->GetController()); //무기 변경 시 컨틀롤러 재등록 고려
+	
 }
 
 void AWeapon::UnEquip()
@@ -127,4 +146,12 @@ void AWeapon::UnEquip()
 
 }
 
+void AWeapon::ActivateCollision()
+{
+	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
 
+void AWeapon::DeactivateCollision()
+{
+	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}

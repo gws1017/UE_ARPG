@@ -1,5 +1,6 @@
 #include "Components/CapsuleComponent.h"
 
+#include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
 #include "Actor/SkeletonSword.h"
 #include "Actor/EnemySkeletonMelee.h"
@@ -19,8 +20,12 @@ AEnemySkeletonMelee::AEnemySkeletonMelee()
 	TSubclassOf<UAnimInstance> anim;
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Enemy/SkeletonMelee/Animation/ABP_SkeletonMelee.ABP_SkeletonMelee_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
+
+	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Death_Montage.SM_Death_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Hit_Montage.SM_Hit_Montage'");
 	
-	//GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	HP = 15;
+	MaxHP = 15;
 }
 
 void AEnemySkeletonMelee::BeginPlay()

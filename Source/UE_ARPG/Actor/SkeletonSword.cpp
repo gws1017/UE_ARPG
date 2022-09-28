@@ -15,4 +15,6 @@ ASkeletonSword::ASkeletonSword()
 	WeaponCollision->SetRelativeScale3D(FVector(1.1, 0.25, 0.05));
 
 	SheathSocket = "SwordSocket";
+
+	Damage = 3;
 }

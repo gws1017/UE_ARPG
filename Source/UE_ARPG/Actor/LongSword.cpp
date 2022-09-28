@@ -13,9 +13,11 @@ ALongSword::ALongSword()
 	Mesh->SetSkeletalMesh(mesh);
 
 	WeaponCollision->SetRelativeLocation(FVector(0, 0, -70));
-	WeaponCollision->SetRelativeScale3D(FVector(0.1, 0.1, 1.5));
+	WeaponCollision->SetRelativeScale3D(FVector(0.1, 0.03, 1.5));
 	
 	UHelpers::GetAsset<UAnimMontage>(&DrawMontage, "AnimMontage'/Game/Character/Montage/Sword_Draw_Montage.Sword_Draw_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&SheathMontage, "AnimMontage'/Game/Character/Montage/Sword_Sheath_Montage.Sword_Sheath_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Character/Montage/Sword_Attack_Montage.Sword_Attack_Montage'");
+	
+	Damage = 5;
 }

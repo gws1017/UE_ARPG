@@ -41,6 +41,14 @@ protected:
 		FName WeaponSocket = "SwordSocket";
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		FName SheathSocket = "SheathSocket";
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		float Damage;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		TSubclassOf<class UDamageType> DamageTypeClass;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class AController* WeaponInstigator;
 public:	
 	AWeapon();
 
@@ -67,6 +75,9 @@ public:
 	virtual void Begin_Collision();
 	virtual void End_Collision();
 
+	void ActivateCollision();
+	void DeactivateCollision();
+
 public:
 	UFUNCTION()
 		void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -75,6 +86,10 @@ public:
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
 	FORCEINLINE bool GetEquipping() { return bEquipping; }
 	FORCEINLINE bool GetAttacking() { return bAttacking; }
+
+	FORCEINLINE float GetDamage() { return Damage; }
+
+	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
 
 protected:
 	class ACharacter* OwnerCharacter;
