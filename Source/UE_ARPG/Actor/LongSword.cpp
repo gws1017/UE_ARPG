@@ -1,9 +1,10 @@
+#include "Actor/LongSword.h"
+#include "Actor/Weapon.h"
+#include "Global.h"
+
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
 
-#include "Actor/Weapon.h"
-#include "Actor/LongSword.h"
-#include "Global.h"
 
 ALongSword::ALongSword()
 {

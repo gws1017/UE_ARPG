@@ -1,31 +1,32 @@
 #include "Notify/CAnimNotifyState_Collision.h"
+
 #include "Actor/Weapon.h"
-#include "Actor/CPlayer.h"
+#include "Interface/ICharacter.h"
 #include "Global.h"
 
 FString UCAnimNotifyState_Collision::GetNotifyName_Implementation() const
 {
 	return "Collision";
 }
-void UCAnimNotifyState_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
+void UCAnimNotifyState_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	CheckNull(MeshComp);
 
-	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
-	CheckNull(player);
+	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
+	CheckNull(owner);
 
-	player->GetWeapon()->Begin_Collision();
+	owner->GetWeapon()->Begin_Collision();
 }
 
-void UCAnimNotifyState_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UCAnimNotifyState_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyEnd(MeshComp, Animation);
+	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	CheckNull(MeshComp);
 
-	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
-	CheckNull(player);
+	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
+	CheckNull(owner);
 
-	player->GetWeapon()->End_Collision();
+	owner->GetWeapon()->End_Collision();
 
 }

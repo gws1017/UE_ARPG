@@ -1,7 +1,8 @@
-#include "Components/BoxComponent.h"
-
 #include "Actor/SkeletonSword.h"
 #include "Global.h"
+
+#include "Components/BoxComponent.h"
+
 
 ASkeletonSword::ASkeletonSword() 
 {

@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/ICharacter.h"
 #include "Enemy.generated.h"
 
 UCLASS()
-class UE_ARPG_API AEnemy : public ACharacter
+class UE_ARPG_API AEnemy : public ACharacter, public IICharacter
 {
 	GENERATED_BODY()
 
@@ -48,8 +49,8 @@ public:
 	void Die();
 	void Disappear();
 	
-	//InterFace만든후 상속할것
-	virtual void DeathEnd();
+	
+	virtual void DeathEnd() override;
 protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
@@ -57,5 +58,5 @@ protected:
 
 public:
 
-	FORCEINLINE class AWeapon* GetWeapon() { return Weapon; }
+	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 };

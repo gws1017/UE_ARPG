@@ -1,13 +1,14 @@
+#include "Actor/CPlayer.h"
+#include "Actor/Weapon.h"
+#include "Actor/LongSword.h"
+#include "Actor/CAnimInstance.h"
+#include "Global.h"
+
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 
-#include "Actor/Weapon.h"
-#include "Actor/LongSword.h"
-#include "Actor/CAnimInstance.h"
-#include "Actor/CPlayer.h"
-#include "Global.h"
 
 ACPlayer::ACPlayer()
 {

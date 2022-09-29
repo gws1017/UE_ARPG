@@ -1,6 +1,6 @@
 #include "Notify/CAnimNotifyState_Equip.h"
 #include "Actor/Weapon.h"
-#include "Actor/CPlayer.h"
+#include "Interface/ICharacter.h"
 #include "Global.h"
 
 FString UCAnimNotifyState_Equip::GetNotifyName_Implementation() const
@@ -8,23 +8,23 @@ FString UCAnimNotifyState_Equip::GetNotifyName_Implementation() const
 	return "Equip";
 }
 
-void UCAnimNotifyState_Equip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
+void UCAnimNotifyState_Equip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	CheckNull(MeshComp);
 
-	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
+	IICharacter* player = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(player);
 
 	player->GetWeapon()->Begin_Equip();
 }
 
-void UCAnimNotifyState_Equip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UCAnimNotifyState_Equip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyEnd(MeshComp, Animation);
+	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	CheckNull(MeshComp);
 
-	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
+	IICharacter* player = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(player);
 
 	player->GetWeapon()->End_Equip();

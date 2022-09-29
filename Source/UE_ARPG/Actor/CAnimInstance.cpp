@@ -1,9 +1,10 @@
-#include "GameFramework/Character.h"
-
+#include "Actor/CAnimInstance.h"
 #include "Actor/CPlayer.h"
 #include "Actor/Weapon.h"
-#include "Actor/CAnimInstance.h"
 #include "Global.h"
+
+#include "GameFramework/Character.h"
+
 
 void UCAnimInstance::NativeBeginPlay()
 {

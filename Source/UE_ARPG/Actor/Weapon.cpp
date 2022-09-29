@@ -1,3 +1,7 @@
+#include "Actor/Weapon.h"
+#include "Actor/Enemy.h"
+#include "Global.h"
+
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
@@ -5,9 +9,6 @@
 #include "Components/BoxComponent.h"
 #include "Animation/AnimMontage.h"
 
-#include "Actor/Enemy.h"
-#include "Actor/Weapon.h"
-#include "Global.h"
 
 
 AWeapon::AWeapon()

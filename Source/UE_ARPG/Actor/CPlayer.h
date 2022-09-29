@@ -2,20 +2,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/ICharacter.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
-class UE_ARPG_API ACPlayer : public ACharacter
+class UE_ARPG_API ACPlayer : public ACharacter, public IICharacter
 {
 	GENERATED_BODY()
 
+public:
+	ACPlayer();
+
 protected:
+
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
-public:
-	ACPlayer();
 
 protected:
 	virtual void BeginPlay() override;
@@ -39,6 +42,9 @@ private:
 	void ReadyWeapon();
 	void OnAttack();
 
+	virtual void DeathEnd() override {};
+
+
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
@@ -47,5 +53,6 @@ private:
 
 public:
 
-	FORCEINLINE class AWeapon* GetWeapon() { return Weapon; }
+	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
+
 };

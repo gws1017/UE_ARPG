@@ -1,9 +1,9 @@
-#include "Animation/AnimMontage.h"
-#include "Components/CapsuleComponent.h"
-
 #include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
 #include "Global.h"
+
+#include "Animation/AnimMontage.h"
+#include "Components/CapsuleComponent.h"
 
 AEnemy::AEnemy()
 {

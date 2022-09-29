@@ -1,10 +1,10 @@
-#include "Components/CapsuleComponent.h"
-
+#include "Actor/EnemySkeletonMelee.h"
 #include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
 #include "Actor/SkeletonSword.h"
-#include "Actor/EnemySkeletonMelee.h"
 #include "Global.h"
+
+#include "Components/CapsuleComponent.h"
 
 AEnemySkeletonMelee::AEnemySkeletonMelee()
 {
