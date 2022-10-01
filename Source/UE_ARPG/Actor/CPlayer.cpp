@@ -37,6 +37,8 @@ ACPlayer::ACPlayer()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
 
+	MaxHP = 15;
+	HP = MaxHP;
 }
 
 void ACPlayer::BeginPlay()
@@ -71,18 +73,25 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACPlayer::OnMoveForward(float Axis)
 {
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
+	if (Alive())
+	{
+		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+		FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
 
-	AddMovementInput(dir, Axis);
+		AddMovementInput(dir, Axis);
+	}
 }
+	
 
 void ACPlayer::OnMoveRight(float Axis)
 {
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
+	if (Alive())
+	{
+		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+		FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
 
-	AddMovementInput(dir, Axis);
+		AddMovementInput(dir, Axis);
+	}
 }
 
 void ACPlayer::OnHorizonLock(float Axis)
@@ -107,7 +116,7 @@ void ACPlayer::OffRunning()
 
 void ACPlayer::ReadyWeapon()
 {
-	if (!!Weapon)
+	if (!!Weapon && Alive())
 	{
 		if (Weapon->GetEquipped())
 		{
@@ -121,5 +130,47 @@ void ACPlayer::ReadyWeapon()
 
 void ACPlayer::OnAttack()
 {
-	Weapon->Attack();
+	if (Alive())
+	{
+		Weapon->Attack();
+	}
+}
+
+void ACPlayer::Die()
+{
+	CLog::Print("Player Die");
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (!!Weapon)
+		Weapon->DeactivateCollision();
+}
+
+bool ACPlayer::Alive()
+{
+	if (HP > 0)
+		return true;
+	else return false;
+}
+
+void ACPlayer::Hit()
+{
+	//CLog::Print("Player play HitMontage");
+}
+
+float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (DamageAmount <= 0.f)
+		return DamageAmount;
+
+	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
+	{
+		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		Die();
+	}
+	else //일반적인 데미지 계산
+	{
+		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+	}
+	UE_LOG(LogTemp, Display, L"Player Current HP : %f", HP);
+	return DamageAmount;
 }

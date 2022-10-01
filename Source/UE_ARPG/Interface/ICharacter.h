@@ -18,5 +18,9 @@ public:
 
 	virtual class AWeapon* GetWeapon() = 0;
 
+	virtual bool Alive() = 0;
+
+	virtual void Hit() = 0;
+
 	virtual void DeathEnd() = 0;
 };

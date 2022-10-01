@@ -1,5 +1,6 @@
 #include "Actor/Weapon.h"
 #include "Actor/Enemy.h"
+#include "Interface/ICharacter.h"
 #include "Global.h"
 
 #include "Engine/World.h"
@@ -80,6 +81,13 @@ void AWeapon::End_Attack()
 {
 	//Notify로 호출
 	bAttacking = false;
+
+	//Enemy의 경우에만 해준다
+	AEnemy* enemy = Cast<AEnemy>(OwnerCharacter);
+	if (!!enemy)
+	{
+		enemy->SetAttackTimer();
+	}
 }
 
 void AWeapon::Begin_Collision()
@@ -94,17 +102,16 @@ void AWeapon::End_Collision()
 
 void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//CLog::Print("Weapon BeginOverlap!");
 	
 	if (!!OtherActor)
 	{
-		AEnemy* enemy = Cast<AEnemy>(OtherActor);
+		IICharacter* other = Cast<IICharacter>(OtherActor);
 		
-		CheckNull(enemy);
+		CheckNull(other);
 		//피격 이펙트 및 사운드 추가부분
 		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		enemy->Hit();
-		UGameplayStatics::ApplyDamage(enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+		other->Hit();
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, WeaponInstigator, this, DamageTypeClass);
 
 	}
 

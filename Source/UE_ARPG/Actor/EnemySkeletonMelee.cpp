@@ -46,7 +46,7 @@ void AEnemySkeletonMelee::BeginPlay()
 
 void AEnemySkeletonMelee::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor && Alive())
 	{
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
@@ -59,7 +59,7 @@ void AEnemySkeletonMelee::AgroSphereOnOverlapBegin(UPrimitiveComponent* Overlapp
 
 void AEnemySkeletonMelee::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	if (OtherActor && Alive())
 	{
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
@@ -68,4 +68,49 @@ void AEnemySkeletonMelee::AgroSphereOnOverlapEnd(UPrimitiveComponent* Overlapped
 		}
 	}
 
+}
+
+void AEnemySkeletonMelee::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!!OtherActor && Alive())
+	{
+		ACPlayer* player = Cast<ACPlayer>(OtherActor);
+		if (player)
+		{
+			CombatTarget = player;
+
+			if (player->Alive() == false)
+			{
+				CLog::Print("player dead");
+				CombatTarget = nullptr;
+				GetWorldTimerManager().ClearTimer(AttackTimer);
+				return;
+			}
+			else if(player->Alive() == true)
+			{
+				Attack();
+				SetAttackTimer();
+			}
+			
+		}
+	}
+}
+
+void AEnemySkeletonMelee::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!!OtherActor && Alive())
+	{
+		ACPlayer* player = Cast<ACPlayer>(OtherActor);
+		if (player)
+		{
+			CombatTarget = nullptr;
+
+			if (player->Alive())
+			{
+				MoveToTarget(player);
+				GetWorldTimerManager().ClearTimer(AttackTimer);
+
+			}
+		}
+	}
 }

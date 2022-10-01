@@ -15,6 +15,11 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
+		float MaxHP;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
+		float HP;
+
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
@@ -42,8 +47,18 @@ private:
 	void ReadyWeapon();
 	void OnAttack();
 
+	void Die();
+
+	virtual void Hit() override;
 	virtual void DeathEnd() override {};
 
+public:
+
+	virtual bool Alive() override;
+
+public:
+	UFUNCTION()
+		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
 

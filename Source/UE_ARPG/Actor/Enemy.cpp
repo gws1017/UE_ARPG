@@ -26,6 +26,9 @@ void AEnemy::BeginPlay()
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
 	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);
 
+	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapBegin);
+	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapEnd);
+
 	SpawnLocation = GetActorLocation();
 }
 
@@ -59,6 +62,27 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
+void AEnemy::SetAttackTimer()
+{
+	float AttackTime = FMath::FRandRange(0.5, 2.5);
+	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
+
+}
+
+void AEnemy::Attack()
+{
+	CheckFalse(bAlerted);
+	CheckNull(CombatTarget);
+
+	if (AIController)
+	{
+		AIController->StopMovement();
+	}
+	if (!!Weapon)
+	{
+		Weapon->Attack();
+	}
+}
 
 void AEnemy::Hit()
 {
@@ -67,7 +91,6 @@ void AEnemy::Hit()
 
 void AEnemy::Die()
 {
-	CLog::Print("Enemy Die");
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -114,6 +137,12 @@ void AEnemy::MoveToSpawnLocation()
 void AEnemy::AlertEnd()
 {
 	SetAlerted(false);
+}
+
+bool AEnemy::Alive()
+{
+	if (HP <= 0) return false;
+	else return true;
 }
 
 void AEnemy::DeathEnd()
