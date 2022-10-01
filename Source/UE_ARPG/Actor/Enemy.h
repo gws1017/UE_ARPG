@@ -21,12 +21,25 @@ protected:
 	float MaxHP;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 	float HP;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
+	FVector SpawnLocation;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+		class AAIController* AIController;
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+		class USphereComponent* AgroSphere;
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+		class USphereComponent* CombatSphere;
+	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+	bool bAlerted;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* DeathMontage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* HitMontage;
 
+	FTimerHandle AlertTimer;
+	float AlertDuration = 3.0f;
 	FTimerHandle DeathTimer;
 	float DeathDelay = 3.0f;
 
@@ -43,13 +56,26 @@ public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {};
+		virtual void AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {};
+	
+	//AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject
+public:
+
+	FORCEINLINE void SetAlerted(bool value) { bAlerted = value; }
+	FORCEINLINE bool GetAlerted() { return bAlerted; }
+
 public:
 
 	void Hit();
 	void Die();
 	void Disappear();
+
+	void MoveToTarget(ACharacter* Target);
+	void MoveToSpawnLocation();
 	
-	
+	void AlertEnd();
+
 	virtual void DeathEnd() override;
 protected:
 

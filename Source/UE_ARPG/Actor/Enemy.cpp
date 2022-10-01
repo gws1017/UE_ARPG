@@ -4,13 +4,16 @@
 
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
+#include "AIController.h"
 
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AIControllerClass = AEnemy::StaticClass();
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	UHelpers::CreateComponent<USphereComponent>(this,&AgroSphere, "AgroSphere",GetRootComponent());
+	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());
 
 }
 
@@ -18,6 +21,12 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AIController = Cast<AAIController>(GetController());
+
+	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
+	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);
+
+	SpawnLocation = GetActorLocation();
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -50,6 +59,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
+
 void AEnemy::Hit()
 {
 	PlayAnimMontage(HitMontage);
@@ -70,6 +80,40 @@ void AEnemy::Disappear()
 	//사라지면서 해야할 것들 작성
 	Weapon->Destroy();
 	Destroy();
+}
+
+void AEnemy::MoveToTarget(ACharacter* Target)
+{
+	if (AIController)
+	{
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalActor(Target);
+		MoveRequest.SetAcceptanceRadius(10.0f);
+
+		FNavPathSharedPtr NavPath;
+
+		AIController->MoveTo(MoveRequest, &NavPath);
+
+	}
+}
+
+void AEnemy::MoveToSpawnLocation()
+{
+	if (AIController)
+	{
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalLocation(SpawnLocation);
+		FNavPathSharedPtr NavPath;
+
+		AIController->MoveTo(MoveRequest, &NavPath);
+		
+		GetWorldTimerManager().SetTimer(AlertTimer, this, &AEnemy::AlertEnd, AlertDuration);
+	}
+}
+
+void AEnemy::AlertEnd()
+{
+	SetAlerted(false);
 }
 
 void AEnemy::DeathEnd()

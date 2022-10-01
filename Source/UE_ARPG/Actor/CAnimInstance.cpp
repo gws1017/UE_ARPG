@@ -1,6 +1,7 @@
 #include "Actor/CAnimInstance.h"
-#include "Actor/CPlayer.h"
 #include "Actor/Weapon.h"
+#include "Actor/Enemy.h"
+#include "Interface/ICharacter.h"
 #include "Global.h"
 
 #include "GameFramework/Character.h"
@@ -24,10 +25,19 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Direction = CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
 
-	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
-	if (!!player)
+	//캐릭터 공통사항
+	IICharacter* owner = Cast<IICharacter>(OwnerCharacter);
+	if (!!owner)
 	{
-		bEquipped = player->GetWeapon()->GetEquipped();
+		bEquipped = owner->GetWeapon()->GetEquipped();
+	}
+
+	//적 객체에만 있는 것
+	AEnemy* enemy = Cast<AEnemy>(OwnerCharacter);
+
+	if (!!enemy)
+	{
+		bAlert = enemy->GetAlerted();
 
 	}
 
