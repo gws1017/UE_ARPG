@@ -71,6 +71,7 @@ void AEnemy::SetAttackTimer()
 
 void AEnemy::Attack()
 {
+	CheckFalse(Alive());
 	CheckFalse(bAlerted);
 	CheckNull(CombatTarget);
 
@@ -101,7 +102,8 @@ void AEnemy::Die()
 void AEnemy::Disappear()
 {
 	//사라지면서 해야할 것들 작성
-	Weapon->Destroy();
+	if(!!Weapon)
+		Weapon->Destroy();
 	Destroy();
 }
 

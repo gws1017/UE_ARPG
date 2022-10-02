@@ -29,7 +29,9 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	IICharacter* owner = Cast<IICharacter>(OwnerCharacter);
 	if (!!owner)
 	{
-		bEquipped = owner->GetWeapon()->GetEquipped();
+		AWeapon* weapon = owner->GetWeapon();
+		if(!!weapon)
+			bEquipped = weapon->GetEquipped();
 	}
 
 	//적 객체에만 있는 것
