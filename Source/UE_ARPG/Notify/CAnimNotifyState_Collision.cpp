@@ -16,7 +16,11 @@ void UCAnimNotifyState_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp, 
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	owner->GetWeapon()->Begin_Collision();
+	AWeapon* weapon = owner->GetWeapon();
+	if (!!weapon)
+	{
+		weapon->Begin_Collision();
+	}
 }
 
 void UCAnimNotifyState_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -27,6 +31,10 @@ void UCAnimNotifyState_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, UA
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	owner->GetWeapon()->End_Collision();
+	AWeapon* weapon = owner->GetWeapon();
+	if (!!weapon)
+	{
+		weapon->End_Collision();
+	}
 
 }

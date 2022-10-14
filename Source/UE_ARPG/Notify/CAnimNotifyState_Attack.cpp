@@ -1,6 +1,7 @@
 #include "Notify/CAnimNotifyState_Attack.h"
 
 #include "Actor/Weapon.h"
+#include "Actor/Boss.h"
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
@@ -17,7 +18,17 @@ void UCAnimNotifyState_Attack::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	owner->GetWeapon()->Begin_Attack();
+	AWeapon* weapon = owner->GetWeapon();
+
+	if(!!weapon)
+		weapon->Begin_Attack();
+	else
+	{
+		ABoss* boss = Cast<ABoss>(owner);
+		CheckNull(boss);
+
+		boss->Begin_Attack();
+	}
 }
 
 
@@ -29,5 +40,15 @@ void UCAnimNotifyState_Attack::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnim
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	owner->GetWeapon()->End_Attack();
+	AWeapon* weapon = owner->GetWeapon();
+	if (!!weapon)
+		weapon->End_Attack();
+	else 
+	{
+		ABoss* boss = Cast<ABoss>(owner);
+		CheckNull(boss);
+
+		boss->End_Attack();
+	}
+
 }

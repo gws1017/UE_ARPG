@@ -17,7 +17,7 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		float MaxHP;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
+	UPROPERTY(VisibleAnywhere, Category = "Status")
 		float HP;
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
@@ -49,11 +49,11 @@ private:
 
 	void Die();
 
-	virtual void Hit() override;
 	virtual void DeathEnd() override {};
 
 public:
 
+	virtual void Hit() override;
 	virtual bool Alive() override;
 
 public:

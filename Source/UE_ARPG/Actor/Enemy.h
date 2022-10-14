@@ -24,16 +24,18 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 	FVector SpawnLocation;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		class ACPlayer* CombatTarget;
 	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
 		class AAIController* AIController;
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "AI")
 		class USphereComponent* AgroSphere;
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 		class USphereComponent* CombatSphere;
 	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
 		bool bAlerted;
+	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+		bool bRanged;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* DeathMontage;
@@ -72,10 +74,16 @@ public:
 	FORCEINLINE void SetAlerted(bool value) { bAlerted = value; }
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsRanged() { return bRanged; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
+
 public:
 
 	void SetAttackTimer();
-	void Attack();
+	virtual void Attack();
 	void Hit();
 	void Die();
 	void Disappear();

@@ -37,6 +37,14 @@ public:
 	}
 
 	template<typename T>
+	static void SocketAttachComponent(AActor* InActor, T** InComponent,FName ComponentName,
+		USceneComponent* InParent, FName SocketName)
+	{
+		*InComponent = InActor->CreateDefaultSubobject<T>(ComponentName);
+		(*InComponent)->SetupAttachment(InParent, SocketName);
+	}
+
+	template<typename T>
 	static void CreateActorComponent(AActor* InActor, T** InComponent, FName InName)
 	{
 		*InComponent = InActor->CreateDefaultSubobject<T>(InName);
