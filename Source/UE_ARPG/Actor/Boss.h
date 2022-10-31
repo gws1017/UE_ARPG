@@ -14,16 +14,20 @@ class UE_ARPG_API ABoss : public AEnemy
 {
 	GENERATED_BODY()
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "AI") //For No Weapon Enemy
+	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI") //For No Weapon Enemy
 		class UCapsuleComponent* LWeaponCollision;
-	UPROPERTY(EditAnyWhere, Category = "AI") //For No Weapon Enemy
+	UPROPERTY(EditAnyWhere, Category = "Boss | AI") //For No Weapon Enemy
 		class UCapsuleComponent* RWeaponCollision;
+	UPROPERTY(EditDefaultsOnly, Category = " Boss | AI")
+		class USphereComponent* AtkCCollision;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
+		float DamageC;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		class AController* WeaponInstigator;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
@@ -34,24 +38,35 @@ private:
 	//원거리공격을 추가해보자 이공격은 CobatCollistion(MeeleCollision 이름변경하자)보다 크다
 	//즉 radius가 더큰 RangedAttackCollision을 추가하라
 	//2 phase (체력 절반이하)로 떨어지면 AttackC와 낙하공격을 추가하라
+	//공격이 추가되면서 데미지가 달라지고 있는데 이러면 DamageType을 사용해보자
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Particle")
+		class UParticleSystem* AttackCParticle;
 
 public:
 	ABoss();
+
+	
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
-	class UCapsuleComponent* GetCollsion(FString name) { return CollisionMap[name]; }
+	UFUNCTION()
+	FORCEINLINE UShapeComponent* GetCollision(FString name) { return CollisionMap.Contains(name) ? CollisionMap[name] : nullptr; }
 
 	void Begin_Collision(FString name);
 	void End_Collision(FString name);
+
 
 	void Begin_Attack();
 	void End_Attack();
 
 	UFUNCTION(BlueprintCallable)
 		virtual void Attack() override;
+
+	UFUNCTION(BlueprintCallable)
+		void AttackC();
 
 
 public:
@@ -67,6 +82,11 @@ public:
 
 	UFUNCTION()
 		void AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+		void AttacCkBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void AttacCkEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 
@@ -74,8 +94,25 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	bool bDamaged;
 
+	UPROPERTY(VisibleAnywhere)
+		bool bCanAttackC;
+
 
 private:
 	UPROPERTY(VisibleDefaultsOnly)
-	TMap<FString,UCapsuleComponent*> CollisionMap;
+	TMap<FString,UShapeComponent*> CollisionMap;
+
+	template<typename T>
+	void SetWeaponCollision(T** Collision, FVector Location, FRotator Rotation)
+	{
+		(*Collision)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		(*Collision)->SetRelativeLocation(Location);
+		(*Collision)->SetRelativeRotation(Rotation);
+
+		CollisionMap.Add((*Collision)->GetName(), *Collision);
+		(*Collision)->bHiddenInGame = false; //Debug
+	}
 };
+
+

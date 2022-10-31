@@ -4,6 +4,7 @@
 
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Particles/ParticleSystem.h"
 
 ABoss::ABoss()
 {
@@ -12,7 +13,6 @@ ABoss::ABoss()
 	GetMesh()->SetSkeletalMesh(mesh);
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -140));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
-	//GetMesh()->SetRelativeScale3D(FVector(0.8, 0.8, 0.8));
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f);
@@ -21,33 +21,32 @@ ABoss::ABoss()
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Enemy/BossBear/Animation/ABP_Bear.ABP_Bear_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
 
+	UHelpers::GetAsset<UParticleSystem>(&AttackCParticle, "ParticleSystem'/Game/Enemy/BossBear/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
 
-	auto SetWeaponCollision = [this](UCapsuleComponent** Collision,float hh, float r, FVector Location, FRotator Rotation)
-	{
-		(*Collision)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		(*Collision)->SetCapsuleHalfHeight(hh);
-		(*Collision)->SetCapsuleRadius(r);
-		(*Collision)->SetRelativeLocation(Location);
-		(*Collision)->SetRelativeRotation(Rotation);
-		
-		CollisionMap.Add((*Collision)->GetName(), *Collision);
-		(*Collision)->bHiddenInGame = false; //Debug
-
-	};
 
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &LWeaponCollision, "LWeaponCollision", GetMesh(), "hand_lf");
-	SetWeaponCollision(&LWeaponCollision,60,40, FVector(8, 16, 1.5), FRotator(-80, 0, -30));
+	SetWeaponCollision(&LWeaponCollision, FVector(8, 16, 1.5), FRotator(-80, 0, -30));
+	LWeaponCollision->SetCapsuleHalfHeight(60);
+	LWeaponCollision->SetCapsuleRadius(40);
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
-	SetWeaponCollision(&RWeaponCollision,60,40, FVector(-8, -16, -1.5), FRotator(-80, 0, -30));
+	SetWeaponCollision(&RWeaponCollision, FVector(-8, -16, -1.5), FRotator(-80, 0, -30));
+	RWeaponCollision->SetCapsuleHalfHeight(60);
+	RWeaponCollision->SetCapsuleRadius(40);
+	UHelpers::CreateComponent<USphereComponent>(this, &AtkCCollision, "AttackCCollision",GetMesh());
+	SetWeaponCollision(&AtkCCollision, FVector(0,155,-3), FRotator(0, 0, 0));
+	AtkCCollision->InitSphereRadius(80.f);
+	AtkCCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	WeaponInstigator = GetController();
 	Damage = 5;
+	DamageC = 7;
 
 	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Attack_Montage.Bear_Attack_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Death_Montage.Bear_Death_Montage'");
 
 	SectionList.Add("AttackA");
 	SectionList.Add("AttackB");
+	SectionList.Add("AttackC");
 
 	MaxHP = 50;
 	HP = MaxHP;
@@ -59,8 +58,8 @@ ABoss::ABoss()
 void ABoss::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto SetWeaponCollision = [this](UCapsuleComponent** Collision)
+	
+	auto SetCollision = [this](UCapsuleComponent** Collision)
 	{
 		(*Collision)->OnComponentBeginOverlap.AddDynamic(this, &ABoss::AttackBeginOverlap);
 		(*Collision)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -69,25 +68,46 @@ void ABoss::BeginPlay()
 		(*Collision)->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	};
-	SetWeaponCollision(&LWeaponCollision);
-	SetWeaponCollision(&RWeaponCollision);
-	/*LWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &ABoss::AttackBeginOverlap);
-	LWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	LWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	LWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	LWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);*/
-	//RWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &ABoss::AttackBeginOverlap);
+	SetCollision(&LWeaponCollision);
+	SetCollision(&RWeaponCollision);
+	AtkCCollision->OnComponentBeginOverlap.AddDynamic(this, &ABoss::AttacCkBeginOverlap);
+	AtkCCollision->OnComponentEndOverlap.AddDynamic(this, &ABoss::AttacCkEndnOverlap);
+
 }
 
 void ABoss::Begin_Collision(FString name)
 {
-	CollisionMap[name]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCollision(name)->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void ABoss::End_Collision(FString name)
 {
-	CollisionMap[name]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCollision(name)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	bDamaged = false;
+
+}
+
+//플레이어가 범위안에있을때 한번만 처리
+void ABoss::AttackC()
+{
+	FVector start = GetActorForwardVector();
+	FVector loc = GetActorLocation();
+	loc.Z = 0;
+
+	if (!!CombatTarget) {
+		FVector target = CombatTarget->GetActorLocation();
+		FRotator rot = UKismetMathLibrary::FindLookAtRotation(start, target);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, loc, FVector(1, 1, 1)));
+
+		CheckFalse(bCanAttackC);
+		CombatTarget->Hit();
+		UGameplayStatics::ApplyDamage(CombatTarget, DamageC, WeaponInstigator, this, DamageTypeClass);
+	}
+	else {
+		FRotator rot = UKismetMathLibrary::FindLookAtRotation(FVector::Zero(), start);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, loc, FVector(1, 1, 1)));
+	}
+	
 
 }
 
@@ -105,6 +125,8 @@ void ABoss::Attack()
 	CheckNull(CombatTarget);
 	CheckFalse(CombatTarget->Alive());
 	CheckTrue(bAttacking);
+	CheckFalse(bRanged);
+
 	AEnemy::Attack();
 
 	bAttacking = true;
@@ -114,7 +136,7 @@ void ABoss::Attack()
 	{
 		AnimInstance->Montage_Play(AttackMontage);
 		int32 num = FMath::FRandRange(0, 2);
-		AnimInstance->Montage_JumpToSection(SectionList[num]);
+		AnimInstance->Montage_JumpToSection(SectionList[2]);
 	}
 }
 
@@ -123,7 +145,7 @@ void ABoss::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 	if (!!OtherActor && Alive())
 	{
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		if (player)
+		if (!!player)
 		{
 			SetAlerted(true);
 			CombatTarget = player;
@@ -137,9 +159,11 @@ void ABoss::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 	if (!!OtherActor && Alive())
 	{
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		if (player)
+		if (!!player)
 		{
 			CombatTarget = nullptr;
+			bRanged = false;
+
 			//사거리밖이면 이동하자?
 		}
 	}
@@ -151,7 +175,8 @@ void ABoss::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	{
 		CheckNull(CombatTarget); //목표가 없으면 종료
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		bRanged = true;
+		if(!!player)
+			bRanged = true;
 	}
 }
 
@@ -159,7 +184,6 @@ void ABoss::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 {
 	if (!!OtherActor && Alive())
 	{
-		CheckNull(CombatTarget);
 		bRanged = false;
 	}
 }
@@ -182,5 +206,31 @@ void ABoss::AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 			bDamaged = true;
 		}
 		
+	}
+}
+
+//플레이어가 범위안에있는지 항상 확인한다.
+void ABoss::AttacCkBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!!OtherActor)
+	{
+		ACPlayer* player = Cast<ACPlayer>(OtherActor);
+		if (!!player)
+		{
+			bCanAttackC = true;
+		}
+	}
+}
+
+void ABoss::AttacCkEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!!OtherActor)
+	{
+
+		ACPlayer* player = Cast<ACPlayer>(OtherActor);
+		if (!!player)
+		{
+			bCanAttackC = false;
+		}
 	}
 }
