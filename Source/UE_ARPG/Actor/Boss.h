@@ -18,8 +18,14 @@ private:
 		class UCapsuleComponent* LWeaponCollision;
 	UPROPERTY(EditAnyWhere, Category = "Boss | AI") //For No Weapon Enemy
 		class UCapsuleComponent* RWeaponCollision;
+	
 	UPROPERTY(EditDefaultsOnly, Category = " Boss | AI")
-		class USphereComponent* AtkCCollision;
+		class USphereComponent* AtkCSphere;
+	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
+		class USphereComponent* RangedAtkSphere; 
+	//CombatSphere를 재활용할까했지만 공격 패턴이 무작위로 결정되는데
+	//범위에 들어온 플레이어 인식 후 공격하기때문에 구조를 바꾸지않으면
+	//재활용은 힘들것 같아서 원거리용 사거리 체크 Sphere Collision을 추가했다.
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
@@ -43,6 +49,8 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Particle")
 		class UParticleSystem* AttackCParticle;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Stone")
+		class AStone* Stone;
 public:
 	ABoss();
 
@@ -50,7 +58,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 public:
 	UFUNCTION()
 	FORCEINLINE UShapeComponent* GetCollision(FString name) { return CollisionMap.Contains(name) ? CollisionMap[name] : nullptr; }
@@ -68,6 +76,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void AttackC();
 
+	void AttackThrow();
+	void SpawnStone();
+
 
 public:
 	UFUNCTION()
@@ -84,19 +95,22 @@ public:
 		void AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
-		void AttacCkBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void AttackCBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-		void AttacCkEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void AttackCEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 
-	bool bAttacking;
+	
 	UPROPERTY(VisibleAnywhere)
-	bool bDamaged;
+		bool bDamaged;
 
 	UPROPERTY(VisibleAnywhere)
 		bool bCanAttackC;
 
+public:
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Debug")
+		bool bAttacking;
 
 private:
 	UPROPERTY(VisibleDefaultsOnly)
