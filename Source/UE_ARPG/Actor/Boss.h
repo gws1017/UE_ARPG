@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#include "Global.h"
 
 #include "CoreMinimal.h"
 #include "Actor/Enemy.h"
@@ -23,14 +24,13 @@ private:
 		class USphereComponent* AtkCSphere;
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
 		class USphereComponent* RangedAtkSphere; 
-	//CombatSphere를 재활용할까했지만 공격 패턴이 무작위로 결정되는데
-	//범위에 들어온 플레이어 인식 후 공격하기때문에 구조를 바꾸지않으면
-	//재활용은 힘들것 같아서 원거리용 사거리 체크 Sphere Collision을 추가했다.
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float DamageC;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
+		float DamageD;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
@@ -40,9 +40,8 @@ private:
 		class UAnimMontage* AttackMontage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		TArray<FName> SectionList;
-	//bool 변수를 추가하여 공격 A 만할것인가, A이후 B추가타를 할것인가 추가할 수 있음
-	//원거리공격을 추가해보자 이공격은 CobatCollistion(MeeleCollision 이름변경하자)보다 크다
-	//즉 radius가 더큰 RangedAttackCollision을 추가하라
+
+	//근접범위 밖이면서 원거리범위라면 가까이갈것인지 원거리공격할건지 선택하라
 	//2 phase (체력 절반이하)로 떨어지면 AttackC와 낙하공격을 추가하라
 	//공격이 추가되면서 데미지가 달라지고 있는데 이러면 DamageType을 사용해보자
 
@@ -51,17 +50,19 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Stone")
 		class AStone* Stone;
+
+	float JumpDelayTime;
+
+	FTimerHandle JumpDownTimer;
 public:
 	ABoss();
-
-	
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 public:
 	UFUNCTION()
-	FORCEINLINE UShapeComponent* GetCollision(FString name) { return CollisionMap.Contains(name) ? CollisionMap[name] : nullptr; }
+		FORCEINLINE UShapeComponent* GetCollision(FString name) { return CollisionMap.find(name) != CollisionMap.end() ? CollisionMap[name] : nullptr; }
 
 	void Begin_Collision(FString name);
 	void End_Collision(FString name);
@@ -78,6 +79,10 @@ public:
 
 	void AttackThrow();
 	void SpawnStone();
+
+	void AttackJump();
+	void AttackDropDownBegin();
+	void AttackDropDownEnd();
 
 
 public:
@@ -113,9 +118,9 @@ public:
 		bool bAttacking;
 
 private:
-	UPROPERTY(VisibleDefaultsOnly)
-	TMap<FString,UShapeComponent*> CollisionMap;
 
+	std::map<FString, UShapeComponent*> CollisionMap;
+	//TMap<FString,UShapeComponent*> CollisionMap; //버그원인일까? 일단 std::map을쓰자
 	template<typename T>
 	void SetWeaponCollision(T** Collision, FVector Location, FRotator Rotation)
 	{
@@ -124,7 +129,7 @@ private:
 		(*Collision)->SetRelativeLocation(Location);
 		(*Collision)->SetRelativeRotation(Rotation);
 
-		CollisionMap.Add((*Collision)->GetName(), *Collision);
+		CollisionMap[(*Collision)->GetName()] = *Collision;
 		(*Collision)->bHiddenInGame = false; //Debug
 	}
 };

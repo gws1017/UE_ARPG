@@ -1,7 +1,6 @@
 #include "Actor/Boss.h"
 #include "Actor/CPlayer.h"
 #include "Actor/Stone.h"
-#include "Global.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -30,16 +29,11 @@ ABoss::ABoss()
 	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
 
 	WeaponInstigator = GetController();
-	Damage = 5;
-	DamageC = 7;
-
+	
 	SectionList.Add("AttackA");
 	SectionList.Add("AttackB");
 	SectionList.Add("AttackC");
 	SectionList.Add("AttackThrow");
-
-	MaxHP = 50;
-	HP = MaxHP;
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
@@ -57,6 +51,13 @@ ABoss::ABoss()
 	RangedAtkSphere->InitSphereRadius(350.f);
 	AgroSphere->InitSphereRadius(500.f);
 	CombatSphere->InitSphereRadius(170.f);
+
+	MaxHP = 50;
+	HP = MaxHP;
+	Damage = 5;
+	DamageC = 7;
+	DamageD = 9;
+	JumpDelayTime = 2.5f;
 }
 
 void ABoss::BeginPlay()
@@ -87,7 +88,7 @@ void ABoss::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	//Empty는 메모리까지해제
 	//Reset은 데이터만 지우고 메모리(슬랙)는 남겨둠
-	CollisionMap.Empty();
+	//slCollisionMap.Empty();
 }
 
 void ABoss::Begin_Collision(FString name)
@@ -145,6 +146,47 @@ void ABoss::SpawnStone()
 	Stone = GetWorld()->SpawnActor<AStone>(params);
 	Stone->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "ThrowSocket");
 
+}
+
+void ABoss::AttackJump()
+{
+	GetMesh()->SetHiddenInGame(true);
+	UAnimInstance* anim = GetMesh()->GetAnimInstance();
+
+	FTimerDelegate TimerCallback;
+	TimerCallback.BindLambda([this, anim]()
+	{
+		anim->Montage_Play(AttackMontage);
+		anim->Montage_JumpToSection("AttackDown", AttackMontage);
+	});
+
+	GetWorldTimerManager().SetTimer(JumpDownTimer, TimerCallback, UKismetMathLibrary::RandomFloatInRange(1.0f, JumpDelayTime),false);
+}
+
+void ABoss::AttackDropDownBegin()
+{
+	GetMesh()->SetHiddenInGame(false);
+
+	if (!!CombatTarget) 
+	{
+		FVector target_location = CombatTarget->GetActorLocation();
+		target_location.Z = 0;
+		SetActorLocation(target_location);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	}
+
+}
+
+void ABoss::AttackDropDownEnd()
+{
+	if (!!CombatTarget) 
+	{
+		CLog::Print("player attack");
+		CombatTarget->Hit();
+		UGameplayStatics::ApplyDamage(CombatTarget, DamageD, WeaponInstigator, this, DamageTypeClass);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, GetActorLocation(), FRotator::ZeroRotator);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	}
 }
 
 void ABoss::Begin_Attack()
