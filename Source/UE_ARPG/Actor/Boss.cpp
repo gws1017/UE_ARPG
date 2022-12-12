@@ -26,6 +26,7 @@ ABoss::ABoss()
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &LWeaponCollision, "LWeaponCollision", GetMesh(), "hand_lf");
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
 	UHelpers::CreateComponent<USphereComponent>(this, &AtkCSphere, "AtkCSphere",GetMesh());
+	UHelpers::CreateComponent<USphereComponent>(this, &JumpAtkSphere, "JumpAtkSphere", GetMesh());
 	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
 
 	WeaponInstigator = GetController();
@@ -34,6 +35,7 @@ ABoss::ABoss()
 	SectionList.Add("AttackB");
 	SectionList.Add("AttackC");
 	SectionList.Add("AttackThrow");
+	SectionList.Add("AttackJump");
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
@@ -45,10 +47,13 @@ ABoss::ABoss()
 	SetWeaponCollision(&RWeaponCollision, FVector(-8, -16, -1.5), FRotator(-80, 0, -30));
 	SetWeaponCollision(&LWeaponCollision, FVector(8, 16, 1.5), FRotator(-80, 0, -30));
 	SetWeaponCollision(&AtkCSphere, FVector(0, 155, -3), FRotator(0, 0, 0));
+	SetWeaponCollision(&JumpAtkSphere, FVector(0,0,0), FRotator::ZeroRotator);
 	AtkCSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	JumpAtkSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	AtkCSphere->InitSphereRadius(80.f);
 	RangedAtkSphere->InitSphereRadius(350.f);
+	JumpAtkSphere->InitSphereRadius(200.f);
 	AgroSphere->InitSphereRadius(500.f);
 	CombatSphere->InitSphereRadius(170.f);
 
@@ -58,6 +63,7 @@ ABoss::ABoss()
 	DamageC = 7;
 	DamageD = 9;
 	JumpDelayTime = 2.5f;
+	DropLocationOffset = 200.f;
 }
 
 void ABoss::BeginPlay()
@@ -73,22 +79,21 @@ void ABoss::BeginPlay()
 		(*Collision)->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	};
+
 	SetCollision(&LWeaponCollision);
 	SetCollision(&RWeaponCollision);
 	AtkCSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::AttackCBeginOverlap);
 	AtkCSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::AttackCEndnOverlap);
-	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapBegin);
-	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapEnd);
-
+	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
+	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
+	JumpAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
+	JumpAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
 }
 
 void ABoss::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	//Empty는 메모리까지해제
-	//Reset은 데이터만 지우고 메모리(슬랙)는 남겨둠
-	//slCollisionMap.Empty();
 }
 
 void ABoss::Begin_Collision(FString name)
@@ -99,6 +104,7 @@ void ABoss::Begin_Collision(FString name)
 void ABoss::End_Collision(FString name)
 {
 	GetCollision(name)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CLog::Print("End_Collsion " + name);
 	bDamaged = false;
 
 }
@@ -152,12 +158,12 @@ void ABoss::AttackJump()
 {
 	GetMesh()->SetHiddenInGame(true);
 	UAnimInstance* anim = GetMesh()->GetAnimInstance();
-
+	anim->Montage_Pause(AttackMontage);
 	FTimerDelegate TimerCallback;
 	TimerCallback.BindLambda([this, anim]()
 	{
-		anim->Montage_Play(AttackMontage);
-		anim->Montage_JumpToSection("AttackDown", AttackMontage);
+		anim->Montage_Resume(AttackMontage);
+		//anim->Montage_JumpToSection("AttackDown", AttackMontage);
 	});
 
 	GetWorldTimerManager().SetTimer(JumpDownTimer, TimerCallback, UKismetMathLibrary::RandomFloatInRange(1.0f, JumpDelayTime),false);
@@ -167,9 +173,13 @@ void ABoss::AttackDropDownBegin()
 {
 	GetMesh()->SetHiddenInGame(false);
 
-	if (!!CombatTarget) 
+	CheckNull(CombatTarget);
+
+	//UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(),)
+	if (bRangedAtkJump)
 	{
 		FVector target_location = CombatTarget->GetActorLocation();
+		target_location += CombatTarget->GetActorForwardVector() * DropLocationOffset;
 		target_location.Z = 0;
 		SetActorLocation(target_location);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
@@ -179,14 +189,18 @@ void ABoss::AttackDropDownBegin()
 
 void ABoss::AttackDropDownEnd()
 {
-	if (!!CombatTarget) 
+	CheckNull(CombatTarget);
+
+	if (bRangedAtkJump && bDamaged == false)
 	{
-		CLog::Print("player attack");
+		bDamaged = true;
+		CLog::Print("player attack drop down");
 		CombatTarget->Hit();
 		UGameplayStatics::ApplyDamage(CombatTarget, DamageD, WeaponInstigator, this, DamageTypeClass);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, GetActorLocation(), FRotator::ZeroRotator);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 	}
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+
 }
 
 void ABoss::Begin_Attack()
@@ -196,6 +210,8 @@ void ABoss::Begin_Attack()
 void ABoss::End_Attack()
 {
 	bAttacking = false;
+	bDamaged = false;
+	CLog::Print("End_ ATTACK");
 }
 
 void ABoss::Attack()
@@ -259,8 +275,11 @@ void ABoss::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	{
 		CheckNull(CombatTarget); //목표가 없으면 종료
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		if(!!player)
+		if (!!player)
+		{
+			bRangedAtkJump = true;
 			bRanged = true;
+		}
 	}
 }
 
@@ -269,6 +288,7 @@ void ABoss::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 	if (!!OtherActor && Alive())
 	{
 		bRanged = false;
+		bRangedAtkJump = false;
 	}
 }
 

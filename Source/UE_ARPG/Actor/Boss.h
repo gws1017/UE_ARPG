@@ -24,6 +24,8 @@ private:
 		class USphereComponent* AtkCSphere;
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
 		class USphereComponent* RangedAtkSphere; 
+	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
+		class USphereComponent* JumpAtkSphere;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
@@ -92,9 +94,9 @@ public:
 	virtual void AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)override;
 
 	UFUNCTION()
-		virtual void CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		virtual void CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	UFUNCTION()
-		virtual void CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		virtual void CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 	UFUNCTION()
 		void AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -113,9 +115,14 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		bool bCanAttackC;
 
+	UPROPERTY(VisibleAnywhere)
+		bool bRangedAtkJump;
+
 public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Debug")
 		bool bAttacking;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boss | Weapon")
+		float DropLocationOffset;
 
 private:
 
