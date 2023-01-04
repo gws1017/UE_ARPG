@@ -158,12 +158,13 @@ void ABoss::AttackJump()
 {
 	GetMesh()->SetHiddenInGame(true);
 	UAnimInstance* anim = GetMesh()->GetAnimInstance();
-	anim->Montage_Pause(AttackMontage);
 	FTimerDelegate TimerCallback;
+
 	TimerCallback.BindLambda([this, anim]()
 	{
-		anim->Montage_Resume(AttackMontage);
-		//anim->Montage_JumpToSection("AttackDown", AttackMontage);
+		anim->Montage_Play(AttackMontage);
+		anim->Montage_JumpToSection("AttackDown", AttackMontage);
+		GetMesh()->SetHiddenInGame(true);
 	});
 
 	GetWorldTimerManager().SetTimer(JumpDownTimer, TimerCallback, UKismetMathLibrary::RandomFloatInRange(1.0f, JumpDelayTime),false);
@@ -300,7 +301,7 @@ void ABoss::AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	{
 
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		CLog::Print("player attack");
+		CLog::Print("player attack a & b");
 		if (!!player && bDamaged == false)
 		{
 			//피격 이펙트 및 사운드 추가부분
