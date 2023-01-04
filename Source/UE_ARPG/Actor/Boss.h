@@ -14,7 +14,7 @@ UCLASS()
 class UE_ARPG_API ABoss : public AEnemy
 {
 	GENERATED_BODY()
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI") //For No Weapon Enemy
 		class UCapsuleComponent* LWeaponCollision;
 	UPROPERTY(EditAnyWhere, Category = "Boss | AI") //For No Weapon Enemy
@@ -53,6 +53,8 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Stone")
 		class AStone* Stone;
 
+	
+
 	float JumpDelayTime;
 
 	FTimerHandle JumpDownTimer;
@@ -86,6 +88,10 @@ public:
 	void AttackDropDownBegin();
 	void AttackDropDownEnd();
 
+	UFUNCTION(BlueprintCallable)
+		void CalculateBossPhase();
+
+	void SelectAttack(int32& num);
 
 public:
 	UFUNCTION()
@@ -123,7 +129,9 @@ public:
 		bool bAttacking;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boss | Weapon")
 		float DropLocationOffset;
-
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Boss | Status")
+		int32 BossPhase = 1;
+	
 private:
 
 	std::map<FString, UShapeComponent*> CollisionMap;

@@ -62,6 +62,7 @@ ABoss::ABoss()
 	Damage = 5;
 	DamageC = 7;
 	DamageD = 9;
+	//BossPhase = 1;
 	JumpDelayTime = 2.5f;
 	DropLocationOffset = 200.f;
 }
@@ -230,7 +231,10 @@ void ABoss::Attack()
 	if (!!AnimInstance)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		int32 num = 3;//FMath::FRandRange(0, 2);
+		int32 num;
+		
+		SelectAttack(num);
+
 		if (SectionList[num] == "AttackThrow") {
 			CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -239,6 +243,33 @@ void ABoss::Attack()
 		
 		AnimInstance->Montage_JumpToSection(SectionList[num]);
 	}
+}
+
+void ABoss::CalculateBossPhase()
+{
+	int32 HpPersent = (int32)(HP / MaxHP) * 100;
+	if (HpPersent >= 50)
+	{
+		BossPhase = 1;
+	}
+	else if (HpPersent <50)
+	{
+		BossPhase = 2;
+	}
+}
+
+void ABoss::SelectAttack(int32& num)
+{
+	switch (BossPhase)
+	{
+	case 1:
+		num = FMath::RandRange(0, 2);
+		break;
+	case 2:
+		num = FMath::RandRange(0, 4);
+		break;
+	}
+
 }
 
 void ABoss::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
