@@ -64,6 +64,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
+
 public:
 	UFUNCTION()
 		FORCEINLINE UShapeComponent* GetCollision(FString name) { return CollisionMap.find(name) != CollisionMap.end() ? CollisionMap[name] : nullptr; }
@@ -131,7 +134,10 @@ public:
 		float DropLocationOffset;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Boss | Status")
 		int32 BossPhase = 1;
-	
+
+public:
+		UFUNCTION(BlueprintPure)
+			FORCEINLINE float GetBossPhase() { return BossPhase; }
 private:
 
 	std::map<FString, UShapeComponent*> CollisionMap;

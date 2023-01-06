@@ -80,6 +80,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetCurrentHP() { return HP; }
 public:
 
 	void SetAttackTimer();
