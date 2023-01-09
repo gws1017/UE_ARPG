@@ -1,0 +1,20 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BehaviorTree/BTService.h"
+#include "BTS_Detect.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class UE_ARPG_API UBTS_Detect : public UBTService
+{
+	GENERATED_BODY()
+public:
+	UBTS_Detect();
+
+protected:
+
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+};

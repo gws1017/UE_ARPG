@@ -19,7 +19,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Status")
 	float MaxHP;
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Status")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 	float HP;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 	FVector SpawnLocation;

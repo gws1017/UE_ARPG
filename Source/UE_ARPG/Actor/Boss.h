@@ -40,7 +40,7 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* AttackMontage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
+	UPROPERTY(VisibleAnywhere, Category = "Animation")
 		TArray<FName> SectionList;
 
 	//근접범위 밖이면서 원거리범위라면 가까이갈것인지 원거리공격할건지 선택하라

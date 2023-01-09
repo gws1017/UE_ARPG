@@ -7,7 +7,7 @@
 
 UBTS_CheckStatus::UBTS_CheckStatus()
 {
-	NodeName = TEXT("BTS_CheckStatus");
+	NodeName = TEXT("CheckStatus");
 	Interval = 1.0f;
 }
 

@@ -89,6 +89,9 @@ void ABoss::BeginPlay()
 	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
 	JumpAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
 	JumpAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
+	/*HP = 20;
+	SectionList.Add("AttackThrow");
+	SectionList.Add("AttackJump");*/
 }
 
 void ABoss::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -213,7 +216,7 @@ void ABoss::End_Attack()
 {
 	bAttacking = false;
 	bDamaged = false;
-	CLog::Print("End_ ATTACK");
+	//CLog::Print("End_ ATTACK");
 }
 
 void ABoss::Attack()
