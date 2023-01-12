@@ -8,9 +8,9 @@
 #include "AIController.h"
 
 AEnemy::AEnemy()
+	: MaxHP(1),HP(1)
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 	UHelpers::CreateComponent<USphereComponent>(this,&AgroSphere, "AgroSphere",GetRootComponent());
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());

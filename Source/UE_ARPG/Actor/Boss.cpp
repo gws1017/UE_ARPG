@@ -6,7 +6,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystem.h"
 
-ABoss::ABoss()
+ABoss::ABoss() :
+	JumpDelayTime (2.5f) ,DropLocationOffset (200.f)
+	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump"}
+	, Damage (5), DamageC (7), DamageD (9)
 {
 	USkeletalMesh* mesh;
 	UHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Enemy/BossBear/Mesh/Boss_Bear.Boss_Bear'");
@@ -30,12 +33,6 @@ ABoss::ABoss()
 	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
 
 	WeaponInstigator = GetController();
-	
-	SectionList.Add("AttackA");
-	SectionList.Add("AttackB");
-	SectionList.Add("AttackC");
-	SectionList.Add("AttackThrow");
-	SectionList.Add("AttackJump");
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
@@ -58,13 +55,9 @@ ABoss::ABoss()
 	CombatSphere->InitSphereRadius(170.f);
 
 	MaxHP = 50;
-	HP = MaxHP;
-	Damage = 5;
-	DamageC = 7;
-	DamageD = 9;
+	HP = 30;
 	//BossPhase = 1;
-	JumpDelayTime = 2.5f;
-	DropLocationOffset = 200.f;
+	
 }
 
 void ABoss::BeginPlay()
@@ -89,6 +82,9 @@ void ABoss::BeginPlay()
 	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
 	JumpAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
 	JumpAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
+	
+	/*MaxHP = 50;
+	HP = 10;*/
 	/*HP = 20;
 	SectionList.Add("AttackThrow");
 	SectionList.Add("AttackJump");*/
