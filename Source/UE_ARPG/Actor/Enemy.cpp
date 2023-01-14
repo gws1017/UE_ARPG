@@ -1,11 +1,12 @@
 #include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
+#include "AI/Controller/EnemyController.h"
 #include "Global.h"
 
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
-#include "AIController.h"
+//#include "AIController.h"
 
 AEnemy::AEnemy()
 	: MaxHP(1),HP(1)
@@ -14,6 +15,9 @@ AEnemy::AEnemy()
 	UHelpers::CreateComponent<USphereComponent>(this,&AgroSphere, "AgroSphere",GetRootComponent());
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());
+	
+	AIControllerClass = AEnemyController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 }
 
@@ -21,7 +25,6 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AIController = Cast<AAIController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
 	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);

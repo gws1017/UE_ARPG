@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		class ACPlayer* CombatTarget;
 	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
-		class AAIController* AIController;
+		class AEnemyController* AIController;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "AI")
 		class USphereComponent* AgroSphere;
 	UPROPERTY(EditDefaultsOnly, Category = "AI")

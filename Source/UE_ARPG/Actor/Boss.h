@@ -27,6 +27,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
 		class USphereComponent* JumpAtkSphere;
 
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
@@ -34,9 +35,17 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float DamageD;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
+		float JumpDelayTime;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boss | Weapon")
+		float DropLocationOffset;
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		class AController* WeaponInstigator;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Boss | Status")
+		int32 BossPhase = 1;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* AttackMontage;
@@ -53,11 +62,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Stone")
 		class AStone* Stone;
 
-	
-
-	float JumpDelayTime;
-
 	FTimerHandle JumpDownTimer;
+
 public:
 	ABoss();
 
@@ -116,24 +122,19 @@ public:
 		void AttackCEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-
 	
 	UPROPERTY(VisibleAnywhere)
 		bool bDamaged;
-
 	UPROPERTY(VisibleAnywhere)
 		bool bCanAttackC;
-
 	UPROPERTY(VisibleAnywhere)
 		bool bRangedAtkJump;
 
 public:
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Debug")
 		bool bAttacking;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boss | Weapon")
-		float DropLocationOffset;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Boss | Status")
-		int32 BossPhase = 1;
+
 
 public:
 		UFUNCTION(BlueprintPure)

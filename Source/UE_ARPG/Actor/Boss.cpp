@@ -1,15 +1,16 @@
 #include "Actor/Boss.h"
 #include "Actor/CPlayer.h"
 #include "Actor/Stone.h"
+#include "AI/Controller/EnemyBTController.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystem.h"
 
 ABoss::ABoss() :
-	JumpDelayTime (2.5f) ,DropLocationOffset (200.f)
-	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump"}
-	, Damage (5), DamageC (7), DamageD (9)
+	Damage (5.f), DamageC (7.f), DamageD (9.f)
+	, JumpDelayTime(2.5f), DropLocationOffset(200.f)
+	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump" }
 {
 	USkeletalMesh* mesh;
 	UHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Enemy/BossBear/Mesh/Boss_Bear.Boss_Bear'");
@@ -56,6 +57,8 @@ ABoss::ABoss() :
 
 	MaxHP = 50;
 	HP = 30;
+	
+	AIControllerClass = AEnemyBTController::StaticClass();
 	//BossPhase = 1;
 	
 }
@@ -246,7 +249,7 @@ void ABoss::Attack()
 
 void ABoss::CalculateBossPhase()
 {
-	int32 HpPersent = (int32)(HP / MaxHP) * 100;
+	int32 HpPersent = (int32)(HP / MaxHP * 100.f);
 	if (HpPersent >= 50)
 	{
 		BossPhase = 1;
