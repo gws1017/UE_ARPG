@@ -11,6 +11,9 @@
 
 
 ACPlayer::ACPlayer()
+	: MaxHP(15), HP(15),
+	MaxStamina(50), Stamina(50), StaminaRegenRate(20.f),
+	MovementStatus(EMovementStatus::EMS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -37,8 +40,6 @@ ACPlayer::ACPlayer()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
 
-	MaxHP = 15;
-	HP = MaxHP;
 }
 
 void ACPlayer::BeginPlay()
@@ -52,6 +53,34 @@ void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (HP <= 0) SetMovementStatus(EMovementStatus::EMS_Dead);
+
+	float DeltaStamina = StaminaRegenRate * DeltaTime;
+	UpdateStamina(DeltaStamina);
+}
+
+void ACPlayer::UpdateStamina(float DeltaStamina)
+{
+	CheckTrue(MovementStatus == EMovementStatus::EMS_Dead); //죽었을 때 종료
+	CheckTrue((Stamina == MaxStamina) && (MovementStatus != EMovementStatus::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
+
+	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+	{
+		Stamina -= DeltaStamina;
+		Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
+		if (Stamina <= 0)
+		{
+			OffRunning();
+		}
+		CLog::Print(Stamina, 1, 2.f);
+		return;
+	}
+	
+	Stamina += DeltaStamina;
+
+	Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
+	CLog::Print(Stamina,1,2.f);
+	return;
 }
 
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,6 +98,16 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("ReadyWeapon", EInputEvent::IE_Pressed, this, &ACPlayer::ReadyWeapon);
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ACPlayer::OnAttack);
+}
+
+void ACPlayer::DecrementStamina(float Amount)
+{
+	CLog::Print(Stamina, 2, 2.f);
+	CLog::Print(Amount, 3, 2.f);
+	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
+
+	
+	return;
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -106,11 +145,14 @@ void ACPlayer::OnVerticalLock(float Axis)
 
 void ACPlayer::OnRunning()
 {
+	
+	SetMovementStatus(EMovementStatus::EMS_Sprinting);
 	GetCharacterMovement()->MaxWalkSpeed = 400;
 }
 
 void ACPlayer::OffRunning()
 {
+	SetMovementStatus(EMovementStatus::EMS_Normal);
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
@@ -132,6 +174,7 @@ void ACPlayer::OnAttack()
 {
 	if (Alive())
 	{
+		DecrementStamina(Weapon->GetStaminaCost());
 		Weapon->Attack();
 	}
 }
@@ -147,7 +190,7 @@ void ACPlayer::Die()
 
 bool ACPlayer::Alive()
 {
-	if (HP > 0)
+	if (MovementStatus != EMovementStatus::EMS_Dead)
 		return true;
 	else return false;
 }

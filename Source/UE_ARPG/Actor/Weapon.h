@@ -44,6 +44,8 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		float Damage;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		float StaminaCost;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
@@ -89,6 +91,8 @@ public:
 	FORCEINLINE bool GetAttacking() { return bAttacking; }
 
 	FORCEINLINE float GetDamage() { return Damage; }
+	FORCEINLINE float GetStaminaCost() { return StaminaCost; }
+
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
 

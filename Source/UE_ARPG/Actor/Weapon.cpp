@@ -1,5 +1,6 @@
 #include "Actor/Weapon.h"
 #include "Actor/Enemy.h"
+#include "Actor/CPlayer.h"
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
@@ -13,6 +14,7 @@
 
 
 AWeapon::AWeapon()
+	:Damage(5),StaminaCost(10)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -125,8 +127,12 @@ void AWeapon::Attack()
 	
 	bAttacking = true;
 
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (!!player)
+	{
+		player->DecrementStamina(StaminaCost);
+	}
 	OwnerCharacter->PlayAnimMontage(AttackMontage);
-
 
 }
 

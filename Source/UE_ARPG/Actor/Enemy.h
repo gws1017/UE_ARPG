@@ -18,11 +18,11 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Status")
-	float MaxHP;
+		float MaxHP;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-	float HP;
+		float HP;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
-	FVector SpawnLocation;
+		FVector SpawnLocation;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		class ACPlayer* CombatTarget;
