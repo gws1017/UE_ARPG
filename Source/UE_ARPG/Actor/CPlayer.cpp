@@ -34,6 +34,8 @@ ACPlayer::ACPlayer()
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Character/Animation/ABP_Player.ABP_Player_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
 
+	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
+
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
 	SpringArm->bDoCollisionTest = false;
@@ -53,7 +55,7 @@ void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HP <= 0) SetMovementStatus(EMovementStatus::EMS_Dead);
+	//if (HP <= 0);
 
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
@@ -102,8 +104,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACPlayer::DecrementStamina(float Amount)
 {
-	CLog::Print(Stamina, 2, 2.f);
-	CLog::Print(Amount, 3, 2.f);
+	CLog::Print("DecrementStamina!");
+	//CLog::Print(Stamina, 2, 2.f);
+	//CLog::Print(Amount, 3, 2.f);
 	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
 
 	
@@ -145,9 +148,10 @@ void ACPlayer::OnVerticalLock(float Axis)
 
 void ACPlayer::OnRunning()
 {
-	
-	SetMovementStatus(EMovementStatus::EMS_Sprinting);
-	GetCharacterMovement()->MaxWalkSpeed = 400;
+	if (Alive()) {
+		SetMovementStatus(EMovementStatus::EMS_Sprinting);
+		GetCharacterMovement()->MaxWalkSpeed = 400;
+	}
 }
 
 void ACPlayer::OffRunning()
@@ -174,18 +178,25 @@ void ACPlayer::OnAttack()
 {
 	if (Alive())
 	{
-		DecrementStamina(Weapon->GetStaminaCost());
 		Weapon->Attack();
 	}
 }
 
 void ACPlayer::Die()
 {
-	CLog::Print("Player Die");
+	SetMovementStatus(EMovementStatus::EMS_Dead);
+	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (!!Weapon)
 		Weapon->DeactivateCollision();
+
+}
+
+void ACPlayer::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
 }
 
 bool ACPlayer::Alive()

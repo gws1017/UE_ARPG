@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Anim")
+		class UAnimMontage* DeathMontage;
+
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementStatus MovementStatus;
 
@@ -81,7 +84,7 @@ private:
 
 	void Die();
 
-	virtual void DeathEnd() override {};
+	virtual void DeathEnd();
 
 
 public:
