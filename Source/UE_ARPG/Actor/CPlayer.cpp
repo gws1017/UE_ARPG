@@ -35,6 +35,7 @@ ACPlayer::ACPlayer()
 	GetMesh()->SetAnimInstanceClass(anim);
 
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit_Montage.Hit_Montage'");
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -56,7 +57,8 @@ void ACPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//if (HP <= 0);
-
+	
+	CLog::Print(GetMesh()->GetBoneLocation("Hips"));
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
 }
@@ -199,6 +201,14 @@ void ACPlayer::DeathEnd()
 	GetMesh()->bNoSkeletonUpdate = true;
 }
 
+void ACPlayer::HitEnd()
+{
+	auto loc = -GetActorForwardVector() * GetCharacterMovement()->MaxWalkSpeed;
+	//loc.Z = GetActorLocation().Z;
+	
+	SetActorLocation(loc);
+}
+
 bool ACPlayer::Alive()
 {
 	if (MovementStatus != EMovementStatus::EMS_Dead)
@@ -208,6 +218,7 @@ bool ACPlayer::Alive()
 
 void ACPlayer::Hit()
 {
+	PlayAnimMontage(HitMontage);
 	//CLog::Print("Player play HitMontage");
 }
 

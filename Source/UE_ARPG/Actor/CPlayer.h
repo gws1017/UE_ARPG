@@ -47,8 +47,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Anim")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* DeathMontage;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
+		class UAnimMontage* HitMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementStatus MovementStatus;
@@ -84,14 +86,13 @@ private:
 
 	void Die();
 
-	virtual void DeathEnd();
-
-
 public:
 
 	virtual void Hit() override;
 	virtual bool Alive() override;
 
+	virtual void DeathEnd();
+	virtual void HitEnd();
 public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
