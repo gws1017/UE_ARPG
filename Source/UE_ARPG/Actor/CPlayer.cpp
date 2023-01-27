@@ -35,7 +35,7 @@ ACPlayer::ACPlayer()
 	GetMesh()->SetAnimInstanceClass(anim);
 
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
-	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit_Montage.Hit_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit2_Montage.Hit2_Montage'");
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -56,9 +56,12 @@ void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//if (HP <= 0);
+	//정확한 위치를 찾아내기가 쉽지않다
+	if (bHitMovement && bHit){
+		auto delta_loc = -GetActorForwardVector() * GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
+		SetActorLocation(GetActorLocation() + delta_loc);
+	}
 	
-	CLog::Print(GetMesh()->GetBoneLocation("Hips"));
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
 }
@@ -106,13 +109,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACPlayer::DecrementStamina(float Amount)
 {
-	CLog::Print("DecrementStamina!");
-	//CLog::Print(Stamina, 2, 2.f);
-	//CLog::Print(Amount, 3, 2.f);
 	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
-
-	
-	return;
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -178,7 +175,7 @@ void ACPlayer::ReadyWeapon()
 
 void ACPlayer::OnAttack()
 {
-	if (Alive())
+	if (CanAttack())
 	{
 		Weapon->Attack();
 	}
@@ -186,6 +183,7 @@ void ACPlayer::OnAttack()
 
 void ACPlayer::Die()
 {
+	if (bHitMovement == true ) bHitMovement = false;
 	SetMovementStatus(EMovementStatus::EMS_Dead);
 	PlayAnimMontage(DeathMontage);
 
@@ -201,14 +199,6 @@ void ACPlayer::DeathEnd()
 	GetMesh()->bNoSkeletonUpdate = true;
 }
 
-void ACPlayer::HitEnd()
-{
-	auto loc = -GetActorForwardVector() * GetCharacterMovement()->MaxWalkSpeed;
-	//loc.Z = GetActorLocation().Z;
-	
-	SetActorLocation(loc);
-}
-
 bool ACPlayer::Alive()
 {
 	if (MovementStatus != EMovementStatus::EMS_Dead)
@@ -218,8 +208,32 @@ bool ACPlayer::Alive()
 
 void ACPlayer::Hit()
 {
+	CheckFalse(Alive());
+
+	CLog::Print("Player hit Start!");
+	SetMovementStatus(EMovementStatus::EMS_Hit);
 	PlayAnimMontage(HitMontage);
-	//CLog::Print("Player play HitMontage");
+	bHit = true;
+}
+
+void ACPlayer::HitEnd()
+{
+	CLog::Print("Player hit End!");
+	SetMovementStatus(EMovementStatus::EMS_Normal);
+	bHit = false;
+}
+
+bool ACPlayer::CanAttack()
+{
+	switch (MovementStatus)
+	{
+	case EMovementStatus::EMS_Dead:
+	case EMovementStatus::EMS_Hit:
+		return false;
+	default:
+		return true;
+
+	}
 }
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

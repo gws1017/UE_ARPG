@@ -10,6 +10,7 @@ enum class EMovementStatus : uint8
 {
 	EMS_Normal UMETA(DisplayName = "Normal"),
 	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
+	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
 
@@ -55,6 +56,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementStatus MovementStatus;
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		bool bHitMovement = false;
+	
+	UPROPERTY(VisibleAnywhere)
+		bool bHit = false;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -64,11 +71,6 @@ public:
 	void UpdateStamina(float DeltaStamina);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
-	FORCEINLINE void SetMovementStatus(EMovementStatus Status) { MovementStatus = Status; }
-
-	void DecrementStamina(float Amount);
 
 private:
 
@@ -93,10 +95,14 @@ public:
 
 	virtual void DeathEnd();
 	virtual void HitEnd();
+
+	bool CanAttack();
+
 public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
+	UFUNCTION()
+		void DecrementStamina(float Amount);
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
@@ -104,6 +110,8 @@ private:
 
 
 public:
+
+	FORCEINLINE void SetMovementStatus(EMovementStatus Status) { MovementStatus = Status; }
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 
