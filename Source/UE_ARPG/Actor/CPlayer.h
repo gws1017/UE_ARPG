@@ -30,6 +30,7 @@ protected:
 		float MaxHP;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		float HP;
+
 	//스테미나와 관련되는 요소
 	/* 기본 스테미나 50
 	*  달리기 - 초당 1~5 소모 (테스트해보고 조정)
@@ -43,6 +44,11 @@ protected:
 		float Stamina;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float StaminaRegenRate;
+	UPROPERTY()
+		class UHUDOverlay* PlayerHUDOverlay; 
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+		class TSubclassOf<UHUDOverlay> HUDOverlayClass;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
@@ -115,4 +121,8 @@ public:
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 
+	FORCEINLINE float GetHP() { return HP; }
+	FORCEINLINE float GetMaxHP() { return MaxHP; }
+	FORCEINLINE float GetStamina() { return Stamina; }
+	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
 };

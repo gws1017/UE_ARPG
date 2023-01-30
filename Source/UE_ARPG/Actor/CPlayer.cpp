@@ -2,6 +2,7 @@
 #include "Actor/Weapon.h"
 #include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
+#include "UI/HUDOverlay.h"
 #include "Global.h"
 
 #include "GameFramework/SpringArmComponent.h"
@@ -12,7 +13,7 @@
 
 ACPlayer::ACPlayer()
 	: MaxHP(15), HP(15),
-	MaxStamina(50), Stamina(50), StaminaRegenRate(20.f),
+	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
 	MovementStatus(EMovementStatus::EMS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -34,6 +35,9 @@ ACPlayer::ACPlayer()
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Character/Animation/ABP_Player.ABP_Player_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
 
+	UHelpers::GetClass(&HUDOverlayClass, "WidgetBlueprint'/Game/Character/UI/BP_HUDOverlay.BP_HUDOverlay_C'");
+	PlayerHUDOverlay = Cast<UHUDOverlay>(CreateWidget(GetWorld(), HUDOverlayClass));
+
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit2_Montage.Hit2_Montage'");
 
@@ -50,6 +54,9 @@ void ACPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
+
+	if(!!PlayerHUDOverlay)
+		PlayerHUDOverlay->AddToViewport();
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -79,14 +86,12 @@ void ACPlayer::UpdateStamina(float DeltaStamina)
 		{
 			OffRunning();
 		}
-		CLog::Print(Stamina, 1, 2.f);
 		return;
 	}
 	
 	Stamina += DeltaStamina;
 
 	Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
-	CLog::Print(Stamina,1,2.f);
 	return;
 }
 
@@ -231,7 +236,9 @@ bool ACPlayer::CanAttack()
 	case EMovementStatus::EMS_Hit:
 		return false;
 	default:
-		return true;
+		if (GetWeapon()->GetStaminaCost() < Stamina)
+			return true;
+		else return false;
 
 	}
 }
