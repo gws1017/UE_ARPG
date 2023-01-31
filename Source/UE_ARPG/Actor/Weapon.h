@@ -34,8 +34,6 @@ protected:
 		class UAnimMontage* DrawMontage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		class UAnimMontage* SheathMontage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		class UAnimMontage* AttackMontage;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		FName WeaponSocket = "SwordSocket";
@@ -63,16 +61,12 @@ public:
 public:
 	virtual void Equip();
 	virtual void UnEquip();
-	virtual void Attack();
 
 	virtual void Begin_Equip();
 	virtual void End_Equip();
 
 	virtual void Begin_UnEquip();
 	virtual void End_UnEquip();
-
-	virtual void Begin_Attack();
-	virtual void End_Attack();
 
 	virtual void Begin_Collision();
 	virtual void End_Collision();
@@ -88,11 +82,11 @@ public:
 
 	FORCEINLINE bool GetEquipped() { return bEquipped; }
 	FORCEINLINE bool GetEquipping() { return bEquipping; }
-	FORCEINLINE bool GetAttacking() { return bAttacking; }
 
 	FORCEINLINE float GetDamage() { return Damage; }
 	FORCEINLINE float GetStaminaCost() { return StaminaCost; }
 
+	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
 
@@ -101,6 +95,5 @@ protected:
 
 	bool bEquipped;
 	bool bEquipping;
-	bool bAttacking;
 
 };

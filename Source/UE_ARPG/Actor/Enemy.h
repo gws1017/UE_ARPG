@@ -26,7 +26,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		class ACPlayer* CombatTarget;
-	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+	UPROPERTY(VisibleAnyWhere, Category = "AI")
 		class AEnemyController* AIController;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "AI")
 		class USphereComponent* AgroSphere;
@@ -47,6 +47,8 @@ protected:
 	float AlertDuration = 3.0f;
 	FTimerHandle DeathTimer;
 	float DeathDelay = 3.0f;
+
+	bool bAttacking = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -97,6 +99,10 @@ public:
 
 	virtual bool Alive() override;
 	virtual void DeathEnd() override;
+
+	virtual void Begin_Attack();
+	virtual void End_Attack();
+
 protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")

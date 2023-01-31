@@ -10,8 +10,6 @@ ASkeletonSword::ASkeletonSword()
 	UHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Weapon/Mesh/Skeleton_Sword_Mesh.Skeleton_Sword_Mesh'");
 	Mesh->SetSkeletalMesh(mesh);
 
-	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Attack_Montage.SM_Attack_Montage'");
-
 	WeaponCollision->SetRelativeLocation(FVector(45, -4, 0));
 	WeaponCollision->SetRelativeScale3D(FVector(1.1, 0.25, 0.05));
 

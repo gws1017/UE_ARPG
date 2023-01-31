@@ -1,4 +1,5 @@
 #include "Actor/CPlayer.h"
+#include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
 #include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
@@ -9,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 
 ACPlayer::ACPlayer()
@@ -40,6 +42,8 @@ ACPlayer::ACPlayer()
 
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit2_Montage.Hit2_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&Attack1Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack1_Montage.Sword_Attack1_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&Attack2Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack2_Montage.Sword_Attack2_Montage'");
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -54,7 +58,7 @@ void ACPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
-
+	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::WeaponBeginOverlap);
 	if(!!PlayerHUDOverlay)
 		PlayerHUDOverlay->AddToViewport();
 }
@@ -78,7 +82,7 @@ void ACPlayer::UpdateStamina(float DeltaStamina)
 	CheckTrue(MovementStatus == EMovementStatus::EMS_Dead); //죽었을 때 종료
 	CheckTrue((Stamina == MaxStamina) && (MovementStatus != EMovementStatus::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
 
-	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+	if (MovementStatus == EMovementStatus::EMS_Sprinting && FMath::IsNearlyZero(GetVelocity().Length()) == false)
 	{
 		Stamina -= DeltaStamina;
 		Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
@@ -115,6 +119,19 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ACPlayer::DecrementStamina(float Amount)
 {
 	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
+}
+
+void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AEnemy* enemy = Cast<AEnemy>(OtherActor);
+	if (!!enemy)
+	{
+		//피격 이펙트 및 사운드 추가부분
+		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
+		enemy->Hit();
+		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
+
+	}
 }
 
 void ACPlayer::OnMoveForward(float Axis)
@@ -182,8 +199,42 @@ void ACPlayer::OnAttack()
 {
 	if (CanAttack())
 	{
-		Weapon->Attack();
+		if (bAttacking == true)
+		{
+			bSaveAttack = true;
+		}
+		else
+		{
+			bAttacking = true;
+			PlayAttackMontage();
+		}
 	}
+}
+
+void ACPlayer::PlayAttackMontage()
+{
+		CLog::Print("AttackMontage");
+		switch (AttackCount)
+		{
+		case 0:
+			AttackCount = 1;
+			PlayAnimMontage(Attack1Montage);
+			break;
+		case 1:
+			AttackCount = 0;
+			PlayAnimMontage(Attack2Montage);
+			break;
+		}
+		DecrementStamina(Weapon->GetStaminaCost());
+}
+
+void ACPlayer::Begin_Attack()
+{
+}
+
+void ACPlayer::End_Attack()
+{
+	//Notify로 호출
 }
 
 void ACPlayer::Die()
@@ -215,7 +266,6 @@ void ACPlayer::Hit()
 {
 	CheckFalse(Alive());
 
-	CLog::Print("Player hit Start!");
 	SetMovementStatus(EMovementStatus::EMS_Hit);
 	PlayAnimMontage(HitMontage);
 	bHit = true;
@@ -223,13 +273,14 @@ void ACPlayer::Hit()
 
 void ACPlayer::HitEnd()
 {
-	CLog::Print("Player hit End!");
 	SetMovementStatus(EMovementStatus::EMS_Normal);
 	bHit = false;
 }
 
 bool ACPlayer::CanAttack()
 {
+	CheckFalseResult(Weapon->GetEquipped(),false);
+	CheckTrueResult(Weapon->GetEquipping(),false);
 	switch (MovementStatus)
 	{
 	case EMovementStatus::EMS_Dead:
@@ -240,6 +291,23 @@ bool ACPlayer::CanAttack()
 			return true;
 		else return false;
 
+	}
+}
+
+void ACPlayer::ResetCombo()
+{
+		CLog::Print("Reset Comob");
+		AttackCount = 0;
+		bAttacking = false;
+		bSaveAttack = false;
+}
+
+void ACPlayer::ComboAttackSave()
+{
+	if (bSaveAttack)
+	{
+		bSaveAttack = false;
+		PlayAttackMontage();
 	}
 }
 

@@ -5,6 +5,7 @@
 #include "Actor/SkeletonSword.h"
 #include "Global.h"
 
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -28,7 +29,8 @@ AEnemySkeletonMelee::AEnemySkeletonMelee()
 
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Death_Montage.SM_Death_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Hit_Montage.SM_Hit_Montage'");
-	
+	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Enemy/SkeletonMelee/Montage/SM_Attack_Montage.SM_Attack_Montage'");
+
 	MaxHP = 15;
 	HP = MaxHP;
 	
@@ -39,8 +41,8 @@ AEnemySkeletonMelee::AEnemySkeletonMelee()
 void AEnemySkeletonMelee::BeginPlay()
 {
 	Super::BeginPlay();
-
 	Weapon = AWeapon::Spawn<ASkeletonSword>(GetWorld(), this);
+	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &AEnemySkeletonMelee::WeaponBeginOverlap);
 
 }
 
@@ -89,6 +91,7 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapBegin(UPrimitiveComponent* Overla
 			else if(player->Alive() == true)
 			{
 				Attack();
+				PlayAnimMontage(AttackMontage);
 				SetAttackTimer();
 			}
 			
@@ -112,5 +115,18 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapEnd(UPrimitiveComponent* Overlapp
 
 			}
 		}
+	}
+}
+
+void AEnemySkeletonMelee::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACPlayer* player = Cast<ACPlayer>(OtherActor);
+	if (!!player)
+	{
+		//피격 이펙트 및 사운드 추가부분
+		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
+		player->Hit();
+		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
+
 	}
 }

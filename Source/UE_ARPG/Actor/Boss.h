@@ -81,8 +81,8 @@ public:
 	void End_Collision(FString name);
 
 
-	void Begin_Attack();
-	void End_Attack();
+	virtual void Begin_Attack() override;
+	virtual void End_Attack() override;
 
 	UFUNCTION(BlueprintCallable)
 		virtual void Attack() override;

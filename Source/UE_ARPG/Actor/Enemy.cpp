@@ -6,7 +6,7 @@
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
-//#include "AIController.h"
+#include "AIController.h"
 
 AEnemy::AEnemy()
 	: MaxHP(1),HP(1)
@@ -18,13 +18,13 @@ AEnemy::AEnemy()
 	
 	AIControllerClass = AEnemyController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 }
 
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AIController = Cast<AEnemyController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
 	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapEnd);
@@ -76,17 +76,17 @@ void AEnemy::Attack()
 {
 	CheckFalse(Alive());
 	CheckFalse(bAlerted);
+	CheckTrue(bAttacking);
 	CheckNull(CombatTarget);
+
+	bAttacking = true;
 
 	if (AIController)
 	{
 		AIController->StopMovement();
 	}
-	if (!!Weapon)
-	{
-		Weapon->Attack();
-	}
 }
+	
 
 void AEnemy::Hit()
 {
@@ -157,4 +157,13 @@ void AEnemy::DeathEnd()
 	
 	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::Disappear, DeathDelay);
 }
+void AEnemy::Begin_Attack()
+{
+}
 
+void AEnemy::End_Attack()
+{
+	//Notify∑Œ »£√‚
+	bAttacking = false;
+	SetAttackTimer();
+}

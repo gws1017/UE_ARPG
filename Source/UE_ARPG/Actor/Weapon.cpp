@@ -29,7 +29,6 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::ComponentBeginOverlap);
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -75,23 +74,6 @@ void AWeapon::End_UnEquip()
 	bEquipping = false;
 }
 
-void AWeapon::Begin_Attack()
-{
-}
-
-void AWeapon::End_Attack()
-{
-	//Notify로 호출
-	bAttacking = false;
-
-	//Enemy의 경우에만 해준다
-	AEnemy* enemy = Cast<AEnemy>(OwnerCharacter);
-	if (!!enemy)
-	{
-		enemy->SetAttackTimer();
-	}
-}
-
 void AWeapon::Begin_Collision()
 {
 	ActivateCollision();
@@ -104,7 +86,6 @@ void AWeapon::End_Collision()
 
 void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
 	if (!!OtherActor)
 	{
 		IICharacter* other = Cast<IICharacter>(OtherActor);
@@ -116,23 +97,6 @@ void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, WeaponInstigator, this, DamageTypeClass);
 
 	}
-
-}
-
-void AWeapon::Attack()
-{
-	CheckFalse(bEquipped);
-	CheckTrue(bEquipping); //장착/탈착 중에는 공격할 수 없다
-	CheckTrue(bAttacking);
-	
-	bAttacking = true;
-
-	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
-	if (!!player)
-	{
-		player->DecrementStamina(StaminaCost);
-	}
-	OwnerCharacter->PlayAnimMontage(AttackMontage);
 
 }
 

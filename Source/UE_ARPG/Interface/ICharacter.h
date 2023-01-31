@@ -23,4 +23,7 @@ public:
 	virtual void Hit() = 0;
 
 	virtual void DeathEnd() = 0;
+
+	virtual void Begin_Attack() = 0;
+	virtual void End_Attack() = 0;
 };

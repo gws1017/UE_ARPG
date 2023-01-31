@@ -18,17 +18,8 @@ void UCAnimNotifyState_Attack::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	AWeapon* weapon = owner->GetWeapon();
-
-	if(!!weapon)
-		weapon->Begin_Attack();
-	else
-	{
-		ABoss* boss = Cast<ABoss>(owner);
-		CheckNull(boss);
-
-		boss->Begin_Attack();
-	}
+	owner->Begin_Attack();
+	
 }
 
 
@@ -40,15 +31,6 @@ void UCAnimNotifyState_Attack::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnim
 	IICharacter* owner = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(owner);
 
-	AWeapon* weapon = owner->GetWeapon();
-	if (!!weapon)
-		weapon->End_Attack();
-	else 
-	{
-		ABoss* boss = Cast<ABoss>(owner);
-		CheckNull(boss);
-
-		boss->End_Attack();
-	}
+	owner->End_Attack();
 
 }

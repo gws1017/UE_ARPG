@@ -44,6 +44,10 @@ protected:
 		float Stamina;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float StaminaRegenRate;
+
+	UPROPERTY(VisibleAnywhere)
+		int32 AttackCount;
+
 	UPROPERTY()
 		class UHUDOverlay* PlayerHUDOverlay; 
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
@@ -58,6 +62,10 @@ protected:
 		class UAnimMontage* DeathMontage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* HitMontage;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
+		class UAnimMontage* Attack1Montage;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
+		class UAnimMontage* Attack2Montage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementStatus MovementStatus;
@@ -67,6 +75,13 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 		bool bHit = false;
+
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+		bool bSaveAttack = false;
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+		bool bAttacking = false;
+
+	bool bRunning = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -92,6 +107,7 @@ private:
 	void ReadyWeapon();
 	void OnAttack();
 
+
 	void Die();
 
 public:
@@ -104,11 +120,21 @@ public:
 
 	bool CanAttack();
 
+	virtual void Begin_Attack()override;
+	virtual void End_Attack()override;
+
+	void PlayAttackMontage();
+	void ResetCombo();
+	void ComboAttackSave();
+
 public:
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	UFUNCTION()
 		void DecrementStamina(float Amount);
+	UFUNCTION()
+		void WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
