@@ -213,7 +213,6 @@ void ACPlayer::OnAttack()
 
 void ACPlayer::PlayAttackMontage()
 {
-		CLog::Print("AttackMontage");
 		switch (AttackCount)
 		{
 		case 0:
@@ -265,7 +264,7 @@ bool ACPlayer::Alive()
 void ACPlayer::Hit()
 {
 	CheckFalse(Alive());
-
+	ResetCombo();
 	SetMovementStatus(EMovementStatus::EMS_Hit);
 	PlayAnimMontage(HitMontage);
 	bHit = true;
@@ -296,7 +295,7 @@ bool ACPlayer::CanAttack()
 
 void ACPlayer::ResetCombo()
 {
-		CLog::Print("Reset Comob");
+		CLog::Log("Reset Comob");
 		AttackCount = 0;
 		bAttacking = false;
 		bSaveAttack = false;
