@@ -4,6 +4,7 @@
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 
 
@@ -22,7 +23,7 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CheckNull(OwnerCharacter);
 
 	Speed = OwnerCharacter->GetVelocity().Size2D();
-
+	if (OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed <= 0.f) Speed = 0.f;
 	Direction = UKismetAnimationLibrary::CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
 
 	//캐릭터 공통사항

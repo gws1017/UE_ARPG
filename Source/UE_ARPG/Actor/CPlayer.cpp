@@ -217,11 +217,11 @@ void ACPlayer::PlayAttackMontage()
 		{
 		case 0:
 			AttackCount = 1;
-			PlayAnimMontage(Attack1Montage);
+			PlayAnimMontage(DeathMontage);
 			break;
 		case 1:
 			AttackCount = 0;
-			PlayAnimMontage(Attack2Montage);
+			PlayAnimMontage(DeathMontage);
 			break;
 		}
 		DecrementStamina(Weapon->GetStaminaCost());
@@ -239,7 +239,7 @@ void ACPlayer::End_Attack()
 void ACPlayer::Die()
 {
 	if (bHitMovement == true ) bHitMovement = false;
-	SetMovementStatus(EMovementStatus::EMS_Dead);
+	
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -252,6 +252,7 @@ void ACPlayer::DeathEnd()
 {
 	GetMesh()->bPauseAnims = true;
 	GetMesh()->bNoSkeletonUpdate = true;
+
 }
 
 bool ACPlayer::Alive()
@@ -318,6 +319,8 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		SetMovementStatus(EMovementStatus::EMS_Dead);
 		Die();
 	}
 	else //일반적인 데미지 계산
