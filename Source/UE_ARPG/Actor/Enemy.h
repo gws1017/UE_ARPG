@@ -34,7 +34,7 @@ protected:
 		class USphereComponent* CombatSphere;
 	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
 		bool bAlerted;
-	UPROPERTY(VisibleDefaultsOnly, Category = "AI")
+	UPROPERTY(VisibleAnywhere, Category = "AI")
 		bool bRanged;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
@@ -81,6 +81,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
+	
+	FVector GetTargetLocation() const;
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetCurrentHP() { return HP; }

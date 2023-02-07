@@ -1,5 +1,6 @@
 #include "Actor/Enemy.h"
 #include "Actor/Weapon.h"
+#include "Actor/CPlayer.h"
 #include "AI/Controller/EnemyController.h"
 #include "Global.h"
 
@@ -65,6 +66,12 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
+ FVector AEnemy::GetTargetLocation() const
+{
+	CheckNullResult(CombatTarget,GetActorForwardVector());
+	return CombatTarget->GetActorLocation();
+}
+
 void AEnemy::SetAttackTimer()
 {
 	float AttackTime = FMath::FRandRange(0.5, 2.5);
@@ -78,6 +85,7 @@ void AEnemy::Attack()
 	CheckFalse(bAlerted);
 	CheckTrue(bAttacking);
 	CheckNull(CombatTarget);
+	CheckFalse(CombatTarget->Alive());
 
 	bAttacking = true;
 
@@ -138,6 +146,8 @@ void AEnemy::MoveToSpawnLocation()
 		GetWorldTimerManager().SetTimer(AlertTimer, this, &AEnemy::AlertEnd, AlertDuration);
 	}
 }
+
+
 
 void AEnemy::AlertEnd()
 {

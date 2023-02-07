@@ -107,7 +107,6 @@ void ABoss::Begin_Collision(FString name)
 void ABoss::End_Collision(FString name)
 {
 	GetCollision(name)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CLog::Print("End_Collsion " + name);
 	bDamaged = false;
 
 }
@@ -220,14 +219,8 @@ void ABoss::End_Attack()
 
 void ABoss::Attack()
 {
-	CheckNull(CombatTarget);
-	CheckFalse(CombatTarget->Alive());
-	CheckTrue(bAttacking);
 	CheckFalse(bRanged);
-
 	AEnemy::Attack();
-
-	bAttacking = true;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!!AnimInstance)
@@ -334,7 +327,6 @@ void ABoss::AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	{
 
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		CLog::Print("player attack a & b");
 		if (!!player && bDamaged == false)
 		{
 			//피격 이펙트 및 사운드 추가부분
