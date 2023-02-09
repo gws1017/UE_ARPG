@@ -66,7 +66,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
- FVector AEnemy::GetTargetLocation() const
+ FVector AEnemy::GetCombatTargetLocation() const
 {
 	CheckNullResult(CombatTarget,GetActorForwardVector());
 	return CombatTarget->GetActorLocation();

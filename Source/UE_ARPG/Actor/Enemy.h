@@ -82,7 +82,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
 	
-	FVector GetTargetLocation() const;
+	FVector GetCombatTargetLocation() const;
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetCurrentHP() { return HP; }
