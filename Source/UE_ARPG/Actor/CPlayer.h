@@ -151,4 +151,6 @@ public:
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
 	FORCEINLINE float GetStamina() { return Stamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
+	
+	FORCEINLINE bool IsHit() { return bHit; }
 };

@@ -17,6 +17,7 @@ ABoss::ABoss() :
 	GetMesh()->SetSkeletalMesh(mesh);
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -140));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	TSubclassOf<UAnimInstance> anim;
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Enemy/BossBear/Animation/ABP_Bear.ABP_Bear_C'");
@@ -111,27 +112,47 @@ void ABoss::End_Collision(FString name)
 
 }
 
-//플레이어가 범위안에있을때 한번만 처리
 void ABoss::AttackC()
 {
-	FVector start = GetActorForwardVector();
-	FVector loc = GetActorLocation();
-	loc.Z = 0;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	EObjectTypeQuery Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	ObjectTypes.Add(Pawn);
 
-	if (!!CombatTarget) {
-		FVector target = CombatTarget->GetActorLocation();
-		FRotator rot = UKismetMathLibrary::FindLookAtRotation(start, target);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, loc, FVector(1, 1, 1)));
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this); //자기자신은 충돌검사 X
 
-		CheckFalse(bCanAttackC);
-		CombatTarget->Hit();
-		UGameplayStatics::ApplyDamage(CombatTarget, DamageC, WeaponInstigator, this, DamageTypeClass);
+	TArray<FHitResult> HitResults;
+
+	FVector ActorLocation2D = GetActorLocation();
+	ActorLocation2D.Z = 0;
+	FVector start = ActorLocation2D + GetActorForwardVector() * 100.f;
+	FVector end = start + GetActorForwardVector() * 100.f;
+	FVector TargetLocation = FVector::ZeroVector;
+
+	bool result = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), start, end, 100.f,
+		ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true);
+
+	TArray<AActor*> UniqueHitActors;
+
+	CheckFalse(result);
+	for (auto hitresult : HitResults)
+		UniqueHitActors.AddUnique(hitresult.GetActor());
+
+	for (auto hitresult : UniqueHitActors)
+	{
+		//CLog::Log(hitresult->GetName());
+		ACPlayer* player = Cast<ACPlayer>(hitresult);
+		if (!!player)
+		{
+			if (player->IsHit() == false)
+				UGameplayStatics::ApplyDamage(player, DamageC, WeaponInstigator, this, DamageTypeClass);
+			player->Hit();
+			TargetLocation = player->GetActorLocation();
+		}
 	}
-	else {
-		FRotator rot = UKismetMathLibrary::FindLookAtRotation(FVector::Zero(), start);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, loc, FVector(1, 1, 1)));
-	}
-	
+
+	FRotator rot = UKismetMathLibrary::FindLookAtRotation(TargetLocation, start);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, start, FVector(1, 1, 1)));
 
 }
 
@@ -178,7 +199,6 @@ void ABoss::AttackDropDownBegin()
 
 	CheckNull(CombatTarget);
 
-	//UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(),)
 	if (bRangedAtkJump)
 	{
 		FVector target_location = CombatTarget->GetActorLocation();
@@ -197,7 +217,7 @@ void ABoss::AttackDropDownEnd()
 	if (bRangedAtkJump && bDamaged == false)
 	{
 		bDamaged = true;
-		CLog::Print("player attack drop down");
+		//CLog::Print("player attack drop down");
 		CombatTarget->Hit();
 		UGameplayStatics::ApplyDamage(CombatTarget, DamageD, WeaponInstigator, this, DamageTypeClass);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, GetActorLocation(), FRotator::ZeroRotator);
@@ -258,10 +278,10 @@ void ABoss::SelectAttack(int32& num)
 	switch (BossPhase)
 	{
 	case 1:
-		num = FMath::RandRange(0, 2);
+		num = 2;//FMath::RandRange(0, 2);
 		break;
 	case 2:
-		num = FMath::RandRange(0, 4);
+		num = FMath::RandRange(0, SectionList.Num()-1);
 		break;
 	}
 
