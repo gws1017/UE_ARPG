@@ -217,11 +217,11 @@ void ACPlayer::PlayAttackMontage()
 		{
 		case 0:
 			AttackCount = 1;
-			PlayAnimMontage(DeathMontage);
+			PlayAnimMontage(Attack1Montage);
 			break;
 		case 1:
 			AttackCount = 0;
-			PlayAnimMontage(DeathMontage);
+			PlayAnimMontage(Attack2Montage);
 			break;
 		}
 		DecrementStamina(Weapon->GetStaminaCost());

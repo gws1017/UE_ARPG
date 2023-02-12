@@ -19,9 +19,7 @@ protected:
 		class UCapsuleComponent* LWeaponCollision;
 	UPROPERTY(EditAnyWhere, Category = "Boss | AI") //For No Weapon Enemy
 		class UCapsuleComponent* RWeaponCollision;
-	
-	UPROPERTY(EditDefaultsOnly, Category = " Boss | AI")
-		class USphereComponent* AtkCSphere;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
 		class USphereComponent* RangedAtkSphere; 
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
@@ -64,6 +62,7 @@ protected:
 
 	FTimerHandle JumpDownTimer;
 
+	int32 AttackNumber = 0;
 public:
 	ABoss();
 
@@ -86,6 +85,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		virtual void Attack() override;
+
+	UFUNCTION()
+		virtual bool IsHitActorRangedAttack(const FVector& start, const FVector& end,
+		float radius, TArray<AActor*>& UniqueHitActors);
 
 	UFUNCTION(BlueprintCallable)
 		void AttackC();
@@ -116,11 +119,6 @@ public:
 	UFUNCTION()
 		void AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
-	UFUNCTION()
-		void AttackCBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void AttackCEndnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 private:
 	
 	UPROPERTY(VisibleAnywhere)

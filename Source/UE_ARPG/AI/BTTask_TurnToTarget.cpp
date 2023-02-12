@@ -20,6 +20,7 @@ EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	FRotator rot = UKismetMathLibrary::FindLookAtRotation(ControlledPawn->GetActorLocation(),
 		ControlledPawn->GetCombatTargetLocation());
+	rot.Pitch = 0.f;
 	ControlledPawn->SetActorRotation(rot);
 
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
