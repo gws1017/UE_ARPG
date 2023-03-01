@@ -6,13 +6,22 @@
 #include "CPlayer.generated.h"
 
 UENUM(BlueprintType)
-enum class EMovementStatus : uint8
+enum class EMovementState : uint8
 {
 	EMS_Normal UMETA(DisplayName = "Normal"),
 	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
 	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+
+};
+
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	EPS_Normal UMETA(DisplayName = "Normal"),
+	EPS_Invincible UMETA(DisplayName = "Invincible"),
+	EPS_MAX UMETA(DisplayName = "DefaultMAX")
 
 };
 
@@ -66,12 +75,13 @@ protected:
 		class UAnimMontage* Attack1Montage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* Attack2Montage;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
+		class UAnimMontage* RollMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
-		EMovementStatus MovementStatus;
-
-	UPROPERTY(EditAnywhere, Category = "Animation")
-		bool bHitMovement = false;
+		EMovementState MovementState;
+	UPROPERTY(VisibleAnywhere, Category = "Enums")
+		EPlayerState PlayerStat;
 	
 	UPROPERTY(VisibleAnywhere)
 		bool bHit = false;
@@ -82,6 +92,8 @@ protected:
 		bool bAttacking = false;
 
 	bool bRunning = false;
+
+	TMap<FString, float> StaminaTable;
 
 protected:
 	virtual void BeginPlay() override;
@@ -106,6 +118,7 @@ private:
 	void OffRunning();
 	void ReadyWeapon();
 	void OnAttack();
+	void OnRoll();
 
 
 	void Die();
@@ -143,7 +156,8 @@ private:
 
 public:
 
-	FORCEINLINE void SetMovementStatus(EMovementStatus Status) { MovementStatus = Status; }
+	FORCEINLINE void SetPlayerState(EPlayerState state) { PlayerStat = state; }
+	FORCEINLINE void SetMovementState(EMovementState state) { MovementState = state; }
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 
@@ -153,4 +167,5 @@ public:
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
 	
 	FORCEINLINE bool IsHit() { return bHit; }
+	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerState::EPS_Invincible; }
 };

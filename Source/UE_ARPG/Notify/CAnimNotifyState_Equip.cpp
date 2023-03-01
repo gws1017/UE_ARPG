@@ -15,7 +15,7 @@ void UCAnimNotifyState_Equip::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 
 	IICharacter* player = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(player);
-
+	CheckNull(player->GetWeapon());
 	player->GetWeapon()->Begin_Equip();
 }
 
@@ -26,6 +26,7 @@ void UCAnimNotifyState_Equip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 
 	IICharacter* player = Cast<IICharacter>(MeshComp->GetOwner());
 	CheckNull(player);
+	CheckNull(player->GetWeapon());
 
 	player->GetWeapon()->End_Equip();
 }

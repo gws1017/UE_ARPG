@@ -16,7 +16,7 @@
 ACPlayer::ACPlayer()
 	: MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
-	MovementStatus(EMovementStatus::EMS_Normal)
+	PlayerStat(EPlayerState::EPS_Normal),MovementState(EMovementState::EMS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -44,6 +44,7 @@ ACPlayer::ACPlayer()
 	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit2_Montage.Hit2_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&Attack1Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack1_Montage.Sword_Attack1_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&Attack2Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack2_Montage.Sword_Attack2_Montage'");
+	UHelpers::GetAsset<UAnimMontage>(&RollMontage, "AnimMontage'/Game/Character/Montage/Roll_Montage.Roll_Montage'");
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -66,12 +67,6 @@ void ACPlayer::BeginPlay()
 void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//정확한 위치를 찾아내기가 쉽지않다
-	if (bHitMovement && bHit){
-		auto delta_loc = -GetActorForwardVector() * GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
-		SetActorLocation(GetActorLocation() + delta_loc);
-	}
 	
 	float DeltaStamina = StaminaRegenRate * DeltaTime;
 	UpdateStamina(DeltaStamina);
@@ -79,10 +74,10 @@ void ACPlayer::Tick(float DeltaTime)
 
 void ACPlayer::UpdateStamina(float DeltaStamina)
 {
-	CheckTrue(MovementStatus == EMovementStatus::EMS_Dead); //죽었을 때 종료
-	CheckTrue((Stamina == MaxStamina) && (MovementStatus != EMovementStatus::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
+	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
+	CheckTrue((Stamina == MaxStamina) && (MovementState != EMovementState::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
 
-	if (MovementStatus == EMovementStatus::EMS_Sprinting && FMath::IsNearlyZero(GetVelocity().Length()) == false)
+	if (MovementState == EMovementState::EMS_Sprinting && FMath::IsNearlyZero(GetVelocity().Length()) == false)
 	{
 		Stamina -= DeltaStamina;
 		Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
@@ -114,6 +109,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("ReadyWeapon", EInputEvent::IE_Pressed, this, &ACPlayer::ReadyWeapon);
 
 	PlayerInputComponent->BindAction("Attack", EInputEvent::IE_Pressed, this, &ACPlayer::OnAttack);
+
+	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ACPlayer::OnRoll);
 }
 
 void ACPlayer::DecrementStamina(float Amount)
@@ -167,17 +164,26 @@ void ACPlayer::OnVerticalLock(float Axis)
 	AddControllerPitchInput(Axis);
 }
 
+void ACPlayer::OnRoll()
+{
+	//구르는 도중 달리기 공격을 어떻게 막을것인가?
+	if (Alive()) {
+		PlayAnimMontage(RollMontage);
+		DecrementStamina(10.f);
+	}
+}
+
 void ACPlayer::OnRunning()
 {
 	if (Alive()) {
-		SetMovementStatus(EMovementStatus::EMS_Sprinting);
+		SetMovementState(EMovementState::EMS_Sprinting);
 		GetCharacterMovement()->MaxWalkSpeed = 400;
 	}
 }
 
 void ACPlayer::OffRunning()
 {
-	SetMovementStatus(EMovementStatus::EMS_Normal);
+	SetMovementState(EMovementState::EMS_Normal);
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
@@ -238,7 +244,6 @@ void ACPlayer::End_Attack()
 
 void ACPlayer::Die()
 {
-	if (bHitMovement == true ) bHitMovement = false;
 	
 	PlayAnimMontage(DeathMontage);
 
@@ -257,7 +262,7 @@ void ACPlayer::DeathEnd()
 
 bool ACPlayer::Alive()
 {
-	if (MovementStatus != EMovementStatus::EMS_Dead)
+	if (MovementState != EMovementState::EMS_Dead)
 		return true;
 	else return false;
 }
@@ -266,14 +271,14 @@ void ACPlayer::Hit()
 {
 	CheckFalse(Alive());
 	ResetCombo();
-	SetMovementStatus(EMovementStatus::EMS_Hit);
+	SetMovementState(EMovementState::EMS_Hit);
 	PlayAnimMontage(HitMontage);
 	bHit = true;
 }
 
 void ACPlayer::HitEnd()
 {
-	SetMovementStatus(EMovementStatus::EMS_Normal);
+	SetMovementState(EMovementState::EMS_Normal);
 	bHit = false;
 }
 
@@ -281,10 +286,10 @@ bool ACPlayer::CanAttack()
 {
 	CheckFalseResult(Weapon->GetEquipped(),false);
 	CheckTrueResult(Weapon->GetEquipping(),false);
-	switch (MovementStatus)
+	switch (MovementState)
 	{
-	case EMovementStatus::EMS_Dead:
-	case EMovementStatus::EMS_Hit:
+	case EMovementState::EMS_Dead:
+	case EMovementState::EMS_Hit:
 		return false;
 	default:
 		if (GetWeapon()->GetStaminaCost() < Stamina)
@@ -313,14 +318,14 @@ void ACPlayer::ComboAttackSave()
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageAmount <= 0.f)
+	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible != PlayerStat)
 		return DamageAmount;
 
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
 		GetCharacterMovement()->MaxWalkSpeed = 0.f;
-		SetMovementStatus(EMovementStatus::EMS_Dead);
+		SetMovementState(EMovementState::EMS_Dead);
 		Die();
 	}
 	else //일반적인 데미지 계산
