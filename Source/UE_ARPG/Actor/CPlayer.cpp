@@ -16,7 +16,8 @@
 ACPlayer::ACPlayer()
 	: MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
-	PlayerStat(EPlayerState::EPS_Normal),MovementState(EMovementState::EMS_Normal)
+	RollStamina(10.f),
+	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -167,9 +168,10 @@ void ACPlayer::OnVerticalLock(float Axis)
 void ACPlayer::OnRoll()
 {
 	//구르는 도중 달리기 공격을 어떻게 막을것인가?
-	if (Alive()) {
+	if (CanRoll()) {
 		PlayAnimMontage(RollMontage);
-		DecrementStamina(10.f);
+		DecrementStamina(RollStamina);
+		
 	}
 }
 
@@ -242,6 +244,8 @@ void ACPlayer::End_Attack()
 	//Notify로 호출
 }
 
+
+
 void ACPlayer::Die()
 {
 	
@@ -290,9 +294,28 @@ bool ACPlayer::CanAttack()
 	{
 	case EMovementState::EMS_Dead:
 	case EMovementState::EMS_Hit:
+	case EMovementState::EMS_Roll:
 		return false;
 	default:
 		if (GetWeapon()->GetStaminaCost() < Stamina)
+			return true;
+		else return false;
+
+	}
+}
+
+bool ACPlayer::CanRoll()
+{
+	CheckTrueResult(bAttacking,false);
+
+	switch (MovementState)
+	{
+	case EMovementState::EMS_Dead:
+	case EMovementState::EMS_Hit:
+	case EMovementState::EMS_Roll:
+		return false;
+	default:
+		if (Stamina - RollStamina > 0)
 			return true;
 		else return false;
 

@@ -12,6 +12,7 @@ enum class EMovementState : uint8
 	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
 	EMS_Hit UMETA(DisplayName = "Hit"),
 	EMS_Dead UMETA(DisplayName = "Dead"),
+	EMS_Roll UMETA(DisplayName = "Roll"),
 	EMS_MAX UMETA(DisplayName = "DefaultMAX")
 
 };
@@ -54,6 +55,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float StaminaRegenRate;
 
+	float RollStamina;
+
 	UPROPERTY(VisibleAnywhere)
 		int32 AttackCount;
 
@@ -92,6 +95,8 @@ protected:
 		bool bAttacking = false;
 
 	bool bRunning = false;
+
+	bool bBlending = false;
 
 	TMap<FString, float> StaminaTable;
 
@@ -132,6 +137,7 @@ public:
 	virtual void HitEnd();
 
 	bool CanAttack();
+	bool CanRoll();
 
 	virtual void Begin_Attack()override;
 	virtual void End_Attack()override;
@@ -168,4 +174,6 @@ public:
 	
 	FORCEINLINE bool IsHit() { return bHit; }
 	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerState::EPS_Invincible; }
+	FORCEINLINE void SetBlending(bool value) { bBlending = value; }
+	FORCEINLINE bool IsBlending() { return bBlending; }
 };

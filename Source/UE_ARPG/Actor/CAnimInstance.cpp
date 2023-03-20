@@ -1,12 +1,12 @@
 #include "Actor/CAnimInstance.h"
 #include "Actor/Weapon.h"
 #include "Actor/Enemy.h"
+#include "Actor/CPlayer.h"
 #include "Interface/ICharacter.h"
 #include "Global.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
-
 
 void UCAnimInstance::NativeBeginPlay()
 {
@@ -25,7 +25,7 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Speed = OwnerCharacter->GetVelocity().Size2D();
 	if (OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed <= 0.f) Speed = 0.f;
 	Direction = UKismetAnimationLibrary::CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
-
+	
 	//캐릭터 공통사항
 	IICharacter* owner = Cast<IICharacter>(OwnerCharacter);
 	if (!!owner)
@@ -34,6 +34,13 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if(!!weapon)
 			bEquipped = weapon->GetEquipped();
 	}
+
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (!!player)
+	{
+		bBlending = player->IsBlending();
+	}
+
 
 	//적 객체에만 있는 것
 	AEnemy* enemy = Cast<AEnemy>(OwnerCharacter);
@@ -44,4 +51,5 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	}
 
+	
 }

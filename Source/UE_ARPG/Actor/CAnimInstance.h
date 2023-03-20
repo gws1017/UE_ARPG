@@ -16,6 +16,8 @@ protected:
 		float Direction;
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
 		bool bEquipped;
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Animation")
+		bool bBlending;
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Enemy | Animation")
 		bool bAlert;
