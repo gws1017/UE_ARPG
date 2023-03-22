@@ -67,7 +67,6 @@ void AStone::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 		if (!!player)
 		{
-			player->Hit();
 			UGameplayStatics::ApplyDamage(player, Damage,NULL, this, DamageTypeClass);
 		}
 

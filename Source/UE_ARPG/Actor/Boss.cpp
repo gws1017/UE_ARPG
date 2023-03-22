@@ -145,7 +145,6 @@ void ABoss::AttackC()
 		{
 			if (player->IsHit() == false)
 				UGameplayStatics::ApplyDamage(player, DamageC, WeaponInstigator, this, DamageTypeClass);
-			player->Hit();
 			TargetLocation = player->GetActorLocation();
 		}
 	}
@@ -224,7 +223,6 @@ void ABoss::AttackDropDownEnd()
 		ACPlayer* player = Cast<ACPlayer>(HitActor);
 		if (!!player)
 		{
-			player->Hit();
 			UGameplayStatics::ApplyDamage(player, DamageD, WeaponInstigator, this, DamageTypeClass);
 		}
 
@@ -243,7 +241,6 @@ void ABoss::End_Attack()
 {
 	bAttacking = false;
 	bDamaged = false;
-	//CLog::Print("End_ ATTACK");
 }
 
 void ABoss::Attack()
@@ -301,7 +298,6 @@ void ABoss::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 		{
 			SetAlerted(true);
 			CombatTarget = player;
-			//목표를 발견하면 목표에게 다가갈것인가?
 		}
 	}
 }
@@ -315,8 +311,6 @@ void ABoss::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 		{
 			CombatTarget = nullptr;
 			bRanged = false;
-
-			//사거리밖이면 이동하자?
 		}
 	}
 }
@@ -356,7 +350,6 @@ void ABoss::AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		{
 			//피격 이펙트 및 사운드 추가부분
 			//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-			player->Hit();
 			UGameplayStatics::ApplyDamage(player, Damage, WeaponInstigator, this, DamageTypeClass);
 			bDamaged = true;
 		}

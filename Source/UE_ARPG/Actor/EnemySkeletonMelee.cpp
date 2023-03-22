@@ -12,6 +12,7 @@
 
 AEnemySkeletonMelee::AEnemySkeletonMelee()
 {
+
 	USkeletalMesh* mesh;
 	UHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Enemy/SkeletonMelee/Mesh/Corpse_Basic.Corpse_Basic'");
 	GetMesh()->SetSkeletalMesh(mesh);
@@ -81,18 +82,16 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapBegin(UPrimitiveComponent* Overla
 		{
 			CombatTarget = player;
 
-			if (player->Alive() == false)
+			if (CombatTarget->Alive())
+			{
+				Attack();
+			}
+			else
 			{
 				CLog::Print("player dead");
 				CombatTarget = nullptr;
 				GetWorldTimerManager().ClearTimer(AttackTimer);
 				return;
-			}
-			else if(player->Alive() == true)
-			{
-				Attack();
-				PlayAnimMontage(AttackMontage);
-				SetAttackTimer();
 			}
 			
 		}
@@ -125,8 +124,13 @@ void AEnemySkeletonMelee::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComp
 	{
 		//피격 이펙트 및 사운드 추가부분
 		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		player->Hit();
 		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
 
 	}
+}
+
+void AEnemySkeletonMelee::Attack()
+{
+	PlayAnimMontage(AttackMontage);
+	SetAttackTimer();
 }

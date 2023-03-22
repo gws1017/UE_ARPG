@@ -126,7 +126,6 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		//피격 이펙트 및 사운드 추가부분
 		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		enemy->Hit();
 		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
 
 	}
@@ -248,7 +247,7 @@ void ACPlayer::End_Attack()
 
 void ACPlayer::Die()
 {
-	
+	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -341,7 +340,7 @@ void ACPlayer::ComboAttackSave()
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible != PlayerStat)
+	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible == PlayerStat)
 		return DamageAmount;
 
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
@@ -355,6 +354,8 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
 	}
+
+	Hit();
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", HP);
 	return DamageAmount;
 }

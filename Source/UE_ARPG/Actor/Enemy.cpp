@@ -12,7 +12,6 @@
 AEnemy::AEnemy()
 	: MaxHP(1),HP(1)
 {
-	PrimaryActorTick.bCanEverTick = true;
 	UHelpers::CreateComponent<USphereComponent>(this,&AgroSphere, "AgroSphere",GetRootComponent());
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());
@@ -36,12 +35,6 @@ void AEnemy::BeginPlay()
 	SpawnLocation = GetActorLocation();
 }
 
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -62,6 +55,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
 	}
+	Hit();
 	UE_LOG(LogTemp, Display, L"Enemy Current HP : %f", HP);
 	return DamageAmount;
 }
@@ -75,7 +69,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 void AEnemy::SetAttackTimer()
 {
 	float AttackTime = FMath::FRandRange(0.5, 2.5);
-	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
+	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime,true);
 
 }
 
@@ -86,7 +80,7 @@ void AEnemy::Attack()
 	CheckTrue(bAttacking);
 	CheckNull(CombatTarget);
 	CheckFalse(CombatTarget->Alive());
-
+	
 	bAttacking = true;
 
 	if (AIController)
@@ -103,6 +97,7 @@ void AEnemy::Hit()
 
 void AEnemy::Die()
 {
+	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

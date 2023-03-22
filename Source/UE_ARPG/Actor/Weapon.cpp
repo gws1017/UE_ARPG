@@ -93,7 +93,6 @@ void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		CheckNull(other);
 		//피격 이펙트 및 사운드 추가부분
 		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		other->Hit();
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, WeaponInstigator, this, DamageTypeClass);
 
 	}
