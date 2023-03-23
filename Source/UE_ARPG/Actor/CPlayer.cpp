@@ -133,25 +133,25 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 void ACPlayer::OnMoveForward(float Axis)
 {
-	if (Alive())
-	{
-		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-		FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
+	CheckFalse(Alive());
 
-		AddMovementInput(dir, Axis);
-	}
+	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+	FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
+
+	AddMovementInput(dir, Axis);
+
 }
-	
+
 
 void ACPlayer::OnMoveRight(float Axis)
 {
-	if (Alive())
-	{
-		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-		FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
+	CheckFalse(Alive());
 
-		AddMovementInput(dir, Axis);
-	}
+	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+	FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
+
+	AddMovementInput(dir, Axis);
+
 }
 
 void ACPlayer::OnHorizonLock(float Axis)
@@ -176,30 +176,29 @@ void ACPlayer::OnRoll()
 
 void ACPlayer::OnRunning()
 {
-	if (Alive()) {
-		SetMovementState(EMovementState::EMS_Sprinting);
-		GetCharacterMovement()->MaxWalkSpeed = 400;
-	}
+	CheckFalse(Alive());
+	SetMovementState(EMovementState::EMS_Sprinting);
+	GetCharacterMovement()->MaxWalkSpeed = 400;
 }
 
 void ACPlayer::OffRunning()
 {
+	CheckFalse(Alive());
 	SetMovementState(EMovementState::EMS_Normal);
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
 
 void ACPlayer::ReadyWeapon()
 {
-	if (!!Weapon && Alive())
+	CheckFalse(Alive());
+	CheckNull(Weapon);
+	if (Weapon->GetEquipped())
 	{
-		if (Weapon->GetEquipped())
-		{
-			Weapon->UnEquip();
-			return;
-		}
-
-		Weapon->Equip();
+		Weapon->UnEquip();
+		return;
 	}
+
+	Weapon->Equip();
 }
 
 void ACPlayer::OnAttack()
@@ -247,7 +246,11 @@ void ACPlayer::End_Attack()
 
 void ACPlayer::Die()
 {
+	SetMovementState(EMovementState::EMS_Dead);
+	GetCharacterMovement()->StopMovementImmediately();
+
 	StopAnimMontage();
+
 	PlayAnimMontage(DeathMontage);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -346,8 +349,6 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
-		GetCharacterMovement()->MaxWalkSpeed = 0.f;
-		SetMovementState(EMovementState::EMS_Dead);
 		Die();
 	}
 	else //일반적인 데미지 계산
