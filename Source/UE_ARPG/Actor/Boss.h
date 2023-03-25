@@ -47,15 +47,20 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* AttackMontage;
-	UPROPERTY(VisibleAnywhere, Category = "Animation")
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		int32 SectionNumber;
+		UPROPERTY(VisibleAnywhere, Category = "Animation")
 		TArray<FName> SectionList;
 
 	//근접범위 밖이면서 원거리범위라면 가까이갈것인지 원거리공격할건지 선택하라
 	//2 phase (체력 절반이하)로 떨어지면 AttackC와 낙하공격을 추가하라
 	//공격이 추가되면서 데미지가 달라지고 있는데 이러면 DamageType을 사용해보자
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Particle")
-		class UParticleSystem* AttackCParticle;
+	UPROPERTY(BlueprintReadOnly,EditAnywhere, Category = "Boss | Particle")
+		class UNiagaraComponent* NSParticleComponent;
+	UPROPERTY(EditAnywhere, Category = "Boss | Particle")
+		class UParticleSystem* AttackParticle;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Stone")
 		class AStone* Stone;

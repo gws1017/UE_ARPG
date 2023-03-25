@@ -9,7 +9,7 @@ public class UE_ARPG : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" ,"AIModule",
-			"AnimGraphRuntime", "GameplayTasks","UMG" });
+			"AnimGraphRuntime", "GameplayTasks","UMG", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

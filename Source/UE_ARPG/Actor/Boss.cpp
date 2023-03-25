@@ -6,10 +6,11 @@
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "NiagaraComponent.h"
 
 ABoss::ABoss() :
 	Damage (5.f), DamageC (7.f), DamageD (9.f)
-	, JumpDelayTime(2.5f), DropLocationOffset(200.f)
+	, JumpDelayTime(2.5f), DropLocationOffset(200.f) , SectionNumber(0)
 	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump" }
 {
 	USkeletalMesh* mesh;
@@ -26,8 +27,11 @@ ABoss::ABoss() :
 	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Attack_Montage.Bear_Attack_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Death_Montage.Bear_Death_Montage'");
 
-	UHelpers::GetAsset<UParticleSystem>(&AttackCParticle, "ParticleSystem'/Game/Enemy/BossBear/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
-
+	UHelpers::GetAsset<UParticleSystem>(&AttackParticle, "ParticleSystem'/Game/Enemy/BossBear/Effect/ExplosionParticle/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
+	UHelpers::CreateComponent<UNiagaraComponent>(this, &NSParticleComponent, "NSComponent", GetRootComponent());
+	UNiagaraSystem* NSAsset;
+	UHelpers::GetAsset<UNiagaraSystem>(&NSAsset, "NiagaraSystem'/Game/sA_Megapack_v1/sA_StylizedAttacksPack/FX/NiagaraSystems/NS_AOE_Attack_1.NS_AOE_Attack_1'");
+	NSParticleComponent->SetAsset(NSAsset);
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &LWeaponCollision, "LWeaponCollision", GetMesh(), "hand_lf");
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
 	UHelpers::CreateComponent<USphereComponent>(this, &JumpAtkSphere, "JumpAtkSphere", GetMesh());
@@ -136,22 +140,24 @@ void ABoss::AttackC()
 
 	TArray<AActor*> HitActors;
 
-	CheckFalse(IsHitActorRangedAttack(start, end, 100.f, HitActors));
-	
-	for (auto HitActor : HitActors)
+	if (IsHitActorRangedAttack(start, end, 100.f, HitActors)) 
 	{
-		ACPlayer* player = Cast<ACPlayer>(HitActor);
-		if (!!player)
+		for (auto HitActor : HitActors)
 		{
-			if (player->IsHit() == false)
-				UGameplayStatics::ApplyDamage(player, DamageC, WeaponInstigator, this, DamageTypeClass);
-			TargetLocation = player->GetActorLocation();
+			ACPlayer* player = Cast<ACPlayer>(HitActor);
+			if (!!player)
+			{
+				if (player->IsHit() == false)
+					UGameplayStatics::ApplyDamage(player, DamageC, WeaponInstigator, this, DamageTypeClass);
+				TargetLocation = player->GetActorLocation();
+			}
 		}
 	}
-
+	
 	FRotator rot = UKismetMathLibrary::FindLookAtRotation(TargetLocation, start);
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, FTransform(rot, start, FVector(1, 1, 1)));
-
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, FTransform(rot, start, FVector(1, 1, 1)));
+	NSParticleComponent->SetWorldLocation(end);
+	NSParticleComponent->Activate();
 }
 
 void ABoss::AttackThrow()
@@ -216,19 +222,20 @@ void ABoss::AttackDropDownEnd()
 
 	TArray<AActor*> HitActors;
 
-	CheckFalse(IsHitActorRangedAttack(start, end, 200.f, HitActors));
-
-	for (auto HitActor : HitActors)
+	if (IsHitActorRangedAttack(start, end, 200.f, HitActors))
 	{
-		ACPlayer* player = Cast<ACPlayer>(HitActor);
-		if (!!player)
+		for (auto HitActor : HitActors)
 		{
-			UGameplayStatics::ApplyDamage(player, DamageD, WeaponInstigator, this, DamageTypeClass);
-		}
+			ACPlayer* player = Cast<ACPlayer>(HitActor);
+			if (!!player)
+			{
+				UGameplayStatics::ApplyDamage(player, DamageD, WeaponInstigator, this, DamageTypeClass);
+			}
 
+		}
 	}
 
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackCParticle, GetActorLocation(), FRotator::ZeroRotator);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, GetActorLocation(), FRotator::ZeroRotator);
 
 }
 
@@ -252,11 +259,10 @@ void ABoss::Attack()
 	if (!!AnimInstance)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		int32 num;
 		
-		SelectAttack(num);
+		SelectAttack(SectionNumber);
 		
-		AnimInstance->Montage_JumpToSection(SectionList[num]);
+		AnimInstance->Montage_JumpToSection(SectionList[SectionNumber]);
 	}
 }
 

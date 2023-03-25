@@ -19,10 +19,10 @@ AStone::AStone()
 
 	UStaticMesh* mesh;
 	UMaterialInstanceConstant* material;
-	UHelpers::GetAsset<UStaticMesh>(&mesh, "StaticMesh'/Engine/BasicShapes/Sphere.Sphere'");
-	UHelpers::GetAsset<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Game/Enemy/BossBear/Stone/Material/BasicShapeMaterial_Inst.BasicShapeMaterial_Inst'");
-	UHelpers::GetAsset<UParticleSystem>(&ImpactParticle, "ParticleSystem'/Game/Enemy/BossBear/Stone/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
-	UHelpers::GetAsset<UMaterialInstanceConstant>(&DecalMaterial, "MaterialInstanceConstant'/Game/Enemy/BossBear/Stone/Material/M_Decal_Inst.M_Decal_Inst'");
+	UHelpers::GetAsset<UStaticMesh>(&mesh, "StaticMesh'/Game/Enemy/BossBear/Stone/Mesh/S_Small_Rock.S_Small_Rock'");
+	UHelpers::GetAsset<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Game/Enemy/BossBear/Stone/Material/MI_Small_Rock.MI_Small_Rock'");
+	UHelpers::GetAsset<UParticleSystem>(&ImpactParticle, "ParticleSystem'/Game/Enemy/BossBear/Effect/ExplosionParticle/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
+	UHelpers::GetAsset<UMaterialInstanceConstant>(&DecalMaterial, "MaterialInstanceConstant'/Game/Enemy/BossBear/Stone/Decal/Material/M_Decal_Inst.M_Decal_Inst'");
 
 	/*Projectile->InitialSpeed = 1.5e+3f;
 	Projectile->MaxSpeed = 1.5e+3f;
@@ -35,7 +35,7 @@ AStone::AStone()
 	Mesh->SetNotifyRigidBodyCollision(true);
 	Mesh->SetStaticMesh(mesh);
 	Mesh->SetMaterial(0, material);
-	Mesh->SetRelativeScale3D(FVector(0.5));
+	Mesh->SetRelativeScale3D(FVector(10));
 
 
 	InitialLifeSpan = 3.f;

@@ -7,7 +7,7 @@ UCAnimNotifyState_SwordTrail::UCAnimNotifyState_SwordTrail(const FObjectInitiali
 	:Super(ObjectInitializer)
 {
 	UParticleSystem* particle;
-	UHelpers::GetAsset<UParticleSystem>(&particle, "ParticleSystem'/Game/Character/Effects/P_MeleeTrails_Regular.P_MeleeTrails_Regular'");
+	UHelpers::GetAsset<UParticleSystem>(&particle, "ParticleSystem'/Game/Character/Effects/FX/P_MeleeTrails_Regular.P_MeleeTrails_Regular'");
 
 	PSTemplate = particle;
 
