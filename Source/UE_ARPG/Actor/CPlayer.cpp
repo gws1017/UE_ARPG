@@ -9,9 +9,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Sound/SoundCue.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
-
+#include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
 	: MaxHP(15), HP(15),
@@ -46,6 +47,13 @@ ACPlayer::ACPlayer()
 	UHelpers::GetAsset<UAnimMontage>(&Attack1Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack1_Montage.Sword_Attack1_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&Attack2Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack2_Montage.Sword_Attack2_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&RollMontage, "AnimMontage'/Game/Character/Montage/Roll_Montage.Roll_Montage'");
+
+
+	UHelpers::CreateComponent<UAudioComponent>(this, &AttackAudioComponent,"AttackSound", GetRootComponent());
+	UHelpers::GetAsset<USoundCue>(&AttackSoundCue, "SoundCue'/Game/Audio/SwordAttackCue.SwordAttackCue'");
+
+	AttackAudioComponent->SetSound(AttackSoundCue);
+	AttackAudioComponent->SetAutoActivate(false);
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -125,9 +133,9 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	if (!!enemy)
 	{
 		//피격 이펙트 및 사운드 추가부분
-		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
+		//피격 이펙트는 맞는 대상에서 가져온다
+		AttackAudioComponent->Play();
 		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
-
 	}
 }
 

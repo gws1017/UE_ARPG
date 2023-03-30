@@ -81,6 +81,11 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* RollMontage;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
+		class USoundCue* AttackSoundCue;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
+		class UAudioComponent* AttackAudioComponent;
+
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementState MovementState;
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
