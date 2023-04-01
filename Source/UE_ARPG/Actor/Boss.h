@@ -22,9 +22,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
 		class USphereComponent* RangedAtkSphere; 
-	UPROPERTY(EditDefaultsOnly, Category = "Boss | AI")
-		class USphereComponent* JumpAtkSphere;
-
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
 		float Damage;
@@ -53,8 +50,6 @@ protected:
 		UPROPERTY(VisibleAnywhere, Category = "Animation")
 		TArray<FName> SectionList;
 
-	//근접범위 밖이면서 원거리범위라면 가까이갈것인지 원거리공격할건지 선택하라
-	//2 phase (체력 절반이하)로 떨어지면 AttackC와 낙하공격을 추가하라
 	//공격이 추가되면서 데미지가 달라지고 있는데 이러면 DamageType을 사용해보자
 
 	UPROPERTY(BlueprintReadOnly,EditAnywhere, Category = "Boss | Particle")
@@ -122,6 +117,12 @@ public:
 		virtual void CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 	UFUNCTION()
+		virtual void RangedAtkSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		virtual void RangedAtkSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+	UFUNCTION()
 		void AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 private:
@@ -155,7 +156,7 @@ private:
 		(*Collision)->SetRelativeRotation(Rotation);
 
 		CollisionMap[(*Collision)->GetName()] = *Collision;
-		(*Collision)->bHiddenInGame = false; //Debug
+		//(*Collision)->bHiddenInGame = false; //Debug
 	}
 };
 

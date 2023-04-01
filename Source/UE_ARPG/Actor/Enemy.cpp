@@ -46,6 +46,8 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
 
+
+
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
@@ -54,8 +56,8 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	else //일반적인 데미지 계산
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		Hit();
 	}
-	Hit();
 	UE_LOG(LogTemp, Display, L"Enemy Current HP : %f", HP);
 	return DamageAmount;
 }
@@ -68,7 +70,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 
 void AEnemy::SetAttackTimer()
 {
-	float AttackTime = FMath::FRandRange(0.5, 2.5);
+	float AttackTime = FMath::FRandRange(2.0, 4.0);
 	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime,true);
 
 }
@@ -97,6 +99,7 @@ void AEnemy::Hit()
 
 void AEnemy::Die()
 {
+	CombatTarget = nullptr;
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
 
@@ -115,6 +118,7 @@ void AEnemy::Disappear()
 
 void AEnemy::MoveToTarget(ACharacter* Target)
 {
+	CheckFalse(Alive());
 	if (AIController)
 	{
 		FAIMoveRequest MoveRequest;
@@ -126,10 +130,12 @@ void AEnemy::MoveToTarget(ACharacter* Target)
 		AIController->MoveTo(MoveRequest, &NavPath);
 
 	}
+	else CLog::Log("Null AI Controller");;
 }
 
 void AEnemy::MoveToSpawnLocation()
 {
+	CheckFalse(Alive());
 	if (AIController)
 	{
 		FAIMoveRequest MoveRequest;
@@ -151,7 +157,7 @@ void AEnemy::AlertEnd()
 
 bool AEnemy::Alive()
 {
-	if (HP <= 0) return false;
+	if (FMath::IsNearlyZero(HP)) return false;
 	else return true;
 }
 

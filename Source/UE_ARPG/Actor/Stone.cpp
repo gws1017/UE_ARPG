@@ -81,7 +81,7 @@ void AStone::Throw(ACharacter* Causer, const FVector& NewVelocity)
 {
 	
 	Causer->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetPhysicsLinearVelocity(NewVelocity * Speed);
 

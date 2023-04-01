@@ -131,6 +131,8 @@ void AEnemySkeletonMelee::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComp
 
 void AEnemySkeletonMelee::Attack()
 {
+	CheckNull(CombatTarget);
+	CheckFalse(Alive());
 	PlayAnimMontage(AttackMontage);
 	SetAttackTimer();
 }

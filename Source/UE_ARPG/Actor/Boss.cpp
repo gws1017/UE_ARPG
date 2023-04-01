@@ -3,6 +3,7 @@
 #include "Actor/Stone.h"
 #include "AI/Controller/EnemyBTController.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystem.h"
@@ -27,19 +28,20 @@ ABoss::ABoss() :
 	UHelpers::GetAsset<UAnimMontage>(&AttackMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Attack_Montage.Bear_Attack_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Enemy/BossBear/Montage/Bear_Death_Montage.Bear_Death_Montage'");
 
-	UHelpers::GetAsset<UParticleSystem>(&AttackParticle, "ParticleSystem'/Game/Enemy/BossBear/Effect/ExplosionParticle/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
 	UHelpers::CreateComponent<UNiagaraComponent>(this, &NSParticleComponent, "NSComponent", GetRootComponent());
+
 	UNiagaraSystem* NSAsset;
-	UHelpers::GetAsset<UNiagaraSystem>(&NSAsset, "NiagaraSystem'/Game/sA_Megapack_v1/sA_StylizedAttacksPack/FX/NiagaraSystems/NS_AOE_Attack_1.NS_AOE_Attack_1'");
+	UHelpers::GetAsset<UParticleSystem>(&AttackParticle, "ParticleSystem'/Game/Enemy/BossBear/Effect/ExplosionParticle/FX/p_RipplingSmash_SegmentFX.p_RipplingSmash_SegmentFX'");
+	UHelpers::GetAsset<UNiagaraSystem>(&NSAsset, "NiagaraSystem'/Game/Enemy/BossBear/Effect/CrackParticle/FX/NiagaraSystems/NS_AOE_Attack_1.NS_AOE_Attack_1'");
 	NSParticleComponent->SetAsset(NSAsset);
+	NSParticleComponent->SetAutoActivate(false);
+	
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &LWeaponCollision, "LWeaponCollision", GetMesh(), "hand_lf");
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
-	UHelpers::CreateComponent<USphereComponent>(this, &JumpAtkSphere, "JumpAtkSphere", GetMesh());
 	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
 
 	WeaponInstigator = GetController();
 
-	GetCapsuleComponent()->SetHiddenInGame(false);
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
 
@@ -49,16 +51,15 @@ ABoss::ABoss() :
 
 	SetWeaponCollision(&RWeaponCollision, FVector(-8, -16, -1.5), FRotator(-80, 0, -30));
 	SetWeaponCollision(&LWeaponCollision, FVector(8, 16, 1.5), FRotator(-80, 0, -30));
-	SetWeaponCollision(&JumpAtkSphere, FVector(0,0,0), FRotator::ZeroRotator);
-	JumpAtkSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-	RangedAtkSphere->InitSphereRadius(350.f);
-	JumpAtkSphere->InitSphereRadius(200.f);
-	AgroSphere->InitSphereRadius(500.f);
+	RangedAtkSphere->InitSphereRadius(1000.f);
+	AgroSphere->InitSphereRadius(1400.f);
 	CombatSphere->InitSphereRadius(170.f);
 
+	GetCharacterMovement()->MaxWalkSpeed = 300;
+
 	MaxHP = 50;
-	HP = 30;
+	HP = 50;
 	
 	AIControllerClass = AEnemyBTController::StaticClass();
 	//BossPhase = 1;
@@ -81,10 +82,8 @@ void ABoss::BeginPlay()
 
 	SetCollision(&LWeaponCollision);
 	SetCollision(&RWeaponCollision);
-	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
-	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
-	JumpAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapBegin);
-	JumpAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::CombatSphereOnOverlapEnd);
+	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapBegin);
+	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapEnd);
 	
 }
 
@@ -132,10 +131,11 @@ bool ABoss::IsHitActorRangedAttack(const FVector& start, const FVector& end, flo
 
 void ABoss::AttackC()
 {
-	FVector ActorLocation2D = GetActorLocation();
-	ActorLocation2D.Z = 0;
-	FVector start = ActorLocation2D + GetActorForwardVector() * 100.f;
+	FVector ActorLocation = GetActorLocation();
+	FVector start = ActorLocation + GetActorForwardVector() * 100.f;
 	FVector end = start + GetActorForwardVector() * 100.f;
+	start.Z -= 140;
+	end.Z -= 140;
 	FVector TargetLocation = FVector::ZeroVector;
 
 	TArray<AActor*> HitActors;
@@ -155,9 +155,10 @@ void ABoss::AttackC()
 	}
 	
 	FRotator rot = UKismetMathLibrary::FindLookAtRotation(TargetLocation, start);
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, FTransform(rot, start, FVector(1, 1, 1)));
+	FTransform trans = FTransform(rot, start, FVector(1.f));
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, trans);
 	NSParticleComponent->SetWorldLocation(end);
-	NSParticleComponent->Activate();
+	NSParticleComponent->Activate(true);
 }
 
 void ABoss::AttackThrow()
@@ -200,15 +201,11 @@ void ABoss::AttackJump()
 void ABoss::AttackDropDownBegin()
 {
 	GetMesh()->SetHiddenInGame(false);
-
-	if (bRangedAtkJump)
-	{
-		FVector target_location = CombatTarget->GetActorLocation();
-		target_location += CombatTarget->GetActorForwardVector() * DropLocationOffset;
-		target_location.Z = GetActorLocation().Z;
-		SetActorLocation(target_location);
-		//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	}
+	
+	FVector target_location = CombatTarget->GetActorLocation();
+	target_location += CombatTarget->GetActorForwardVector() * DropLocationOffset;
+	target_location.Z = GetActorLocation().Z;
+	SetActorLocation(target_location);
 
 }
 
@@ -329,7 +326,6 @@ void ABoss::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (!!player)
 		{
-			bRangedAtkJump = true;
 			bRanged = true;
 		}
 	}
@@ -340,6 +336,26 @@ void ABoss::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 	if (!!OtherActor && Alive())
 	{
 		bRanged = false;
+	}
+}
+
+void ABoss::RangedAtkSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!!OtherActor && Alive())
+	{
+		CheckNull(CombatTarget); //목표가 없으면 종료
+		ACPlayer* player = Cast<ACPlayer>(OtherActor);
+		if (!!player)
+		{
+			bRangedAtkJump = true;
+		}
+	}
+}
+
+void ABoss::RangedAtkSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!!OtherActor && Alive())
+	{
 		bRangedAtkJump = false;
 	}
 }
