@@ -14,9 +14,7 @@ class UE_ARPG_API UStaminaBarUI : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	virtual void NativeOnInitialized() override;
 	virtual void NativePreConstruct() override;
-	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* HBox;

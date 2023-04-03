@@ -9,23 +9,19 @@
 
 void UHPBarUI::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
 	HPBar->Percent = 1.0f;
 	HPBar->FillColorAndOpacity = FLinearColor::Red;
 }
 void UHPBarUI::NativePreConstruct()
 {
+	Super::NativePreConstruct();
 	if (!OwnerCharacter)
 		OwnerCharacter = Cast<ACPlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	
 	//HPBar->PercentDelegate.BindUFunction(this, FName("GetHPPercent"));
 
 }
-
-void UHPBarUI::NativeDestruct()
-{
-
-}
-
 
 float UHPBarUI::GetHPPercent()
 {

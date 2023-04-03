@@ -17,7 +17,6 @@ class UE_ARPG_API UHPBarUI : public UUserWidget
 public:
 	virtual void NativeOnInitialized() override;
 	virtual void NativePreConstruct() override;
-	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* HPBar;

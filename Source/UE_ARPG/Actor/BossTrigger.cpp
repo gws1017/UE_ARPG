@@ -1,5 +1,6 @@
 #include "Actor/BossTrigger.h"
 #include "Actor/CPlayer.h"
+#include "Actor/CPlayerController.h"
 #include "UI/HUDOverlay.h"
 
 #include "Global.h"
@@ -52,7 +53,7 @@ void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 
 	CheckNull(player);
 	
-	UHUDOverlay* HUD = player->GetHUD();
+	UHUDOverlay* HUD = player->GetController<ACPlayerController>()->GetHUD();
 	if(!!HUD)
 		HUD->ShowBossHPBar();
 

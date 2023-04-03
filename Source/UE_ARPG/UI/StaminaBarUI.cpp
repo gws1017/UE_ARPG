@@ -7,20 +7,15 @@
 
 #include "Components/HorizontalBox.h"
 #include "Components/ProgressBar.h"
-void UStaminaBarUI::NativeOnInitialized()
-{
 
-}
 void UStaminaBarUI::NativePreConstruct()
 {
+	Super::NativePreConstruct();
 	StaminaBar->Percent = 1.0f;
 	StaminaBar->FillColorAndOpacity = FLinearColor::Green;
 	StaminaBar->PercentDelegate.BindUFunction(this, FName("GetStaminaPercent"));
 }
-void UStaminaBarUI::NativeDestruct()
-{
 
-}
 float UStaminaBarUI::GetStaminaPercent()
 {
 	if (!OwnerCharacter)

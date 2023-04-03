@@ -16,7 +16,7 @@ class UE_ARPG_API IICharacter
 
 public:
 
-	virtual class AWeapon* GetWeapon() = 0;
+	FORCEINLINE virtual class AWeapon* GetWeapon() = 0;
 
 	virtual bool Alive() = 0;
 

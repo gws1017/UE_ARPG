@@ -59,11 +59,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		int32 AttackCount;
-
-	UPROPERTY()
-		class UHUDOverlay* PlayerHUDOverlay; 
-	UPROPERTY(BlueprintReadOnly, Category = "UI")
-		class TSubclassOf<UHUDOverlay> HUDOverlayClass;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
@@ -125,18 +120,17 @@ private:
 	void OnHorizonLock(float Axis);
 	void OnVerticalLock(float Axis);
 
-private:
-
 	void OnRunning();
 	void OffRunning();
 	void ReadyWeapon();
 	void OnAttack();
 	void OnRoll();
+	void ESCDown();
+	void ESCUp();
 
-
-	void Die();
 
 public:
+	void Die();
 
 	virtual void Hit(const FVector& ParticleSpawnLocation) override;
 	virtual bool Alive() override;
@@ -176,7 +170,6 @@ public:
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
-	FORCEINLINE class UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 
 	FORCEINLINE float GetHP() { return HP; }
 	FORCEINLINE float GetMaxHP() { return MaxHP; }

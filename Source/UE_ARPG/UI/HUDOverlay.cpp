@@ -4,19 +4,10 @@
 #include "Components/HorizontalBox.h"
 #include "Components/VerticalBox.h"
 
-void UHUDOverlay::NativeOnInitialized()
-{
-	HideBossHPBar();
-	
-}
 void UHUDOverlay::NativePreConstruct()
 {
-
-}
-
-void UHUDOverlay::NativeDestruct()
-{
-
+	Super::NativePreConstruct();
+	HideBossHPBar();
 }
 
 void UHUDOverlay::HideBossHPBar()

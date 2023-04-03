@@ -3,7 +3,7 @@
 #include "Actor/Weapon.h"
 #include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
-#include "UI/HUDOverlay.h"
+#include "Actor/CPlayerController.h"
 #include "Global.h"
 
 #include "GameFramework/SpringArmComponent.h"
@@ -40,9 +40,6 @@ ACPlayer::ACPlayer()
 	UHelpers::GetClass(&anim, "AnimBlueprint'/Game/Character/Animation/ABP_Player.ABP_Player_C'");
 	GetMesh()->SetAnimInstanceClass(anim);
 
-	UHelpers::GetClass(&HUDOverlayClass, "WidgetBlueprint'/Game/Character/UI/BP_HUDOverlay.BP_HUDOverlay_C'");
-	PlayerHUDOverlay = Cast<UHUDOverlay>(CreateWidget(GetWorld(), HUDOverlayClass));
-
 	UHelpers::GetAsset<UAnimMontage>(&DeathMontage, "AnimMontage'/Game/Character/Montage/Death_Montage.Death_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&HitMontage, "AnimMontage'/Game/Character/Montage/Hit2_Montage.Hit2_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&Attack1Montage, "AnimMontage'/Game/Character/Montage/Sword_Attack1_Montage.Sword_Attack1_Montage'");
@@ -70,8 +67,7 @@ void ACPlayer::BeginPlay()
 	
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
 	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::WeaponBeginOverlap);
-	if(!!PlayerHUDOverlay)
-		PlayerHUDOverlay->AddToViewport();
+
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -115,6 +111,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Pressed, this, &ACPlayer::OnRunning);
 	PlayerInputComponent->BindAction("Running", EInputEvent::IE_Released, this, &ACPlayer::OffRunning);
+
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &ACPlayer::ESCDown);
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &ACPlayer::ESCUp);
 
 	PlayerInputComponent->BindAction("ReadyWeapon", EInputEvent::IE_Pressed, this, &ACPlayer::ReadyWeapon);
 
@@ -194,6 +193,16 @@ void ACPlayer::OffRunning()
 	SetMovementState(EMovementState::EMS_Normal);
 	GetCharacterMovement()->MaxWalkSpeed = 200;
 }
+
+void ACPlayer::ESCDown()
+{
+	GetController<ACPlayerController>()->TogglePauseMenu();
+}
+
+void ACPlayer::ESCUp()
+{
+}
+
 
 void ACPlayer::ReadyWeapon()
 {
@@ -289,6 +298,7 @@ void ACPlayer::Hit(const FVector& ParticleSpawnLocation)
 	PlayAnimMontage(HitMontage);
 	bHit = true;
 }
+
 
 void ACPlayer::HitEnd()
 {
