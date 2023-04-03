@@ -18,17 +18,18 @@ public:
 	virtual void NativePreConstruct() override;
 	virtual void NativeDestruct() override;
 
-	UPROPERTY(meta = (BindWidget))
-		class UHorizontalBox* OverlayBox;
-	UPROPERTY(meta = (BindWidget))
-		class UVerticalBox* LeftBox;
-	UPROPERTY(meta = (BindWidget))
-		class UVerticalBox* RightBox;
-	UPROPERTY(meta = (BindWidget))
-		class UVerticalBox* BottomBox;
 
 	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* HPBarBox;
 	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* StaminaBarBox;
+
+	UPROPERTY(meta = (BindWidget))
+		class UHorizontalBox* BossInfoBox;
+
+public:
+
+	 void HideBossHPBar();
+	 void ShowBossHPBar();
+
 };

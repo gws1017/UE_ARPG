@@ -34,11 +34,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boss | Weapon")
 		float DropLocationOffset;
 	
-	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
-		TSubclassOf<class UDamageType> DamageTypeClass;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Boss | Weapon")
-		class AController* WeaponInstigator;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Boss | Status")
 		int32 BossPhase = 1;
 
@@ -92,6 +87,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void AttackC();
+
 
 	void AttackThrow();
 	void SpawnStone();

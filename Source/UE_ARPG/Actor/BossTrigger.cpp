@@ -1,5 +1,6 @@
 #include "Actor/BossTrigger.h"
 #include "Actor/CPlayer.h"
+#include "UI/HUDOverlay.h"
 
 #include "Global.h"
 #include "MyGameInstance.h"
@@ -50,6 +51,11 @@ void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	ACPlayer* player = Cast<ACPlayer>(OtherActor);
 
 	CheckNull(player);
+	
+	UHUDOverlay* HUD = player->GetHUD();
+	if(!!HUD)
+		HUD->ShowBossHPBar();
+
 	ShowMesh();
 	UMyGameInstance* GI = Cast<UMyGameInstance>(GetGameInstance());
 

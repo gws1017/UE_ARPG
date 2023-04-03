@@ -7,6 +7,7 @@
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Particles/ParticleSystem.h"
 #include "AIController.h"
 
 AEnemy::AEnemy()
@@ -18,6 +19,8 @@ AEnemy::AEnemy()
 	
 	AIControllerClass = AEnemyController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	WeaponInstigator = GetController();
+
 }
 
 void AEnemy::BeginPlay()
@@ -46,20 +49,24 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (DamageAmount <= 0.f)
 		return DamageAmount;
 
-
-
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		CombatTarget->SetTarget(nullptr);
 		Die();
 	}
 	else //일반적인 데미지 계산
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
-		Hit();
 	}
 	UE_LOG(LogTemp, Display, L"Enemy Current HP : %f", HP);
 	return DamageAmount;
+}
+
+void AEnemy::TargetApplyDamage(ACPlayer* player, float damage, const FVector& HitLocation)
+{
+	player->Hit(HitLocation);
+	UGameplayStatics::ApplyDamage(player, damage, WeaponInstigator, this, DamageTypeClass);
 }
 
  FVector AEnemy::GetCombatTargetLocation() const
@@ -92,8 +99,10 @@ void AEnemy::Attack()
 }
 	
 
-void AEnemy::Hit()
+void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 {
+	if(HitParticle)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
 	PlayAnimMontage(HitMontage);
 }
 
@@ -103,7 +112,10 @@ void AEnemy::Die()
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
 
+	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	if(!!Weapon)
 		Weapon->DeactivateCollision();
 }
@@ -113,7 +125,16 @@ void AEnemy::Disappear()
 	//사라지면서 해야할 것들 작성
 	if(!!Weapon)
 		Weapon->Destroy();
+
 	Destroy();
+}
+
+void AEnemy::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+
+	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::Disappear, DeathDelay);
 }
 
 void AEnemy::MoveToTarget(ACharacter* Target)
@@ -148,8 +169,6 @@ void AEnemy::MoveToSpawnLocation()
 	}
 }
 
-
-
 void AEnemy::AlertEnd()
 {
 	SetAlerted(false);
@@ -161,13 +180,7 @@ bool AEnemy::Alive()
 	else return true;
 }
 
-void AEnemy::DeathEnd()
-{
-	GetMesh()->bPauseAnims = true;
-	GetMesh()->bNoSkeletonUpdate = true;
-	
-	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::Disappear, DeathDelay);
-}
+
 void AEnemy::Begin_Attack()
 {
 }

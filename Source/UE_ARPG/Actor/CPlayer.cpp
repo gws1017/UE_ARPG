@@ -133,9 +133,7 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	AEnemy* enemy = Cast<AEnemy>(OtherActor);
 	if (!!enemy)
 	{
-		//피격 이펙트 및 사운드 추가부분
-		//피격 이펙트는 맞는 대상에서 가져온다
-		AttackAudioComponent->Play();
+		enemy->Hit(Weapon->GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
 	}
 }
@@ -282,9 +280,10 @@ bool ACPlayer::Alive()
 	else return false;
 }
 
-void ACPlayer::Hit()
+void ACPlayer::Hit(const FVector& ParticleSpawnLocation)
 {
 	CheckFalse(Alive());
+
 	ResetCombo();
 	SetMovementState(EMovementState::EMS_Hit);
 	PlayAnimMontage(HitMontage);
@@ -355,17 +354,18 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible == PlayerStat)
 		return DamageAmount;
 
-	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
+	if (HP - DamageAmount <= 0.f) 
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
 		Die();
 	}
-	else //일반적인 데미지 계산
+	else
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		
 	}
 
-	Hit();
+	
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", HP);
 	return DamageAmount;
 }

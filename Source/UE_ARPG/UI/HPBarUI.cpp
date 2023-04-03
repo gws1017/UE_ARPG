@@ -1,5 +1,6 @@
 #include "UI/HPBarUI.h"
 #include "Actor/CPlayer.h"
+#include "Actor/Enemy.h"
 #include "Global.h"
 
 #include "Components/HorizontalBox.h"
@@ -8,12 +9,15 @@
 
 void UHPBarUI::NativeOnInitialized()
 {
+	HPBar->Percent = 1.0f;
+	HPBar->FillColorAndOpacity = FLinearColor::Red;
 }
 void UHPBarUI::NativePreConstruct()
 {
-	HPBar->Percent = 1.0f;
-	HPBar->FillColorAndOpacity = FLinearColor::Red;
-	HPBar->PercentDelegate.BindUFunction(this, FName("GetHPPercent"));
+	if (!OwnerCharacter)
+		OwnerCharacter = Cast<ACPlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	
+	//HPBar->PercentDelegate.BindUFunction(this, FName("GetHPPercent"));
 
 }
 
@@ -30,7 +34,20 @@ float UHPBarUI::GetHPPercent()
 	if(!!OwnerCharacter)
 		return (OwnerCharacter->GetHP() / OwnerCharacter->GetMaxHP());
 
-	CLog::Log("StaminaPercent Error");
+	return 0.0f;
+}
+
+float UHPBarUI::GetBossHPPercent()
+{
+	CheckNullResult(OwnerCharacter,0.f);
+	if (!Target)
+		Target = OwnerCharacter->GetTarget();
+	if (!!Target)
+	{
+		return (Target->GetHP() / Target->GetMaxHP());
+	}
+	
+
 	return 0.0f;
 }
 

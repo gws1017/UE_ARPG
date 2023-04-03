@@ -37,10 +37,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 		bool bRanged;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		TSubclassOf<class UDamageType> DamageTypeClass;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class AController* WeaponInstigator;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* DeathMontage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* HitMontage;
+
+	
 
 	FTimerHandle AttackTimer;
 	FTimerHandle AlertTimer;
@@ -49,6 +56,10 @@ protected:
 	float DeathDelay = 3.0f;
 
 	bool bAttacking = false;
+public:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Particle")
+		class UParticleSystem* HitParticle;
 
 protected:
 	virtual void BeginPlay() override;
@@ -61,6 +72,9 @@ public:
 
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	void TargetApplyDamage(ACPlayer* player, float damage, const FVector& HitLocation = FVector::ZeroVector);
+
 
 	virtual void AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {};
 	virtual void AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {};
@@ -89,9 +103,9 @@ public:
 
 	void SetAttackTimer();
 	virtual void Attack();
-	void Hit();
-	void Die();
-	void Disappear();
+	void Hit(const FVector& ParticleSpawnLocation);
+	virtual void Die();
+	virtual void Disappear();
 
 	void MoveToTarget(ACharacter* Target);
 	void MoveToSpawnLocation();
@@ -112,4 +126,7 @@ protected:
 public:
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
+
+	FORCEINLINE float GetHP() { return HP; }
+	FORCEINLINE float GetMaxHP() { return MaxHP; }
 };

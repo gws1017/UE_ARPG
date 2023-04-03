@@ -20,18 +20,19 @@ public:
 	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidget))
-		class UHorizontalBox* HBox;
-
-	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* HPBar;
-
 
 	UPROPERTY(VisibleAnywhere)
 		class ACPlayer* OwnerCharacter;
-
+	
+	UPROPERTY(VisibleAnywhere)
+		class AEnemy* Target;
 public:
 
 	UFUNCTION(BlueprintPure)
 		float GetHPPercent();
+
+	UFUNCTION(BlueprintPure)
+		float GetBossHPPercent();
 
 };

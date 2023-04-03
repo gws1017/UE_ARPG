@@ -20,7 +20,7 @@ public:
 
 	virtual bool Alive() = 0;
 
-	virtual void Hit() = 0;
+	virtual void Hit(const FVector& ParticleSpawnLocation) = 0;
 
 	virtual void DeathEnd() = 0;
 

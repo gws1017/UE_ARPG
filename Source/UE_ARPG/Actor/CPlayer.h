@@ -86,6 +86,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
 		class UAudioComponent* AttackAudioComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Combat")
+		class AEnemy* Target;
+
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementState MovementState;
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
@@ -135,7 +138,7 @@ private:
 
 public:
 
-	virtual void Hit() override;
+	virtual void Hit(const FVector& ParticleSpawnLocation) override;
 	virtual bool Alive() override;
 
 	virtual void DeathEnd();
@@ -169,14 +172,18 @@ public:
 
 	FORCEINLINE void SetPlayerState(EPlayerState state) { PlayerStat = state; }
 	FORCEINLINE void SetMovementState(EMovementState state) { MovementState = state; }
+	FORCEINLINE void SetTarget(class AEnemy* target) { Target = target; }
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
+	FORCEINLINE class AEnemy* GetTarget() { return Target; }
+	FORCEINLINE class UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 
 	FORCEINLINE float GetHP() { return HP; }
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
 	FORCEINLINE float GetStamina() { return Stamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
 	
+	FORCEINLINE bool IsValidTarget() { return (!!Target); }
 	FORCEINLINE bool IsHit() { return bHit; }
 	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerState::EPS_Invincible; }
 	FORCEINLINE void SetBlending(bool value) { bBlending = value; }

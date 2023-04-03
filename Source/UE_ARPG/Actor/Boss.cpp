@@ -40,7 +40,6 @@ ABoss::ABoss() :
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
 	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
 
-	WeaponInstigator = GetController();
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
@@ -116,7 +115,6 @@ bool ABoss::IsHitActorRangedAttack(const FVector& start, const FVector& end, flo
 	IgnoreActors.Add(this);
 
 	TArray<FHitResult> HitResults;
-
 	bool result = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), start, end, radius,
 		ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true);
 
@@ -148,7 +146,10 @@ void ABoss::AttackC()
 			if (!!player)
 			{
 				if (player->IsHit() == false)
-					UGameplayStatics::ApplyDamage(player, DamageC, WeaponInstigator, this, DamageTypeClass);
+				{
+
+					TargetApplyDamage(player,DamageC);
+				}
 				TargetLocation = player->GetActorLocation();
 			}
 		}
@@ -226,7 +227,7 @@ void ABoss::AttackDropDownEnd()
 			ACPlayer* player = Cast<ACPlayer>(HitActor);
 			if (!!player)
 			{
-				UGameplayStatics::ApplyDamage(player, DamageD, WeaponInstigator, this, DamageTypeClass);
+				TargetApplyDamage(player, DamageD);
 			}
 
 		}
@@ -301,6 +302,7 @@ void ABoss::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 		{
 			SetAlerted(true);
 			CombatTarget = player;
+			player->SetTarget(this);
 		}
 	}
 }
@@ -314,6 +316,7 @@ void ABoss::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 		{
 			CombatTarget = nullptr;
 			bRanged = false;
+			player->SetTarget(nullptr);
 		}
 	}
 }
@@ -366,13 +369,11 @@ void ABoss::AttackBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 	if (!!OtherActor)
 	{
-
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (!!player && bDamaged == false)
 		{
-			//피격 이펙트 및 사운드 추가부분
-			//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-			UGameplayStatics::ApplyDamage(player, Damage, WeaponInstigator, this, DamageTypeClass);
+			TargetApplyDamage(player, Damage);
+
 			bDamaged = true;
 		}
 		
