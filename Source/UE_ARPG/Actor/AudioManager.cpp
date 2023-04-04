@@ -34,3 +34,9 @@ void AAudioManager::PlayBGM(USoundCue* sound)
 
 }
 
+void AAudioManager::PlayMainBGM()
+{
+	MainAudio->SetSound(MainBGM);
+	MainAudio->Play();
+}
+

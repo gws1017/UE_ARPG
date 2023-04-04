@@ -28,7 +28,6 @@ protected:
 
 public:	
 	void PlayBGM(class USoundCue* sound);
-
-	
+	void PlayMainBGM( );
 
 };

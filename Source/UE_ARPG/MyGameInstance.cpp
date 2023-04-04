@@ -29,4 +29,16 @@ void UMyGameInstance::PlayBGM(USoundCue* sound)
 	AM->PlayBGM(sound);
 }
 
+void UMyGameInstance::PlayMainBGM()
+{
+	if (!AM)
+	{
+		TArray<AAudioManager*> arr;
+		UHelpers::FindActors(GetWorld(), arr);
+		AM = arr[0];
+	}
+
+	AM->PlayMainBGM();
+}
+
 

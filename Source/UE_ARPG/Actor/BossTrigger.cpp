@@ -58,7 +58,7 @@ void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 		HUD->ShowBossHPBar();
 
 	ShowMesh();
-	UMyGameInstance* GI = Cast<UMyGameInstance>(GetGameInstance());
+	UMyGameInstance* GI = GetGameInstance<UMyGameInstance>();
 
 	if (!!GI)
 	{

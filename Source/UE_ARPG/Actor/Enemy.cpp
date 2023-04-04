@@ -65,6 +65,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 
 void AEnemy::TargetApplyDamage(ACPlayer* player, float damage, const FVector& HitLocation)
 {
+	CheckNull(player);
 	player->Hit(HitLocation);
 	UGameplayStatics::ApplyDamage(player, damage, WeaponInstigator, this, DamageTypeClass);
 }
@@ -85,10 +86,10 @@ void AEnemy::SetAttackTimer()
 void AEnemy::Attack()
 {
 	CheckFalse(Alive());
-	CheckFalse(bAlerted);
-	CheckTrue(bAttacking);
 	CheckNull(CombatTarget);
 	CheckFalse(CombatTarget->Alive());
+	CheckFalse(bAlerted);
+	CheckTrue(bAttacking);
 	
 	bAttacking = true;
 
@@ -108,7 +109,12 @@ void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 
 void AEnemy::Die()
 {
-	CombatTarget = nullptr;
+	if (CombatTarget)
+	{
+		CombatTarget->SetTarget(NULL);
+		CombatTarget = nullptr;
+	}
+	
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
 
@@ -139,6 +145,7 @@ void AEnemy::DeathEnd()
 
 void AEnemy::MoveToTarget(ACharacter* Target)
 {
+	CheckNull(Target);
 	CheckFalse(Alive());
 	if (AIController)
 	{

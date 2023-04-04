@@ -24,5 +24,6 @@ public:
 	virtual void Init() override;
 
 	void PlayBGM(class USoundCue* sound);
+	void PlayMainBGM();
 
 };

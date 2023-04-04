@@ -132,6 +132,7 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	AEnemy* enemy = Cast<AEnemy>(OtherActor);
 	if (!!enemy)
 	{
+		AttackAudioComponent->Play();
 		enemy->Hit(Weapon->GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
 	}

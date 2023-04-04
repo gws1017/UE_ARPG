@@ -1,7 +1,10 @@
 #include "Actor/Boss.h"
 #include "Actor/CPlayer.h"
 #include "Actor/Stone.h"
+#include "Actor/CPlayerController.h"
+#include "UI/HUDOverlay.h"
 #include "AI/Controller/EnemyBTController.h"
+#include "MyGameInstance.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SphereComponent.h"
@@ -84,12 +87,6 @@ void ABoss::BeginPlay()
 	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapBegin);
 	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapEnd);
 	
-}
-
-void ABoss::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-
 }
 
 void ABoss::Begin_Collision(FString name)
@@ -251,6 +248,7 @@ void ABoss::End_Attack()
 void ABoss::Attack()
 {
 	CheckFalse(bRanged);
+	CheckNull(CombatTarget);
 	AEnemy::Attack();
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -290,6 +288,15 @@ void ABoss::SelectAttack(int32& num)
 		num = FMath::RandRange(0, SectionList.Num()-1);
 		break;
 	}
+
+}
+
+void ABoss::Die()
+{
+	UHUDOverlay* HUD = CombatTarget->GetController<ACPlayerController>()->GetHUD();
+	HUD->HideBossHPBar();
+	GetGameInstance<UMyGameInstance>()->PlayMainBGM();
+	AEnemy::Die();
 
 }
 

@@ -6,10 +6,6 @@
 
 ACPlayerController::ACPlayerController()
 {
-	//UHelpers::GetClass(&PauseMenuUIClass, "WidgetBlueprint'/Game/Character/UI/BP_PauseMenuUI.BP_PauseMenuUI_C'");
-	//UHelpers::GetClass(&HUDOverlayClass, "WidgetBlueprint'/Game/Character/UI/BP_HUDOverlay.BP_HUDOverlay_C'");
-	
-
 }
 
 void ACPlayerController::BeginPlay()
