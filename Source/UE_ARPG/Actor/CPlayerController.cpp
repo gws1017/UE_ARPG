@@ -1,6 +1,7 @@
 #include "Actor/CPlayerController.h"
 #include "UI/PauseMenuUI.h"
 #include "UI/HUDOverlay.h"
+#include "UI/RestartMenuUI.h"
 #include "Global.h"
 
 ACPlayerController::ACPlayerController()
@@ -16,6 +17,7 @@ void ACPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	PauseMenuUI = Cast<UPauseMenuUI>(CreateWidget(GetWorld(), PauseMenuUIClass));
+	RestartMenuUI = Cast<URestartMenuUI>(CreateWidget(GetWorld(), RestartMenuUIClass));
 	PlayerHUDOverlay = Cast<UHUDOverlay>(CreateWidget(GetWorld(), HUDOverlayClass));
 
 	if (!!PlayerHUDOverlay) 
@@ -26,6 +28,11 @@ void ACPlayerController::BeginPlay()
 	{
 		PauseMenuUI->AddToViewport();
 		PauseMenuUI->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (RestartMenuUI)
+	{
+		RestartMenuUI->AddToViewport();
+		RestartMenuUI->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -59,4 +66,24 @@ void ACPlayerController::RemovePauseMenu()
 		PauseMenuUI->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+}
+
+void ACPlayerController::ShowRestartenu()
+{
+	if (RestartMenuUI)
+	{
+		bShowMouseCursor = true;
+		SetInputMode(FInputModeUIOnly{});
+		RestartMenuUI->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ACPlayerController::RemoveRestartMenu()
+{
+	if (RestartMenuUI)
+	{
+		bShowMouseCursor = false;
+		SetInputMode(FInputModeGameOnly{});
+		RestartMenuUI->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

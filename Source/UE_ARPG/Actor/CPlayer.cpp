@@ -273,6 +273,8 @@ void ACPlayer::Die()
 	if (!!Weapon)
 		Weapon->DeactivateCollision();
 
+	GetController<ACPlayerController>()->ShowRestartenu();
+
 }
 
 void ACPlayer::DeathEnd()

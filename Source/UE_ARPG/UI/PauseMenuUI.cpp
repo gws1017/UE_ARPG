@@ -14,12 +14,6 @@ void UPauseMenuUI::NativeOnInitialized()
 	QuitButton->OnClicked.AddDynamic(this, &UPauseMenuUI::OnClickQuitButton);
 }
 
-void UPauseMenuUI::NativeConstruct()
-{
-	Super::NativeConstruct();
-	
-}
-
 void UPauseMenuUI::OnClickQuitButton()
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);

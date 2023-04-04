@@ -4,21 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PauseMenuUI.generated.h"
+#include "RestartMenuUI.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE_ARPG_API UPauseMenuUI : public UUserWidget
+class UE_ARPG_API URestartMenuUI : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 public:
+	
 	virtual void NativeOnInitialized() override;
 
+
 	UPROPERTY(meta = (BindWidget))
-		class UButton* ResumeButton;
+		class UButton* RestartButton;
 	UPROPERTY(meta = (BindWidget))
 		class UButton* QuitButton;
 
@@ -26,6 +28,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void OnClickQuitButton();
 	UFUNCTION(BlueprintCallable)
-		void OnClickResumeButton();
-
+		void OnClickRestartButton();
 };

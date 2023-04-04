@@ -23,6 +23,11 @@ public:
 		class TSubclassOf<UPauseMenuUI> PauseMenuUIClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
+		class URestartMenuUI* RestartMenuUI;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+		class TSubclassOf<URestartMenuUI> RestartMenuUIClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
 		class UHUDOverlay* PlayerHUDOverlay;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 		class TSubclassOf<UHUDOverlay> HUDOverlayClass;
@@ -39,6 +44,11 @@ public:
 		void ShowPauseMenu();
 	UFUNCTION()
 		void RemovePauseMenu();
+
+	UFUNCTION()
+		void ShowRestartenu();
+	UFUNCTION()
+		void RemoveRestartMenu();
 
 	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 };
