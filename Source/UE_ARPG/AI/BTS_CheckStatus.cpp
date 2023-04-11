@@ -23,5 +23,6 @@ void UBTS_CheckStatus::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 	ControlledPawn->CalculateBossPhase();
 	OwnerComp.GetBlackboardComponent()->SetValueAsInt("PhaseNumber", ControlledPawn->GetBossPhase());
+	ControlledPawn->SelectAttack();
 
 }

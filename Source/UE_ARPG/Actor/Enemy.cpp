@@ -70,7 +70,43 @@ void AEnemy::TargetApplyDamage(ACPlayer* player, float damage, const FVector& Hi
 	UGameplayStatics::ApplyDamage(player, damage, WeaponInstigator, this, DamageTypeClass);
 }
 
- FVector AEnemy::GetCombatTargetLocation() const
+bool AEnemy::IsHitActorAreaAttack(const FVector& start, const FVector& end, float radius, TArray<AActor*>& HitActors)
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	EObjectTypeQuery Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	ObjectTypes.Add(Pawn);
+
+	TArray<AActor*> IgnoreActors;
+	//자기자신은 충돌검사 X
+	IgnoreActors.Add(this);
+
+	TArray<FHitResult> HitResults;
+	bool result = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), start, end, radius,
+		ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true);
+
+
+	CheckFalseResult(result, result);
+
+	for (auto hitresult : HitResults)
+		HitActors.AddUnique(hitresult.GetActor());
+
+	return result;
+}
+
+bool AEnemy::IsRanged(float radius)
+{
+	FVector start = GetActorLocation() - FVector(radius,0,0);
+	FVector end = GetActorLocation() + FVector(radius,0,0);
+
+	TArray<AActor*> HitActors;
+
+	if(IsHitActorAreaAttack(start,end,radius, HitActors))
+		return true;
+
+	return false;
+}
+
+FVector AEnemy::GetCombatTargetLocation() const
 {
 	CheckNullResult(CombatTarget,GetActorForwardVector());
 	return CombatTarget->GetActorLocation();

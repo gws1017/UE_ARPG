@@ -89,16 +89,25 @@ public:
 	FORCEINLINE void SetAlerted(bool value) { bAlerted = value; }
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 
+	UFUNCTION()
+		virtual bool IsHitActorAreaAttack(const FVector& start, const FVector& end,
+			float radius, TArray<AActor*>& HitActors);
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE bool IsRanged() { return bRanged; }
+		bool IsRanged(float radius);
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
 	
 	FVector GetCombatTargetLocation() const;
 
+
+	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetCurrentHP() { return HP; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetMaxHP() { return MaxHP; }
+
 public:
 
 	void SetAttackTimer();
@@ -125,8 +134,5 @@ protected:
 
 public:
 
-	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 
-	FORCEINLINE float GetHP() { return HP; }
-	FORCEINLINE float GetMaxHP() { return MaxHP; }
 };

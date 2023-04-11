@@ -27,7 +27,7 @@ ACPlayer::ACPlayer()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 200.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 
 	USkeletalMesh* mesh;
@@ -192,7 +192,7 @@ void ACPlayer::OffRunning()
 {
 	CheckFalse(Alive());
 	SetMovementState(EMovementState::EMS_Normal);
-	GetCharacterMovement()->MaxWalkSpeed = 200;
+	GetCharacterMovement()->MaxWalkSpeed = 300;
 }
 
 void ACPlayer::ESCDown()

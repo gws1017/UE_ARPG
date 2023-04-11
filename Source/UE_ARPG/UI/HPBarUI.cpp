@@ -40,7 +40,7 @@ float UHPBarUI::GetBossHPPercent()
 		Target = OwnerCharacter->GetTarget();
 	if (!!Target)
 	{
-		return (Target->GetHP() / Target->GetMaxHP());
+		return (Target->GetCurrentHP() / Target->GetMaxHP());
 	}
 	
 

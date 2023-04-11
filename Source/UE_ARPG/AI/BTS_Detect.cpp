@@ -25,8 +25,22 @@ void UBTS_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	else
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject("TargetKey",NULL);
-
 	}
-	OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsRanged", ControlledPawn->IsRanged());
+	
+	int32 AttackNumber = ControlledPawn->GetAttackNumber();
+	float radius;
+	switch (AttackNumber)
+	{
+	case 0:
+	case 1:
+	case 2:
+		radius = 170.f;
+		break;
+	case 3:
+	case 4:
+		radius = 1000.f;
+		break;
+	}
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsRanged", ControlledPawn->IsRanged(radius));
 
 }

@@ -14,7 +14,7 @@
 
 ABoss::ABoss() :
 	Damage (5.f), DamageC (7.f), DamageD (9.f)
-	, JumpDelayTime(2.5f), DropLocationOffset(200.f) , SectionNumber(0)
+	, JumpDelayTime(2.5f), DropLocationOffset(200.f) , AttackNumber(0)
 	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump" }
 {
 	USkeletalMesh* mesh;
@@ -41,8 +41,6 @@ ABoss::ABoss() :
 	
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &LWeaponCollision, "LWeaponCollision", GetMesh(), "hand_lf");
 	UHelpers::SocketAttachComponent<UCapsuleComponent>(this, &RWeaponCollision, "RWeaponCollision", GetMesh(), "hand_rt");
-	UHelpers::CreateComponent<USphereComponent>(this, &RangedAtkSphere, "RangedAtkSphere", GetRootComponent());
-
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.f);
 	GetCapsuleComponent()->SetCapsuleRadius(130.f); RWeaponCollision->SetCapsuleHalfHeight(60);
@@ -54,9 +52,7 @@ ABoss::ABoss() :
 	SetWeaponCollision(&RWeaponCollision, FVector(-8, -16, -1.5), FRotator(-80, 0, -30));
 	SetWeaponCollision(&LWeaponCollision, FVector(8, 16, 1.5), FRotator(-80, 0, -30));
 
-	RangedAtkSphere->InitSphereRadius(1000.f);
 	AgroSphere->InitSphereRadius(1400.f);
-	CombatSphere->InitSphereRadius(170.f);
 
 	GetCharacterMovement()->MaxWalkSpeed = 300;
 
@@ -84,8 +80,6 @@ void ABoss::BeginPlay()
 
 	SetCollision(&LWeaponCollision);
 	SetCollision(&RWeaponCollision);
-	RangedAtkSphere->OnComponentBeginOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapBegin);
-	RangedAtkSphere->OnComponentEndOverlap.AddDynamic(this, &ABoss::RangedAtkSphereOnOverlapEnd);
 	
 }
 
@@ -101,28 +95,6 @@ void ABoss::End_Collision(FString name)
 
 }
 
-bool ABoss::IsHitActorRangedAttack(const FVector& start, const FVector& end, float radius,TArray<AActor*>& HitActors)
-{
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	EObjectTypeQuery Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
-	ObjectTypes.Add(Pawn);
-
-	TArray<AActor*> IgnoreActors;
-	//자기자신은 충돌검사 X
-	IgnoreActors.Add(this);
-
-	TArray<FHitResult> HitResults;
-	bool result = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), start, end, radius,
-		ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true);
-
-
-	CheckFalseResult(result,result);
-
-	for (auto hitresult : HitResults)
-		HitActors.AddUnique(hitresult.GetActor());
-
-	return result;
-}
 
 void ABoss::AttackC()
 {
@@ -135,7 +107,7 @@ void ABoss::AttackC()
 
 	TArray<AActor*> HitActors;
 
-	if (IsHitActorRangedAttack(start, end, 100.f, HitActors)) 
+	if (IsHitActorAreaAttack(start, end, 100.f, HitActors))
 	{
 		for (auto HitActor : HitActors)
 		{
@@ -217,7 +189,7 @@ void ABoss::AttackDropDownEnd()
 
 	TArray<AActor*> HitActors;
 
-	if (IsHitActorRangedAttack(start, end, 200.f, HitActors))
+	if (IsHitActorAreaAttack(start, end, 200.f, HitActors))
 	{
 		for (auto HitActor : HitActors)
 		{
@@ -247,7 +219,6 @@ void ABoss::End_Attack()
 
 void ABoss::Attack()
 {
-	CheckFalse(bRanged);
 	CheckNull(CombatTarget);
 	AEnemy::Attack();
 
@@ -255,10 +226,7 @@ void ABoss::Attack()
 	if (!!AnimInstance)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		
-		SelectAttack(SectionNumber);
-		
-		AnimInstance->Montage_JumpToSection(SectionList[SectionNumber]);
+		AnimInstance->Montage_JumpToSection(SectionList[AttackNumber]);
 	}
 }
 
@@ -275,17 +243,15 @@ void ABoss::CalculateBossPhase()
 	}
 }
 
-void ABoss::SelectAttack(int32& num)
+void ABoss::SelectAttack()
 {
 	switch (BossPhase)
 	{
 	case 1:
-		AttackNumber++;
-		if (AttackNumber > SectionList.Num() - 1) AttackNumber = 0;
-		num = FMath::RandRange(0, 2);
+		AttackNumber = FMath::RandRange(0, 2);
 		break;
 	case 2:
-		num = FMath::RandRange(0, SectionList.Num()-1);
+		AttackNumber = FMath::RandRange(0, SectionList.Num()-1);
 		break;
 	}
 
@@ -325,48 +291,6 @@ void ABoss::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 			bRanged = false;
 			player->SetTarget(nullptr);
 		}
-	}
-}
-
-void ABoss::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (!!OtherActor && Alive())
-	{
-		CheckNull(CombatTarget); //목표가 없으면 종료
-		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		if (!!player)
-		{
-			bRanged = true;
-		}
-	}
-}
-
-void ABoss::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (!!OtherActor && Alive())
-	{
-		bRanged = false;
-	}
-}
-
-void ABoss::RangedAtkSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (!!OtherActor && Alive())
-	{
-		CheckNull(CombatTarget); //목표가 없으면 종료
-		ACPlayer* player = Cast<ACPlayer>(OtherActor);
-		if (!!player)
-		{
-			bRangedAtkJump = true;
-		}
-	}
-}
-
-void ABoss::RangedAtkSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (!!OtherActor && Alive())
-	{
-		bRangedAtkJump = false;
 	}
 }
 
