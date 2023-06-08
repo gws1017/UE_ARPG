@@ -4,9 +4,11 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 
+AAudioManager* AAudioManager::AM = nullptr;
 // Sets default values
 AAudioManager::AAudioManager()
 {
+	AM = this;
 	UHelpers::CreateComponent(this, &MainAudio, "MainAudio");
 
 	UHelpers::GetAsset(&MainBGM, "SoundCue'/Game/Audio/dungeon002_Cue.dungeon002_Cue'");
@@ -26,7 +28,7 @@ void AAudioManager::BeginPlay()
 void AAudioManager::PlayBGM(USoundCue* sound)
 {
 	CheckNull(sound);
-
+	CheckNull(AM);
 	MainAudio->Stop();
 
 	MainAudio->SetSound(sound);
@@ -36,7 +38,19 @@ void AAudioManager::PlayBGM(USoundCue* sound)
 
 void AAudioManager::PlayMainBGM()
 {
+	CheckNull(AM);
 	MainAudio->SetSound(MainBGM);
 	MainAudio->Play();
+}
+
+AAudioManager* AAudioManager::GetAudioManager(UWorld* world)
+{
+	if (!AM)
+	{
+		TArray<AAudioManager*> arr;
+		UHelpers::FindActors(world, arr);
+		AM = arr[0];
+	}
+	return AM;
 }
 

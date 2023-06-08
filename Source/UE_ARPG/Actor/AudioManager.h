@@ -13,6 +13,8 @@ class UE_ARPG_API AAudioManager : public AActor
 	
 private:
 
+	static AAudioManager* AM;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
 		class UAudioComponent* MainAudio;
 
@@ -29,5 +31,8 @@ protected:
 public:	
 	void PlayBGM(class USoundCue* sound);
 	void PlayMainBGM( );
+
+public:
+	static AAudioManager* GetAudioManager(UWorld* world);
 
 };

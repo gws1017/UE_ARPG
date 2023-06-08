@@ -19,26 +19,15 @@ void UMyGameInstance::Init()
 
 void UMyGameInstance::PlayBGM(USoundCue* sound)
 {
-	if (!AM)
-	{
-		TArray<AAudioManager*> arr;
-		UHelpers::FindActors(GetWorld(), arr);
-		AM = arr[0];
-	}
-
-	AM->PlayBGM(sound);
+	//월드에 있는 오디오 관리자 객체를 얻어온다
+	AAudioManager::GetAudioManager(GetWorld())->PlayBGM(sound);
 }
+
+
 
 void UMyGameInstance::PlayMainBGM()
 {
-	if (!AM)
-	{
-		TArray<AAudioManager*> arr;
-		UHelpers::FindActors(GetWorld(), arr);
-		AM = arr[0];
-	}
-
-	AM->PlayMainBGM();
+	AAudioManager::GetAudioManager(GetWorld())->PlayMainBGM();
 }
 
 

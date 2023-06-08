@@ -16,7 +16,6 @@ class UE_ARPG_API UMyGameInstance : public UGameInstance
 	
 private:
 
-	class AAudioManager* AM;
 
 public:
 	UMyGameInstance();

@@ -63,6 +63,8 @@ void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	if (!!GI)
 	{
 		GI->PlayBGM(BossBattleMusic);
+		CLog::Print("Play Battle Music");
 	}
-	TriggerBox->OnComponentBeginOverlap.Clear();
+	if (TriggerBox->OnComponentBeginOverlap.IsBound()) 
+		TriggerBox->OnComponentBeginOverlap.Clear();
 }
