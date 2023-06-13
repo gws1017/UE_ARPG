@@ -36,10 +36,27 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Level;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Exp;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 MaxExp;
+	//생명력 HP에 영향을 줌
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Vigor;
+	//지구력 스테미나에 영향을줌
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Enduarance;
+	//힘 최종데미지에 영향을줌
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Strength;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		float MaxHP;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		float HP;
+	
 
 	//스테미나와 관련되는 요소
 	/* 기본 스테미나 50
@@ -175,7 +192,25 @@ public:
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
 	FORCEINLINE float GetStamina() { return Stamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
-	
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetPlayerLevel() { return Level; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetExp() { return Exp; }
+	UFUNCTION()
+		FORCEINLINE void SetExp(int32 e) { Exp = e; }
+	UFUNCTION()
+		void IncreamentExp(int32 e);
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetMaxExp() { return MaxExp; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetVigor() { return Vigor; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetEnduarance() { return Enduarance; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetStrength() { return Strength; }
+
 	FORCEINLINE bool IsValidTarget() { return (!!Target); }
 	FORCEINLINE bool IsHit() { return bHit; }
 	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerState::EPS_Invincible; }

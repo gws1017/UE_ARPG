@@ -58,7 +58,7 @@ ABoss::ABoss() :
 
 	MaxHP = 50;
 	HP = 50;
-	
+	Exp = 3000;
 	AIControllerClass = AEnemyBTController::StaticClass();
 	//BossPhase = 1;
 	

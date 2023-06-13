@@ -11,7 +11,7 @@
 #include "AIController.h"
 
 AEnemy::AEnemy()
-	: MaxHP(1),HP(1)
+	: MaxHP(1),HP(1),Exp(1)
 {
 	UHelpers::CreateComponent<USphereComponent>(this,&AgroSphere, "AgroSphere",GetRootComponent());
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
@@ -52,6 +52,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (HP - DamageAmount <= 0.f) //체력이 0이될때 적용후 Die함수 호출
 	{
 		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		CombatTarget->IncreamentExp(Exp);
 		CombatTarget->SetTarget(nullptr);
 		Die();
 	}

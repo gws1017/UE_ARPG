@@ -34,6 +34,7 @@ AEnemySkeletonMelee::AEnemySkeletonMelee()
 
 	MaxHP = 15;
 	HP = MaxHP;
+	Exp = 20;
 	
 	AgroSphere->InitSphereRadius(300.f);
 	CombatSphere->InitSphereRadius(75.f);

@@ -1,4 +1,5 @@
 #include "UI/HUDOverlay.h"
+#include "Actor/CPlayer.h"
 #include "Global.h"
 
 #include "Components/HorizontalBox.h"
@@ -7,6 +8,9 @@
 void UHUDOverlay::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+
+	PlayerInstance = Cast<ACPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 	HideBossHPBar();
 }
 

@@ -21,6 +21,9 @@ protected:
 		float MaxHP;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Status")
 		float HP;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
+		int32 Exp;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		FVector SpawnLocation;
 
@@ -107,7 +110,8 @@ public:
 		FORCEINLINE float GetCurrentHP() { return HP; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMaxHP() { return MaxHP; }
-
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetExp() { return Exp; }
 public:
 
 	void SetAttackTimer();

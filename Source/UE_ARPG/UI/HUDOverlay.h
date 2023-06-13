@@ -24,9 +24,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* BossInfoBox;
 
+private:
+	UPROPERTY()
+		class ACPlayer* PlayerInstance;
 public:
 
 	 void HideBossHPBar();
 	 void ShowBossHPBar();
+
+	 UFUNCTION(BlueprintPure)
+		 FORCEINLINE int32 GetPlayerExp() { return PlayerInstance->GetExp(); }
 
 };

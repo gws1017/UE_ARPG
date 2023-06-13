@@ -15,7 +15,8 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: MaxHP(15), HP(15),
+	: Level(1),Exp(0),MaxExp(673),
+	Vigor(1), Enduarance(1), Strength(1), MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
 	RollStamina(10.f),
 	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
@@ -121,7 +122,10 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ACPlayer::OnRoll);
 }
-
+void ACPlayer::IncreamentExp(int32 e)
+{
+	 Exp += e; 
+}
 void ACPlayer::DecrementStamina(float Amount)
 {
 	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
