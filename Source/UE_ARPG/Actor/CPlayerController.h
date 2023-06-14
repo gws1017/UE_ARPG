@@ -23,6 +23,11 @@ public:
 		class TSubclassOf<UPauseMenuUI> PauseMenuUIClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
+		class ULevelUpUI* LevelUpUI;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+		class TSubclassOf<ULevelUpUI> LevelUpUIClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
 		class URestartMenuUI* RestartMenuUI;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 		class TSubclassOf<URestartMenuUI> RestartMenuUIClass;
@@ -33,22 +38,40 @@ public:
 		class TSubclassOf<UHUDOverlay> HUDOverlayClass;
 
 	bool bVisiblePauseMenu = false;
+	bool bVisibleLevelUpUI = false;
+
+	bool bGameInputMode = true;
 
 public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void TogglePauseMenu();
+		void TogglePauseMenu();
+	UFUNCTION(BlueprintCallable)
+		void ToggleLevelUpUI();
+	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
+	FORCEINLINE bool GetGameMode() { return bGameInputMode; }
+
+private:
 
 	UFUNCTION()
-		void ShowPauseMenu();
+		void ShowGameUI(class UUserWidget* GameUI);
 	UFUNCTION()
-		void RemovePauseMenu();
+		void RemoveGameUI(class UUserWidget* GameUI);
+
+	void SetGameOnlyMode();
+	void SetUIOnlyMode();
+	void SetGameAndUIMode();
+
+public:
 
 	UFUNCTION()
 		void ShowRestartenu();
 	UFUNCTION()
 		void RemoveRestartMenu();
 
-	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
+	UFUNCTION()
+		void ShowPauseMenu();
+	UFUNCTION()
+		void RemovePauseMenu();
 };

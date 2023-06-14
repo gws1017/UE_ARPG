@@ -41,7 +41,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Exp;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 MaxExp;
+		int32 LevelUpExp;
 	//생명력 HP에 영향을 줌
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Vigor;
@@ -157,6 +157,7 @@ public:
 
 	bool CanAttack();
 	bool CanRoll();
+	bool CanMove();
 
 	virtual void Begin_Attack()override;
 	virtual void End_Attack()override;
@@ -177,6 +178,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	class AWeapon* Weapon;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
+		class ACPlayerController* PlayerController;
 
 
 public:
@@ -202,7 +206,7 @@ public:
 	UFUNCTION()
 		void IncreamentExp(int32 e);
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetMaxExp() { return MaxExp; }
+		FORCEINLINE int32 GetLevelUpExp() { return LevelUpExp; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetVigor() { return Vigor; }

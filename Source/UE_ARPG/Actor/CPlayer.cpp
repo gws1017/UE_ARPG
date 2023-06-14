@@ -15,7 +15,7 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: Level(1),Exp(0),MaxExp(673),
+	: Level(1),Exp(0),LevelUpExp(673),
 	Vigor(1), Enduarance(1), Strength(1), MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
 	RollStamina(10.f),
@@ -60,6 +60,7 @@ ACPlayer::ACPlayer()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
 
+
 }
 
 void ACPlayer::BeginPlay()
@@ -68,6 +69,7 @@ void ACPlayer::BeginPlay()
 	
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
 	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::WeaponBeginOverlap);
+	PlayerController = GetController<ACPlayerController>();
 
 }
 
@@ -142,27 +144,35 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
+bool ACPlayer::CanMove()
+{
+	CheckFalseResult(Alive(), false);
+	if (PlayerController) 
+	{
+		CheckFalseResult(PlayerController->GetGameMode(),false);
+	}
+	return true;
+}
+
 void ACPlayer::OnMoveForward(float Axis)
 {
-	CheckFalse(Alive());
+	if (CanMove()) {
+		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+		FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
 
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector dir = FQuat(rotator).GetForwardVector().GetUnsafeNormal2D();
-
-	AddMovementInput(dir, Axis);
-
+		AddMovementInput(dir, Axis);
+	}
 }
 
 
 void ACPlayer::OnMoveRight(float Axis)
 {
-	CheckFalse(Alive());
+	if (CanMove()) {
+		FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
+		FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
 
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector dir = FQuat(rotator).GetRightVector().GetUnsafeNormal2D();
-
-	AddMovementInput(dir, Axis);
-
+		AddMovementInput(dir, Axis);
+	}
 }
 
 void ACPlayer::OnHorizonLock(float Axis)
@@ -187,16 +197,18 @@ void ACPlayer::OnRoll()
 
 void ACPlayer::OnRunning()
 {
-	CheckFalse(Alive());
-	SetMovementState(EMovementState::EMS_Sprinting);
-	GetCharacterMovement()->MaxWalkSpeed = 400;
+	if (CanMove()) {
+		SetMovementState(EMovementState::EMS_Sprinting);
+		GetCharacterMovement()->MaxWalkSpeed = 400;
+	}
 }
 
 void ACPlayer::OffRunning()
 {
-	CheckFalse(Alive());
-	SetMovementState(EMovementState::EMS_Normal);
-	GetCharacterMovement()->MaxWalkSpeed = 300;
+	if (CanMove()) {
+		SetMovementState(EMovementState::EMS_Normal);
+		GetCharacterMovement()->MaxWalkSpeed = 300;
+	}
 }
 
 void ACPlayer::ESCDown()
@@ -315,6 +327,7 @@ void ACPlayer::HitEnd()
 
 bool ACPlayer::CanAttack()
 {
+	CheckFalseResult(PlayerController->GetGameMode(),false);
 	CheckFalseResult(Weapon->GetEquipped(),false);
 	CheckTrueResult(Weapon->GetEquipping(),false);
 	switch (MovementState)
@@ -334,6 +347,7 @@ bool ACPlayer::CanAttack()
 bool ACPlayer::CanRoll()
 {
 	CheckTrueResult(bAttacking,false);
+	CheckFalseResult(PlayerController->GetGameMode(),false);
 
 	switch (MovementState)
 	{
