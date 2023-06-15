@@ -59,6 +59,7 @@ void ACPlayerController::ShowGameUI(UUserWidget* GameUI)
 	{
 		bShowMouseCursor = true;
 		SetGameAndUIMode();
+		if(!GameUI->IsInViewport())GameUI->AddToViewport();
 		GameUI->SetVisibility(ESlateVisibility::Visible);
 	}
 }
@@ -69,7 +70,7 @@ void ACPlayerController::RemoveGameUI(UUserWidget* GameUI)
 	{
 		bShowMouseCursor = false;
 		SetGameOnlyMode();
-		GameUI->SetVisibility(ESlateVisibility::Hidden);
+		if (GameUI->IsInViewport())GameUI->RemoveFromViewport();
 	}
 }
 

@@ -177,12 +177,12 @@ void ACPlayer::OnMoveRight(float Axis)
 
 void ACPlayer::OnHorizonLock(float Axis)
 {
-	AddControllerYawInput(Axis);
+	if(CanMove())AddControllerYawInput(Axis);
 }
 
 void ACPlayer::OnVerticalLock(float Axis)
 {
-	AddControllerPitchInput(Axis);
+	if (CanMove())AddControllerPitchInput(Axis);
 }
 
 void ACPlayer::OnRoll()
@@ -327,7 +327,7 @@ void ACPlayer::HitEnd()
 
 bool ACPlayer::CanAttack()
 {
-	CheckFalseResult(PlayerController->GetGameMode(),false);
+	if(PlayerController)CheckFalseResult(PlayerController->GetGameMode(),false);
 	CheckFalseResult(Weapon->GetEquipped(),false);
 	CheckTrueResult(Weapon->GetEquipping(),false);
 	switch (MovementState)
@@ -347,7 +347,7 @@ bool ACPlayer::CanAttack()
 bool ACPlayer::CanRoll()
 {
 	CheckTrueResult(bAttacking,false);
-	CheckFalseResult(PlayerController->GetGameMode(),false);
+	if (PlayerController)CheckFalseResult(PlayerController->GetGameMode(),false);
 
 	switch (MovementState)
 	{
