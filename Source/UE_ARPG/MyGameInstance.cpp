@@ -1,5 +1,6 @@
 #include "MyGameInstance.h"
 #include "Actor/AudioManager.h"
+#include "DataTable/CharacterAbilityTables.h"
 
 #include "Global.h"
 #include "Sound/SoundCue.h"
@@ -8,7 +9,7 @@
 UMyGameInstance::UMyGameInstance()
 {
 	
-
+	//GetAsset<UDataTable>(&CharacterAbilityData, "");
 }
 
 void UMyGameInstance::Init()
@@ -28,6 +29,11 @@ void UMyGameInstance::PlayBGM(USoundCue* sound)
 void UMyGameInstance::PlayMainBGM()
 {
 	AAudioManager::GetAudioManager(GetWorld())->PlayMainBGM();
+}
+
+FCharacterAbilityData* UMyGameInstance::GetCharAbilityData(int32 Level)
+{
+	return CharacterAbilityData->FindRow<FCharacterAbilityData>(*FString::FromInt(Level),TEXT(""));
 }
 
 

@@ -28,6 +28,9 @@ private:
 	UPROPERTY()
 		class ACPlayer* PlayerInstance;
 
+	UPROPERTY()
+		class UMyGameInstance* GameInstance;
+
 		int32 SelectUINumber;
 		int32 TargetExp;
 
@@ -54,13 +57,13 @@ public:
 		FORCEINLINE int32 GetPlayerExp() { return PlayerInstance->GetExp(); }
 	UFUNCTION(BlueprintPure)
 		int32 GetChangePlayerExp();
-	
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetPlayerLevelUpExp() { return TargetExp; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetPlayerLevel() const { return PlayerInstance->GetPlayerLevel(); }
 	UFUNCTION(BlueprintPure)
 		int32 GetChangePlayerLevel();
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetVigor() const { return PlayerInstance->GetVigor(); }
 	UFUNCTION(BlueprintPure)
@@ -73,8 +76,19 @@ public:
 		FORCEINLINE int32 GetStrength() const { return PlayerInstance->GetStrength(); }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetChangeStrength() const { return PlayerInstance->GetStrength() + LevelUpCount[2]; }
+	
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetMaxHP() const { return PlayerInstance->GetMaxHP(); }
+		FORCEINLINE int32 GetMaxHP() const { return static_cast<int32>(PlayerInstance->GetMaxHP()); }
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetMaxStamina() const { return PlayerInstance->GetMaxStamina(); }
+		FORCEINLINE int32 GetMaxStamina() const { return static_cast<int32>(PlayerInstance->GetMaxStamina()); }
+	UFUNCTION(BlueprintPure)
+		int32 GetChangeMaxHP();
+	UFUNCTION(BlueprintPure)
+		int32 GetChangeMaxStamina();
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE int32 GetPlayerDamage() const { return static_cast<int32>(PlayerInstance->GetDamage()); }
+	UFUNCTION(BlueprintPure)
+		 int32 GetChangePlayerDamage();
+
 };

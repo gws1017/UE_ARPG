@@ -124,6 +124,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Roll", EInputEvent::IE_Pressed, this, &ACPlayer::OnRoll);
 }
+
 void ACPlayer::IncreamentExp(int32 e)
 {
 	 Exp += e; 
@@ -378,6 +379,16 @@ void ACPlayer::ComboAttackSave()
 		bSaveAttack = false;
 		PlayAttackMontage();
 	}
+}
+
+float ACPlayer::GetDamage()
+{
+	float Damage = 0.f;
+	if (Weapon)
+	{
+		Damage += Weapon->GetDamage();
+	}
+	return Damage;
 }
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

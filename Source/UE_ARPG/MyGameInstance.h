@@ -16,6 +16,8 @@ class UE_ARPG_API UMyGameInstance : public UGameInstance
 	
 private:
 
+	UPROPERTY(EditAnywhere,Category = "Data");
+	class UDataTable* CharacterAbilityData;
 
 public:
 	UMyGameInstance();
@@ -24,5 +26,7 @@ public:
 
 	void PlayBGM(class USoundCue* sound);
 	void PlayMainBGM();
+
+	struct FCharacterAbilityData* GetCharAbilityData(int32 Level);
 
 };

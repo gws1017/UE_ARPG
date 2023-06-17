@@ -38,7 +38,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Level;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UPROPERTY(EditDefaultsonly, Category = "Status")
 		int32 Exp;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 LevelUpExp;
@@ -191,7 +191,8 @@ public:
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
-
+	UFUNCTION(BlueprintPure)
+		float GetDamage();
 	FORCEINLINE float GetHP() { return HP; }
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
 	FORCEINLINE float GetStamina() { return Stamina; }
