@@ -19,11 +19,20 @@ public:
 	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidget))
-	class UBorder* VigBorder;
+		class UBorder* VigBorder;
 	UPROPERTY(meta = (BindWidget))
 		class UBorder* EndureBorder;
 	UPROPERTY(meta = (BindWidget))
 		class UBorder* StrBorder;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* OKBtn;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+		class UOKUI* OKUI;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+		class TSubclassOf<UOKUI> OKUIIClass;
+
 private:
 	UPROPERTY()
 		class ACPlayer* PlayerInstance;
@@ -41,8 +50,14 @@ private:
 
 private:
 
+	void OKBtnEnable();
+	void OKBtnDisable();
 	void SelectAbility();
 	void UpdateTargetExp();
+
+	UFUNCTION()
+		void LevelUp();
+
 	UFUNCTION(BlueprintCallable)
 		void OnUpKey();
 	UFUNCTION(BlueprintCallable)
@@ -51,6 +66,8 @@ private:
 		void OnLeftKey();
 	UFUNCTION(BlueprintCallable)
 		void OnRightKey();
+	UFUNCTION(BlueprintCallable)
+		void OnClickOKBtn();
 public:
 
 	UFUNCTION(BlueprintPure)

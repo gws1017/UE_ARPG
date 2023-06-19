@@ -52,6 +52,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Strength;
 
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float StrengthDamage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		float MaxHP;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
@@ -193,13 +195,18 @@ public:
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
 	UFUNCTION(BlueprintPure)
 		float GetDamage();
+	FORCEINLINE	void SetStrDamage(float dmg) { StrengthDamage = dmg; }
 	FORCEINLINE float GetHP() { return HP; }
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
+	FORCEINLINE void SetMaxHP(float hp) { MaxHP = hp; }
+	
 	FORCEINLINE float GetStamina() { return Stamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
+	FORCEINLINE void SetMaxStamina(float sta) { MaxStamina = sta; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetPlayerLevel() { return Level; }
+	FORCEINLINE void SetPlayerLevel(int32 lev) {  Level = lev; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetExp() { return Exp; }
 	UFUNCTION()
@@ -208,13 +215,17 @@ public:
 		void IncreamentExp(int32 e);
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetLevelUpExp() { return LevelUpExp; }
+	FORCEINLINE void SetLevelUpExp(float exp) {  LevelUpExp = exp; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetVigor() { return Vigor; }
+	FORCEINLINE void SetVigor(int32 vig) { Vigor = vig; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetEnduarance() { return Enduarance; }
+	FORCEINLINE void SetEnduarance(int32 end) {  Enduarance = end; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetStrength() { return Strength; }
+	FORCEINLINE void SetStrength(int32 str) {  Strength = str; }
 
 	FORCEINLINE bool IsValidTarget() { return (!!Target); }
 	FORCEINLINE bool IsHit() { return bHit; }

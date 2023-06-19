@@ -16,7 +16,8 @@
 
 ACPlayer::ACPlayer()
 	: Level(1),Exp(0),LevelUpExp(673),
-	Vigor(1), Enduarance(1), Strength(1), MaxHP(15), HP(15),
+	Vigor(1), Enduarance(1), Strength(1), 
+	StrengthDamage(0.f), MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
 	RollStamina(10.f),
 	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
@@ -141,7 +142,7 @@ void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		AttackAudioComponent->Play();
 		enemy->Hit(Weapon->GetActorLocation());
-		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon,TSubclassOf<UDamageType>());
+		UGameplayStatics::ApplyDamage(OtherActor, GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
 	}
 }
 
@@ -383,7 +384,7 @@ void ACPlayer::ComboAttackSave()
 
 float ACPlayer::GetDamage()
 {
-	float Damage = 0.f;
+	float Damage = StrengthDamage;
 	if (Weapon)
 	{
 		Damage += Weapon->GetDamage();
