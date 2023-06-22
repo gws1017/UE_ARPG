@@ -13,17 +13,17 @@ struct FCharacterAbilityData : public FTableRowBase
 	GENERATED_BODY()
 public:
 
-	FCharacterAbilityData() : TotalHPIncrease(0.f), HPIncrease(0.f), 
-		TotalStaIncrease(0.f), StaIncrease(0.f),
+	FCharacterAbilityData() : TotalHP(0.f), HPIncrease(0.f), 
+		TotalStamina(0.f), StaIncrease(0.f),
 		TotalDmgIncrease(0.f), DmgIncrease(0.f),
 		LevelUpExp(0) {}
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float TotalHPIncrease;
+		float TotalHP;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
 		float HPIncrease;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
-		float TotalStaIncrease;
+		float TotalStamina;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
 		float StaIncrease;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")

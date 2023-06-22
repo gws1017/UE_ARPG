@@ -41,12 +41,15 @@ private:
 		class UMyGameInstance* GameInstance;
 
 		int32 SelectUINumber;
-		int32 TargetExp;
+		int32 TotalExp;
+		int32 NextExp;
 
 	UPROPERTY()
 		TArray<UBorder*> AbilityArray;
 	UPROPERTY()
 		TArray<int32> LevelUpCount;
+
+	bool bUpdatedAbility = false;
 
 private:
 
@@ -75,7 +78,7 @@ public:
 	UFUNCTION(BlueprintPure)
 		int32 GetChangePlayerExp();
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetPlayerLevelUpExp() { return TargetExp; }
+		 int32 GetPlayerNextExp();
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetPlayerLevel() const { return PlayerInstance->GetPlayerLevel(); }
 	UFUNCTION(BlueprintPure)

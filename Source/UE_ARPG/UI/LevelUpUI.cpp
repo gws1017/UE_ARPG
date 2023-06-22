@@ -26,7 +26,7 @@ void ULevelUpUI::NativeConstruct()
 	Super::NativeConstruct();
 
 	SelectUINumber = 0;
-	TargetExp = PlayerInstance->GetLevelUpExp();
+	NextExp = GameInstance->GetCharAbilityData(GetChangePlayerLevel() + 1)->LevelUpExp;
 	LevelUpCount.Init(0, AbilityArray.Num());
 	SelectAbility();
 }
@@ -63,10 +63,11 @@ void ULevelUpUI::LevelUp()
 	if (PlayerInstance->GetVigor() != GetChangeVigor())PlayerInstance->SetVigor(GetChangeVigor());
 	if (PlayerInstance->GetEnduarance() != GetChangeEnduarance())PlayerInstance->SetEnduarance(GetChangeEnduarance());
 	if (PlayerInstance->GetStrength() != GetChangeStrength())PlayerInstance->SetStrength(GetChangeStrength());
-	if (PlayerInstance->GetLevelUpExp() != TargetExp) PlayerInstance->SetLevelUpExp(TargetExp);
-	TargetExp = PlayerInstance->GetLevelUpExp();
+
+	NextExp = GameInstance->GetCharAbilityData(PlayerInstance->GetPlayerLevel() + 1)->LevelUpExp;
 	LevelUpCount.Init(0, AbilityArray.Num());
-	//최종 무기데미지 != 바뀐 최종무기데미지) 스텟추가데미지 = 바뀐 힘스텟에 의한 누적추가데미지
+	OKBtnDisable();
+	bUpdatedAbility = false;
 }
 
 void ULevelUpUI::SelectAbility()
@@ -112,7 +113,7 @@ void ULevelUpUI::OnRightKey()
 		//요구 경험치이상을 보유해야 레벨업 가능
 			LevelUpCount[SelectUINumber]++;
 			UpdateTargetExp();
-			if (GetPlayerExp() < TargetExp)
+			if (GetPlayerExp() < TotalExp)
 			{
 				LevelUpCount[SelectUINumber]--;
 				UpdateTargetExp();
@@ -132,11 +133,21 @@ void ULevelUpUI::OnClickOKBtn()
 
 int32 ULevelUpUI::GetChangePlayerExp()
 {
-	if (GetChangePlayerLevel() - GetPlayerLevel() == 0) {
+	if (bUpdatedAbility == false) {
 		return PlayerInstance->GetExp(); 
 	}
-	else return PlayerInstance->GetExp() - TargetExp;
+	else return PlayerInstance->GetExp() - TotalExp;
 
+}
+
+int32 ULevelUpUI::GetPlayerNextExp()
+{
+	if (GameInstance && bUpdatedAbility)
+	{
+		return  static_cast<int32>
+			(GameInstance->GetCharAbilityData(GetChangePlayerLevel()+1)->LevelUpExp);
+	}
+	return NextExp;
 }
 
 void ULevelUpUI::UpdateTargetExp()
@@ -145,20 +156,16 @@ void ULevelUpUI::UpdateTargetExp()
 	int32 TargetLevel = GetChangePlayerLevel();
 	int32 dl = TargetLevel - CurrentLevel;
 
-	TargetExp = PlayerInstance->GetLevelUpExp();
-	int32 SumExp = TargetExp;
+	bUpdatedAbility = false;
+	int32 SumExp = 0;
 	if (dl > 0) {
+		bUpdatedAbility = true;
 		OKBtnEnable();
-		for (int i = 0; i < dl; ++i) {
-			if (TargetLevel <= 12 && TargetLevel >= 2) {
-				SumExp += SumExp * FMath::Pow((1.025), dl);
-			}
-			else if (TargetLevel >= 13) {
-				SumExp += 0.02 * FMath::Pow(static_cast<float>(TargetLevel), 3.0f) + 3.06 * FMath::Pow(static_cast<float>(TargetLevel), 2.0f)
-					+ 105.6 * (TargetLevel)-895;
-			}
+		//현재 목표로한는 레벨의 다음 레벨에 필요한경험치를 표기해야함
+		for (int i = CurrentLevel; i <= TargetLevel + 1; ++i) {
+			SumExp += GameInstance->GetCharAbilityData(i)->LevelUpExp;
 		}
-		TargetExp = SumExp;
+		TotalExp = SumExp;
 	}
 	else
 		OKBtnDisable();
@@ -175,44 +182,32 @@ int32 ULevelUpUI::GetChangePlayerLevel()
 
 int32 ULevelUpUI::GetChangeMaxHP()
 {
-	if (GameInstance)
+	if (GameInstance && bUpdatedAbility)
 	{
-		//추가 hp(2레벨) + 초기체력
-		//추가hp(3레벨) + 추가 hp(2레벨) + 초기체력 -> 추가HP(3레벨) + 초기 체력
-		//계산식이 현재 잘못되어있다, 스테미나도 같은문제 발생
-		//해결 
-		//1.계산된 체력을 가져와서 그대로 대입한다
-		//2.추가체력을 저장하는 변수를 만든다(변수너무많고 귀찮을거같은데)
-		//3.또뭐가잇지
 		return  static_cast<int32>
-			(GameInstance->GetCharAbilityData(GetChangeVigor())->TotalHPIncrease + 
-			PlayerInstance->GetMaxHP());
+			(GameInstance->GetCharAbilityData(GetChangeVigor())->TotalHP);
 	}
-	CLog::Log("In LevelUpUI, GameInstance Pointer is not intialized!");
 	return GetMaxHP();
 }
 
 int32 ULevelUpUI::GetChangeMaxStamina()
 {
-	if (GameInstance)
+	if (GameInstance && bUpdatedAbility)
 	{
 		return  static_cast<int32>
-			(GameInstance->GetCharAbilityData(GetChangeEnduarance())->TotalStaIncrease +
-				PlayerInstance->GetMaxStamina());
+			(GameInstance->GetCharAbilityData(GetChangeEnduarance())->TotalStamina );
 	}
-	CLog::Log("In LevelUpUI, GameInstance Pointer is not intialized!");
 	return GetMaxStamina();
 }
 
 int32 ULevelUpUI::GetChangePlayerDamage()
 {
-	if (GameInstance)
+	if (GameInstance && bUpdatedAbility)
 	{
 		return  static_cast<int32>
 			(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease +
 				PlayerInstance->GetDamage());
 	}
-	CLog::Log("In LevelUpUI, GameInstance Pointer is not intialized!");
 	return GetPlayerDamage();
 }
 

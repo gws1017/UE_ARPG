@@ -40,8 +40,6 @@ protected:
 		int32 Level;
 	UPROPERTY(EditDefaultsonly, Category = "Status")
 		int32 Exp;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 LevelUpExp;
 	//생명력 HP에 영향을 줌
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Vigor;
@@ -213,9 +211,6 @@ public:
 		FORCEINLINE void SetExp(int32 e) { Exp = e; }
 	UFUNCTION()
 		void IncreamentExp(int32 e);
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetLevelUpExp() { return LevelUpExp; }
-	FORCEINLINE void SetLevelUpExp(float exp) {  LevelUpExp = exp; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetVigor() { return Vigor; }

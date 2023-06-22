@@ -15,7 +15,7 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: Level(1),Exp(0),LevelUpExp(673),
+	: Level(1),Exp(0),
 	Vigor(1), Enduarance(1), Strength(1), 
 	StrengthDamage(0.f), MaxHP(15), HP(15),
 	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
