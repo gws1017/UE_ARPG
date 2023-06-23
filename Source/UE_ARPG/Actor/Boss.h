@@ -102,16 +102,11 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 		bool bDamaged;
-	UPROPERTY(VisibleAnywhere)
-		bool bCanAttackC;
-	UPROPERTY(VisibleAnywhere)
-		bool bRangedAtkJump;
 
 public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Debug")
 		bool bAttacking;
-
 
 public:
 		UFUNCTION(BlueprintPure)

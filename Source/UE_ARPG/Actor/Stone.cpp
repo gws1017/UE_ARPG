@@ -59,8 +59,8 @@ void AStone::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (!!OtherActor) 
 	{
-		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Mesh->SetSimulatePhysics(false);
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 
