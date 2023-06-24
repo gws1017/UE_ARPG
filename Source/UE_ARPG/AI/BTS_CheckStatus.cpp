@@ -3,6 +3,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "Global.h"
+#include "Actor/CPlayer.h"
 #include "Actor/Boss.h"
 
 UBTS_CheckStatus::UBTS_CheckStatus()
@@ -23,6 +24,8 @@ void UBTS_CheckStatus::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 	ControlledPawn->CalculateBossPhase();
 	OwnerComp.GetBlackboardComponent()->SetValueAsInt("PhaseNumber", ControlledPawn->GetBossPhase());
-	ControlledPawn->SelectAttack();
+	OwnerComp.GetBlackboardComponent()->SetValueAsObject("TargetKey", ControlledPawn->GetTarget());
+	//처음한번 공격을정한다 -> 초기값설정해놓으면되지
+	//공격이 성공하면 다음공격은 뭘로할지정한다. ->이거다 정답이야!
 
 }

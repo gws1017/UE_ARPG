@@ -14,7 +14,7 @@
 
 ABoss::ABoss() :
 	Damage (5.f), DamageC (7.f), DamageD (9.f)
-	, JumpDelayTime(2.5f), DropLocationOffset(200.f) , AttackNumber(0)
+	, JumpDelayTime(2.5f), DropLocationOffset(200.f) , SkillType(ESkillType::EST_DefaultAttack)
 	, SectionList{ "AttackA","AttackB","AttackC","AttackThrow","AttackJump" }
 {
 	USkeletalMesh* mesh;
@@ -226,7 +226,7 @@ void ABoss::Attack()
 	if (!!AnimInstance)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		AnimInstance->Montage_JumpToSection(SectionList[AttackNumber]);
+		AnimInstance->Montage_JumpToSection(SectionList[static_cast<int32>(SkillType)]);
 	}
 }
 
@@ -248,10 +248,10 @@ void ABoss::SelectAttack()
 	switch (BossPhase)
 	{
 	case 1:
-		AttackNumber = FMath::RandRange(0, 2);
+		SkillType = static_cast<ESkillType>(FMath::RandRange(0, 2));
 		break;
 	case 2:
-		AttackNumber = FMath::RandRange(0, SectionList.Num()-1);
+		SkillType = static_cast<ESkillType>(FMath::RandRange(0, SectionList.Num()-1));
 		break;
 	}
 

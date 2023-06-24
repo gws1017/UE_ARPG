@@ -6,10 +6,18 @@
 #include "CoreMinimal.h"
 #include "Actor/Enemy.h"
 #include "Boss.generated.h"
+ 
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+	EST_DefaultAttack UMETA(DisplayName = "Default"),
+	EST_DefaultAttack2 UMETA(DisplayName = "Default2"),
+	EST_AreaAttack UMETA(DisplayName = "AreaAttack"),
+	EST_ThrowAttack UMETA(DisplayName = "ThorwAttack"),
+	EST_DropAttack UMETA(DisplayName = "DropAttack"),
+};
+
 UCLASS()
 class UE_ARPG_API ABoss : public AEnemy
 {
@@ -37,9 +45,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* AttackMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Animation")
-		int32 AttackNumber;
-	UPROPERTY(VisibleAnywhere, Category = "Animation")
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		ESkillType SkillType;
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
 		TArray<FName> SectionList;
 
 	//공격이 추가되면서 데미지가 달라지고 있는데 이러면 DamageType을 사용해보자
@@ -113,7 +121,7 @@ public:
 			FORCEINLINE float GetBossPhase() { return BossPhase; }
 
 		UFUNCTION(BlueprintPure)
-			FORCEINLINE float GetAttackNumber() { return AttackNumber; }
+			FORCEINLINE ESkillType GetAttackNumber() { return SkillType; }
 private:
 
 	std::map<FString, UShapeComponent*> CollisionMap;

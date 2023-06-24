@@ -19,6 +19,9 @@ EBTNodeResult::Type UBTTask_AttackPhase::ExecuteTask(UBehaviorTreeComponent& Own
 
 	ControlledPawn->Attack();
 
+	//공격에 성공하면 다음 공격패턴을 결정한다.
+	ControlledPawn->SelectAttack();
+
 	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	return EBTNodeResult::Succeeded;
 }
