@@ -114,24 +114,27 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 		bool bAttacking = false;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class AWeapon* Weapon;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
+		class ACPlayerController* PlayerController;
+
 	bool bRunning = false;
 
 	bool bBlending = false;
 
-	TMap<FString, float> StaminaTable;
-
 protected:
+	//캐릭터 기본함수
 	virtual void BeginPlay() override;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	void UpdateStamina(float DeltaStamina);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-
+	//키입력 관련 함수
 	void OnMoveForward(float Axis);
 	void OnMoveRight(float Axis);
 	void OnHorizonLock(float Axis);
@@ -147,12 +150,13 @@ private:
 
 
 public:
+	//전투 관련 함수
+	
+	virtual bool Alive() override;
 	void Die();
+	virtual void DeathEnd();
 
 	virtual void Hit(const FVector& ParticleSpawnLocation) override;
-	virtual bool Alive() override;
-
-	virtual void DeathEnd();
 	virtual void HitEnd();
 
 	bool CanAttack();
@@ -161,12 +165,12 @@ public:
 
 	virtual void Begin_Attack()override;
 	virtual void End_Attack()override;
-
-	void PlayAttackMontage();
-	void ResetCombo();
 	void ComboAttackSave();
+	void ResetCombo();
+	void PlayAttackMontage();
 
-public:
+	void UpdateStamina(float DeltaStamina);
+
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	UFUNCTION()
@@ -174,17 +178,8 @@ public:
 	UFUNCTION()
 		void WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-private:
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-	class AWeapon* Weapon;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
-		class ACPlayerController* PlayerController;
-
-
 public:
-
+	//Getter & Setter
 	FORCEINLINE void SetPlayerState(EPlayerState state) { PlayerStat = state; }
 	FORCEINLINE void SetMovementState(EMovementState state) { MovementState = state; }
 	FORCEINLINE void SetTarget(class AEnemy* target) { Target = target; }
@@ -197,6 +192,7 @@ public:
 	FORCEINLINE float GetHP() { return HP; }
 	FORCEINLINE float GetMaxHP() { return MaxHP; }
 	FORCEINLINE void SetMaxHP(float hp) { MaxHP = hp; }
+	FORCEINLINE void SetHP(float hp) { HP = hp; }
 	
 	FORCEINLINE float GetStamina() { return Stamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }

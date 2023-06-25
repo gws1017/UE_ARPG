@@ -52,9 +52,16 @@ void ULevelUpUI::OKBtnDisable()
 void ULevelUpUI::LevelUp()
 {
 	CLog::Print("LevelUP!");
-	//혹시 모르니까 한번더 확인, 변경된 항목만 적용한다
+	//구조체를 전달해서 덮어씌우는게 낫지않을까?
+	//플레이어 클래스에 레벨업 함수를 만들고, 레벨업 함수에
+	//변경된능력치가 저장된 구조체를 전달한다
+	//ui는 유저와 게임사이의 명령을전달하는 매개체지 이렇게 긴 코드를
+	//적는 것은 적합하지않을 것 같다
 	
-	if (PlayerInstance->GetMaxHP() != GetChangeMaxHP())PlayerInstance->SetMaxHP(GetChangeMaxHP());
+	if (PlayerInstance->GetMaxHP() != GetChangeMaxHP()) {
+		PlayerInstance->SetMaxHP(GetChangeMaxHP());
+		PlayerInstance->SetHP(GetMaxHP());
+	}
 	if (PlayerInstance->GetMaxStamina() != GetChangeMaxStamina())PlayerInstance->SetMaxStamina(GetChangeMaxStamina());
 	if (PlayerInstance->GetDamage() != GetChangePlayerDamage())PlayerInstance->SetStrDamage(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease);
 	

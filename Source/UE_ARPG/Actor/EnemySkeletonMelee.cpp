@@ -81,6 +81,7 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapBegin(UPrimitiveComponent* Overla
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
 		{
+			SetAlerted(true);
 			CombatTarget = player;
 
 			if (CombatTarget->Alive())
