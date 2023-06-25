@@ -4,6 +4,7 @@
 #include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
 #include "Actor/CPlayerController.h"
+#include "Utilities/MySaveGame.h"
 #include "Global.h"
 
 #include "GameFramework/SpringArmComponent.h"
@@ -71,7 +72,7 @@ void ACPlayer::BeginPlay()
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
 	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::WeaponBeginOverlap);
 	PlayerController = GetController<ACPlayerController>();
-
+	LoadGameData();
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -411,4 +412,53 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", HP);
 	return DamageAmount;
+}
+
+void ACPlayer::SaveGameData()
+{
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+
+	SaveGameInstance->SaveData = {
+		HP,
+		MaxHP,
+		Stamina,
+		MaxStamina,
+		StrengthDamage,
+		Vigor,
+		Enduarance,
+		Strength,
+		Level,
+		Exp,
+		GetActorLocation(),
+		GetActorRotation()
+	};
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+void ACPlayer::LoadGameData()
+{
+	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	if (LoadGameInstance)
+	{
+		FSaveData Data = LoadGameInstance->SaveData;
+		MaxHP = LoadGameInstance->SaveData.MaxHP;
+		HP = LoadGameInstance->SaveData.HP;
+		MaxStamina = Data.MaxStamina;
+		Stamina = Data.Stamina;
+		StrengthDamage = Data.StrDamage;
+		Vigor = Data.Vigor;
+		Enduarance = Data.Enduarance;
+		Strength = Data.Strength;
+		Level = Data.Level;
+		Exp = Data.Exp;
+		SetActorLocation(Data.Location);
+		SetActorRotation(Data.Rotation);
+
+		SetMovementState(EMovementState::EMS_Normal);
+		GetMesh()->bPauseAnims = false;
+		GetMesh()->bNoSkeletonUpdate = false;
+	}
+	else CLog::Print("SaveData is not valid");
 }
