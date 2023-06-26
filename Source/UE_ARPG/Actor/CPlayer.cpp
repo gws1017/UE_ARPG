@@ -411,16 +411,7 @@ void ACPlayer::SaveGameData()
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
 
 	SaveGameInstance->SaveData = {
-		Stat.HP,
-		Stat.MaxHP,
-		Stat.Stamina,
-		Stat.MaxStamina,
-		Stat.StrengthDamage,
-		Stat.Vigor,
-		Stat.Enduarance,
-		Stat.Strength,
-		Stat.Level,
-		Stat.Exp,
+		Stat,
 		GetActorLocation(),
 		GetActorRotation()
 	};
@@ -435,16 +426,7 @@ void ACPlayer::LoadGameData()
 	if (LoadGameInstance)
 	{
 		FSaveData Data = LoadGameInstance->SaveData;
-		Stat.MaxHP = LoadGameInstance->SaveData.MaxHP;
-		Stat.HP = LoadGameInstance->SaveData.HP;
-		Stat.MaxStamina = Data.MaxStamina;
-		Stat.Stamina = Data.Stamina;
-		Stat.StrengthDamage = Data.StrDamage;
-		Stat.Vigor = Data.Vigor;
-		Stat.Enduarance = Data.Enduarance;
-		Stat.Strength = Data.Strength;
-		Stat.Level = Data.Level;
-		Stat.Exp = Data.Exp;
+		Stat = LoadGameInstance->SaveData.Status;
 		SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
 

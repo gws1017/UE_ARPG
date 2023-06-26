@@ -9,27 +9,8 @@ struct FSaveData {
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(VisibleAnywhere,Category = "SaveData")
-		float HP;
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		float MaxHP;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		float Stamina;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		float MaxStamina;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		float StrDamage;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		int32 Vigor;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		int32 Enduarance;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		int32 Strength;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		int32 Level;
-	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		int32 Exp;
+		struct FPlayerStatus Status;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		FVector Location;
