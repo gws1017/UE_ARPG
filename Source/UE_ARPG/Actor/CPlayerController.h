@@ -17,6 +17,9 @@ class UE_ARPG_API ACPlayerController : public APlayerController
 public:
 	ACPlayerController();
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Controlled Pawn")
+		class ACPlayer* PlayerInstance;
+
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
 		class UPauseMenuUI* PauseMenuUI;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
@@ -39,6 +42,8 @@ public:
 
 	bool bVisiblePauseMenu = false;
 	bool bVisibleLevelUpUI = false;
+	
+	bool bReadyLevelUpUI = false;
 
 	bool bGameInputMode = true;
 
@@ -49,8 +54,17 @@ public:
 		void TogglePauseMenu();
 	UFUNCTION(BlueprintCallable)
 		void ToggleLevelUpUI();
+
+public:
+
 	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 	FORCEINLINE bool GetGameMode() { return bGameInputMode; }
+
+	FORCEINLINE bool IsReadyLevelUpUI() { return bReadyLevelUpUI; }
+	FORCEINLINE void SetReadylevelUpUI(bool val) {  bReadyLevelUpUI = val; }
+	
+	ACPlayer* GetPlayer();
+
 
 private:
 

@@ -1,4 +1,5 @@
 #include "Actor/CPlayerController.h"
+#include "Actor/CPlayer.h"
 #include "UI/PauseMenuUI.h"
 #include "UI/HUDOverlay.h"
 #include "UI/RestartMenuUI.h"
@@ -7,6 +8,7 @@
 
 ACPlayerController::ACPlayerController()
 {
+	PlayerInstance = GetPawn<ACPlayer>();
 }
 
 void ACPlayerController::BeginPlay()
@@ -44,12 +46,28 @@ void ACPlayerController::TogglePauseMenu()
 
 void ACPlayerController::ToggleLevelUpUI()
 {
-	if (bVisibleLevelUpUI)
-		RemoveGameUI(LevelUpUI);
-	else
-		ShowGameUI(LevelUpUI);
-	bVisibleLevelUpUI = !bVisibleLevelUpUI;
+	if (bReadyLevelUpUI) {
+		if (bVisibleLevelUpUI)
+			RemoveGameUI(LevelUpUI);
+		else
+		{
+			ShowGameUI(LevelUpUI);
+			GetPlayer()->SetHP(GetPlayer()->GetMaxHP());
+			//몬스터 되살리는 코드여기에
+		}
+		bVisibleLevelUpUI = !bVisibleLevelUpUI;
+	}
+}
 
+ACPlayer* ACPlayerController::GetPlayer()
+{
+	if (PlayerInstance)
+		return PlayerInstance;
+	else 
+	{
+		PlayerInstance = GetPawn<ACPlayer>();
+		return PlayerInstance ? PlayerInstance : nullptr;
+	}
 }
 
 void ACPlayerController::ShowGameUI(UUserWidget* GameUI)
