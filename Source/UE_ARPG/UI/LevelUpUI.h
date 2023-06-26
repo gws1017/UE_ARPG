@@ -56,7 +56,7 @@ private:
 	void OKBtnEnable();
 	void OKBtnDisable();
 	void SelectAbility();
-	void UpdateTargetExp();
+	void UpdateExp();
 
 	UFUNCTION()
 		void LevelUp();
@@ -72,6 +72,10 @@ private:
 	UFUNCTION(BlueprintCallable)
 		void OnClickOKBtn();
 public:
+
+
+	UFUNCTION(BlueprintCallable , Category = "Debug")
+		int32 GetTotalExp() { return TotalExp; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE int32 GetPlayerExp() { return PlayerInstance->GetExp(); }

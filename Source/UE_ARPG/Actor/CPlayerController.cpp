@@ -29,7 +29,6 @@ void ACPlayerController::BeginPlay()
 	InitializeUI(PlayerHUDOverlay);
 	InitializeUI(PauseMenuUI,ESlateVisibility::Hidden);
 	InitializeUI(RestartMenuUI, ESlateVisibility::Hidden);
-	InitializeUI(LevelUpUI, ESlateVisibility::Hidden);
 
 }
 

@@ -16,10 +16,7 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: Level(1),Exp(0),
-	Vigor(1), Enduarance(1), Strength(1), 
-	StrengthDamage(0.f), MaxHP(15), HP(15),
-	MaxStamina(50), Stamina(50), StaminaRegenRate(2.f),
+	: Stat{15,15,50,50,0,1,1,1,1,20000}, StaminaRegenRate(2.f),
 	RollStamina(10.f),
 	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
 {
@@ -86,22 +83,22 @@ void ACPlayer::Tick(float DeltaTime)
 void ACPlayer::UpdateStamina(float DeltaStamina)
 {
 	CheckTrue(MovementState == EMovementState::EMS_Dead); //죽었을 때 종료
-	CheckTrue((Stamina == MaxStamina) && (MovementState != EMovementState::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
+	CheckTrue((Stat.Stamina == Stat.MaxStamina) && (MovementState != EMovementState::EMS_Sprinting)); //스테미나 변동이 없을 시 종료
 
 	if (MovementState == EMovementState::EMS_Sprinting && FMath::IsNearlyZero(GetVelocity().Length()) == false)
 	{
-		Stamina -= DeltaStamina;
-		Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
-		if (Stamina <= 0)
+		Stat.Stamina -= DeltaStamina;
+		Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
+		if (Stat.Stamina <= 0)
 		{
 			OffRunning();
 		}
 		return;
 	}
 	
-	Stamina += DeltaStamina;
+	Stat.Stamina += DeltaStamina;
 
-	Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
+	Stat.Stamina = FMath::Clamp(Stat.Stamina, 0.f, Stat.MaxStamina);
 	return;
 }
 
@@ -129,11 +126,11 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACPlayer::IncreamentExp(int32 e)
 {
-	 Exp += e; 
+	Stat.Exp += e;
 }
 void ACPlayer::DecrementStamina(float Amount)
 {
-	Stamina = FMath::Clamp(Stamina-Amount, 0.f, MaxStamina);
+	Stat.Stamina = FMath::Clamp(Stat.Stamina-Amount, 0.f, Stat.MaxStamina);
 }
 
 void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -340,7 +337,7 @@ bool ACPlayer::CanAttack()
 	case EMovementState::EMS_Roll:
 		return false;
 	default:
-		if (GetWeapon()->GetStaminaCost() < Stamina)
+		if (GetWeapon()->GetStaminaCost() < Stat.Stamina)
 			return true;
 		else return false;
 
@@ -359,7 +356,7 @@ bool ACPlayer::CanRoll()
 	case EMovementState::EMS_Roll:
 		return false;
 	default:
-		if (Stamina - RollStamina > 0)
+		if (Stat.Stamina - RollStamina > 0)
 			return true;
 		else return false;
 
@@ -382,15 +379,10 @@ void ACPlayer::ComboAttackSave()
 		PlayAttackMontage();
 	}
 }
-
-float ACPlayer::GetDamage()
+void ACPlayer::LevelUp(const FPlayerStatus& data)
 {
-	float Damage = StrengthDamage;
-	if (Weapon)
-	{
-		Damage += Weapon->GetDamage();
-	}
-	return Damage;
+	Stat = data;
+	SaveGameData();
 }
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -398,19 +390,19 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible == PlayerStat)
 		return DamageAmount;
 
-	if (HP - DamageAmount <= 0.f) 
+	if (Stat.HP - DamageAmount <= 0.f)
 	{
-		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
 		Die();
 	}
 	else
 	{
-		HP = FMath::Clamp(HP - DamageAmount, 0.0f, MaxHP);
+		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
 		
 	}
 
 	
-	UE_LOG(LogTemp, Display, L"Player Current HP : %f", HP);
+	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
 	return DamageAmount;
 }
 
@@ -419,16 +411,16 @@ void ACPlayer::SaveGameData()
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
 
 	SaveGameInstance->SaveData = {
-		HP,
-		MaxHP,
-		Stamina,
-		MaxStamina,
-		StrengthDamage,
-		Vigor,
-		Enduarance,
-		Strength,
-		Level,
-		Exp,
+		Stat.HP,
+		Stat.MaxHP,
+		Stat.Stamina,
+		Stat.MaxStamina,
+		Stat.StrengthDamage,
+		Stat.Vigor,
+		Stat.Enduarance,
+		Stat.Strength,
+		Stat.Level,
+		Stat.Exp,
 		GetActorLocation(),
 		GetActorRotation()
 	};
@@ -443,16 +435,16 @@ void ACPlayer::LoadGameData()
 	if (LoadGameInstance)
 	{
 		FSaveData Data = LoadGameInstance->SaveData;
-		MaxHP = LoadGameInstance->SaveData.MaxHP;
-		HP = LoadGameInstance->SaveData.HP;
-		MaxStamina = Data.MaxStamina;
-		Stamina = Data.Stamina;
-		StrengthDamage = Data.StrDamage;
-		Vigor = Data.Vigor;
-		Enduarance = Data.Enduarance;
-		Strength = Data.Strength;
-		Level = Data.Level;
-		Exp = Data.Exp;
+		Stat.MaxHP = LoadGameInstance->SaveData.MaxHP;
+		Stat.HP = LoadGameInstance->SaveData.HP;
+		Stat.MaxStamina = Data.MaxStamina;
+		Stat.Stamina = Data.Stamina;
+		Stat.StrengthDamage = Data.StrDamage;
+		Stat.Vigor = Data.Vigor;
+		Stat.Enduarance = Data.Enduarance;
+		Stat.Strength = Data.Strength;
+		Stat.Level = Data.Level;
+		Stat.Exp = Data.Exp;
 		SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
 
@@ -460,5 +452,15 @@ void ACPlayer::LoadGameData()
 		GetMesh()->bPauseAnims = false;
 		GetMesh()->bNoSkeletonUpdate = false;
 	}
-	else CLog::Print("SaveData is not valid");
+	else CLog::Log("SaveData is not valid");
+}
+
+float ACPlayer::GetDamage()
+{
+	float Damage = Stat.StrengthDamage;
+	if (Weapon)
+	{
+		Damage += Weapon->GetDamage();
+	}
+	return Damage;
 }

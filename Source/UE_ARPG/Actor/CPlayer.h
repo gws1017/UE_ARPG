@@ -26,6 +26,35 @@ enum class EPlayerState : uint8
 
 };
 
+USTRUCT(BlueprintType)
+struct FPlayerStatus
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float HP;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float MaxHP;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float Stamina;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float MaxStamina;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		float StrengthDamage;
+
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Vigor; //생명력 HP에 영향을 끼침
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Enduarance; //지구력 스테미나에 영향을 끼침
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Strength; //힘 최종 데미지에 영향을 끼침
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Level;
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+		int32 Exp;
+};
+
 UCLASS()
 class UE_ARPG_API ACPlayer : public ACharacter, public IICharacter
 {
@@ -37,26 +66,7 @@ public:
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 Level;
-	UPROPERTY(EditDefaultsonly, Category = "Status")
-		int32 Exp;
-	//생명력 HP에 영향을 줌
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 Vigor;
-	//지구력 스테미나에 영향을줌
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 Enduarance;
-	//힘 최종데미지에 영향을줌
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		int32 Strength;
-
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		float StrengthDamage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
-		float MaxHP;
-	UPROPERTY(VisibleAnywhere, Category = "Status")
-		float HP;
-	
+		FPlayerStatus Stat;
 
 	//스테미나와 관련되는 요소
 	/* 기본 스테미나 50
@@ -65,10 +75,6 @@ protected:
 		(강공격은 추가하지 않을 예정, 만약 추가한다면 기본 소모량 * 1.5배)
 	*  구르기 - 10 소모
 	*/
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		float MaxStamina;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
-		float Stamina;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Status")
 		float StaminaRegenRate;
 
@@ -171,6 +177,8 @@ public:
 
 	void UpdateStamina(float DeltaStamina);
 
+	void LevelUp(const FPlayerStatus& data);
+
 	UFUNCTION()
 		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	UFUNCTION()
@@ -193,35 +201,35 @@ public:
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
 	UFUNCTION(BlueprintPure)
 		float GetDamage();
-	FORCEINLINE	void SetStrDamage(float dmg) { StrengthDamage = dmg; }
-	FORCEINLINE float GetHP() { return HP; }
-	FORCEINLINE float GetMaxHP() { return MaxHP; }
-	FORCEINLINE void SetMaxHP(float hp) { MaxHP = hp; }
-	FORCEINLINE void SetHP(float hp) { HP = hp; }
+	FORCEINLINE	void SetStrDamage(float dmg) { Stat.StrengthDamage = dmg; }
+	FORCEINLINE float GetHP() { return Stat.HP; }
+	FORCEINLINE float GetMaxHP() { return Stat.MaxHP; }
+	FORCEINLINE void SetMaxHP(float hp) { Stat.MaxHP = hp; }
+	FORCEINLINE void SetHP(float hp) { Stat.HP = hp; }
 	
-	FORCEINLINE float GetStamina() { return Stamina; }
-	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
-	FORCEINLINE void SetMaxStamina(float sta) { MaxStamina = sta; }
+	FORCEINLINE float GetStamina() { return Stat.Stamina; }
+	FORCEINLINE float GetMaxStamina() { return Stat.MaxStamina; }
+	FORCEINLINE void SetMaxStamina(float sta) { Stat.MaxStamina = sta; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetPlayerLevel() { return Level; }
-	FORCEINLINE void SetPlayerLevel(int32 lev) {  Level = lev; }
+	FORCEINLINE int32 GetPlayerLevel() { return Stat.Level; }
+	FORCEINLINE void SetPlayerLevel(int32 lev) { Stat.Level = lev; }
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetExp() { return Exp; }
+		FORCEINLINE int32 GetExp() { return Stat.Exp; }
 	UFUNCTION()
-		FORCEINLINE void SetExp(int32 e) { Exp = e; }
+		FORCEINLINE void SetExp(int32 e) { Stat.Exp = e; }
 	UFUNCTION()
 		void IncreamentExp(int32 e);
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetVigor() { return Vigor; }
-	FORCEINLINE void SetVigor(int32 vig) { Vigor = vig; }
+		FORCEINLINE int32 GetVigor() { return Stat.Vigor; }
+	FORCEINLINE void SetVigor(int32 vig) { Stat.Vigor = vig; }
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetEnduarance() { return Enduarance; }
-	FORCEINLINE void SetEnduarance(int32 end) {  Enduarance = end; }
+		FORCEINLINE int32 GetEnduarance() { return Stat.Enduarance; }
+	FORCEINLINE void SetEnduarance(int32 end) { Stat.Enduarance = end; }
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE int32 GetStrength() { return Strength; }
-	FORCEINLINE void SetStrength(int32 str) {  Strength = str; }
+		FORCEINLINE int32 GetStrength() { return Stat.Strength; }
+	FORCEINLINE void SetStrength(int32 str) { Stat.Strength = str; }
 
 	FORCEINLINE bool IsValidTarget() { return (!!Target); }
 	FORCEINLINE bool IsHit() { return bHit; }

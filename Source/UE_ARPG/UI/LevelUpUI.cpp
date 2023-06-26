@@ -26,6 +26,7 @@ void ULevelUpUI::NativeConstruct()
 	Super::NativeConstruct();
 
 	SelectUINumber = 0;
+	TotalExp = 0;
 	NextExp = GameInstance->GetCharAbilityData(GetChangePlayerLevel() + 1)->LevelUpExp;
 	LevelUpCount.Init(0, AbilityArray.Num());
 	SelectAbility();
@@ -51,26 +52,21 @@ void ULevelUpUI::OKBtnDisable()
 
 void ULevelUpUI::LevelUp()
 {
-	CLog::Print("LevelUP!");
-	//구조체를 전달해서 덮어씌우는게 낫지않을까?
-	//플레이어 클래스에 레벨업 함수를 만들고, 레벨업 함수에
-	//변경된능력치가 저장된 구조체를 전달한다
-	//ui는 유저와 게임사이의 명령을전달하는 매개체지 이렇게 긴 코드를
-	//적는 것은 적합하지않을 것 같다
+	FPlayerStatus ChangeData = {
+		static_cast<float>(GetChangeMaxHP()),
+		static_cast<float>(GetChangeMaxHP()),
+		static_cast<float>(GetChangeMaxStamina()),
+		static_cast<float>(GetChangeMaxStamina()),
+		GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease,
+		GetChangeVigor(),
+		GetChangeEnduarance(),
+		GetChangeStrength(),
+		GetChangePlayerLevel(),
+		GetChangePlayerExp()
+	};
 	
-	if (PlayerInstance->GetMaxHP() != GetChangeMaxHP()) {
-		PlayerInstance->SetMaxHP(GetChangeMaxHP());
-		PlayerInstance->SetHP(GetMaxHP());
-	}
-	if (PlayerInstance->GetMaxStamina() != GetChangeMaxStamina())PlayerInstance->SetMaxStamina(GetChangeMaxStamina());
-	if (PlayerInstance->GetDamage() != GetChangePlayerDamage())PlayerInstance->SetStrDamage(GameInstance->GetCharAbilityData(GetChangeStrength())->TotalDmgIncrease);
-	
-	if (PlayerInstance->GetExp() != GetChangePlayerExp())PlayerInstance->SetExp(GetChangePlayerExp());
-	if (PlayerInstance->GetPlayerLevel() != GetChangePlayerLevel())PlayerInstance->SetPlayerLevel(GetChangePlayerLevel());
-	if (PlayerInstance->GetVigor() != GetChangeVigor())PlayerInstance->SetVigor(GetChangeVigor());
-	if (PlayerInstance->GetEnduarance() != GetChangeEnduarance())PlayerInstance->SetEnduarance(GetChangeEnduarance());
-	if (PlayerInstance->GetStrength() != GetChangeStrength())PlayerInstance->SetStrength(GetChangeStrength());
-
+	PlayerInstance->LevelUp(ChangeData);
+	TotalExp = 0;
 	NextExp = GameInstance->GetCharAbilityData(PlayerInstance->GetPlayerLevel() + 1)->LevelUpExp;
 	LevelUpCount.Init(0, AbilityArray.Num());
 	OKBtnDisable();
@@ -109,7 +105,7 @@ void ULevelUpUI::OnLeftKey()
 	if (IsInViewport()) {
 		if (LevelUpCount[SelectUINumber] > 0) {
 			LevelUpCount[SelectUINumber]--;
-			UpdateTargetExp();
+			UpdateExp();
 		}
 	}
 }
@@ -118,13 +114,11 @@ void ULevelUpUI::OnRightKey()
 {
 	if (IsInViewport()) {
 		//요구 경험치이상을 보유해야 레벨업 가능
-			LevelUpCount[SelectUINumber]++;
-			UpdateTargetExp();
-			if (GetPlayerExp() < TotalExp)
-			{
-				LevelUpCount[SelectUINumber]--;
-				UpdateTargetExp();
-			}
+		LevelUpCount[SelectUINumber]++;
+		if (GetPlayerExp() < TotalExp + NextExp)
+			LevelUpCount[SelectUINumber]--;
+		else
+			UpdateExp();
 	}
 }
 
@@ -157,25 +151,30 @@ int32 ULevelUpUI::GetPlayerNextExp()
 	return NextExp;
 }
 
-void ULevelUpUI::UpdateTargetExp()
+void ULevelUpUI::UpdateExp()
 {
 	int32 CurrentLevel = GetPlayerLevel();
 	int32 TargetLevel = GetChangePlayerLevel();
-	int32 dl = TargetLevel - CurrentLevel;
+	int32 delta_level = TargetLevel - CurrentLevel;
 
-	bUpdatedAbility = false;
-	int32 SumExp = 0;
-	if (dl > 0) {
+	if (delta_level > 0)
+	{
 		bUpdatedAbility = true;
 		OKBtnEnable();
-		//현재 목표로한는 레벨의 다음 레벨에 필요한경험치를 표기해야함
-		for (int i = CurrentLevel; i <= TargetLevel + 1; ++i) {
-			SumExp += GameInstance->GetCharAbilityData(i)->LevelUpExp;
+		int32 SumExp = 0;
+		for (int i = CurrentLevel; i < TargetLevel; ++i) 
+		{
+			SumExp += GameInstance->GetCharAbilityData(i+1)->LevelUpExp;
 		}
 		TotalExp = SumExp;
 	}
-	else
+	else {
 		OKBtnDisable();
+		bUpdatedAbility = false;
+		TotalExp = 0;
+	}
+	NextExp = static_cast<int32>
+		(GameInstance->GetCharAbilityData(GetChangePlayerLevel() + 1)->LevelUpExp);
 }
 
 int32 ULevelUpUI::GetChangePlayerLevel()
