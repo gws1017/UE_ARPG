@@ -43,7 +43,7 @@ public:
 	bool bVisiblePauseMenu = false;
 	bool bVisibleLevelUpUI = false;
 	
-	bool bReadyLevelUpUI = false;
+	bool bReadyInteraction = false;
 
 	bool bGameInputMode = true;
 
@@ -60,9 +60,9 @@ public:
 	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 	FORCEINLINE bool GetGameMode() { return bGameInputMode; }
 
-	FORCEINLINE bool IsReadyLevelUpUI() { return bReadyLevelUpUI; }
-	FORCEINLINE void SetReadylevelUpUI(bool val) {  bReadyLevelUpUI = val; }
-	
+	FORCEINLINE bool IsReadyInteraction() { return bReadyInteraction; }
+	FORCEINLINE void SetReadyInteraction(bool val) { bReadyInteraction = val; }
+
 	ACPlayer* GetPlayer();
 
 

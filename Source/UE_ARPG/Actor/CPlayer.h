@@ -53,6 +53,7 @@ public:
 		int32 Level;
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		int32 Exp;
+
 };
 
 UCLASS()
@@ -68,6 +69,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 		FPlayerStatus Stat;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		FVector StartPoint;
+	UPROPERTY(VisibleDefaultsOnly)
+		FVector DeathLocation;
 	//스테미나와 관련되는 요소
 	/* 기본 스테미나 50
 	*  달리기 - 초당 1~5 소모 (테스트해보고 조정)
@@ -188,7 +193,7 @@ public:
 
 	//기타 함수
 	UFUNCTION(BlueprintCallable)
-		void SaveGameData();
+		void SaveGameData(int32 SaveType = 0);
 	UFUNCTION(BlueprintCallable)
 		void LoadGameData();
 public:
@@ -199,6 +204,10 @@ public:
 
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
+
+	FORCEINLINE FVector GetStartPoint() { return StartPoint; }
+	FORCEINLINE void SetStartPoint(const FVector& vec) { StartPoint = vec; }
+
 	UFUNCTION(BlueprintPure)
 		float GetDamage();
 	FORCEINLINE	void SetStrDamage(float dmg) { Stat.StrengthDamage = dmg; }

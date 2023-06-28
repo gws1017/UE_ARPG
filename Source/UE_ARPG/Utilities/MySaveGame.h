@@ -13,10 +13,17 @@ public:
 		struct FPlayerStatus Status;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
+		int32 LostExp;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		FVector Location;
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		FRotator Rotation;
-
+	UPROPERTY(VisibleAnywhere, Category = "SaveData")
+		FVector StartPoint;
+	UPROPERTY(VisibleAnywhere, Category = "SaveData")
+		FVector DeathLocation;
+	
 };
 
 UCLASS()

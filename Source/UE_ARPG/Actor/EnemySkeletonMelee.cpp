@@ -56,6 +56,7 @@ void AEnemySkeletonMelee::AgroSphereOnOverlapBegin(UPrimitiveComponent* Overlapp
 		if (player)
 		{
 			SetAlerted(true);
+			CombatTarget = player;
 			MoveToTarget(player);
 		}
 	}
@@ -68,6 +69,7 @@ void AEnemySkeletonMelee::AgroSphereOnOverlapEnd(UPrimitiveComponent* Overlapped
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
 		{
+			CombatTarget = nullptr;
 			MoveToSpawnLocation();
 		}
 	}
@@ -81,19 +83,9 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapBegin(UPrimitiveComponent* Overla
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
 		{
-			SetAlerted(true);
-			CombatTarget = player;
-
 			if (CombatTarget->Alive())
 			{
 				Attack();
-			}
-			else
-			{
-				CLog::Print("player dead");
-				CombatTarget = nullptr;
-				GetWorldTimerManager().ClearTimer(AttackTimer);
-				return;
 			}
 			
 		}
@@ -107,8 +99,6 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapEnd(UPrimitiveComponent* Overlapp
 		ACPlayer* player = Cast<ACPlayer>(OtherActor);
 		if (player)
 		{
-			CombatTarget = nullptr;
-
 			if (player->Alive())
 			{
 				MoveToTarget(player);
@@ -127,13 +117,12 @@ void AEnemySkeletonMelee::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComp
 		//피격 이펙트 및 사운드 추가부분
 		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
 		TargetApplyDamage(player, Weapon->GetDamage(),Weapon->GetActorLocation());
-		UGameplayStatics::ApplyDamage(OtherActor, Weapon->GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
-
 	}
 }
 
 void AEnemySkeletonMelee::Attack()
 {
+	AEnemy::Attack();
 	CheckNull(CombatTarget);
 	CheckFalse(Alive());
 	PlayAnimMontage(AttackMontage);

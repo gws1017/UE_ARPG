@@ -4,6 +4,7 @@
 #include "Actor/LongSword.h"
 #include "Actor/CAnimInstance.h"
 #include "Actor/CPlayerController.h"
+#include "Actor/LostExp.h"
 #include "Utilities/MySaveGame.h"
 #include "Global.h"
 
@@ -16,8 +17,8 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: Stat{15,15,50,50,0,1,1,1,1,20000}, StaminaRegenRate(2.f),
-	RollStamina(10.f),
+	: Stat{15,15,50,50,0,1,1,1,1,20000}, StartPoint{0, 0, 190},
+	StaminaRegenRate(2.f),RollStamina(10.f),
 	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -58,8 +59,6 @@ ACPlayer::ACPlayer()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
-
-
 }
 
 void ACPlayer::BeginPlay()
@@ -275,10 +274,10 @@ void ACPlayer::End_Attack()
 	//Notify로 호출
 }
 
-
-
 void ACPlayer::Die()
 {
+	SaveGameData(1);
+
 	SetMovementState(EMovementState::EMS_Dead);
 	GetCharacterMovement()->StopMovementImmediately();
 
@@ -289,7 +288,6 @@ void ACPlayer::Die()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	if (!!Weapon)
 		Weapon->DeactivateCollision();
-
 	GetController<ACPlayerController>()->ShowRestartenu();
 
 }
@@ -393,28 +391,42 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	if (Stat.HP - DamageAmount <= 0.f)
 	{
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
+		AEnemy* enemy = Cast<AEnemy>(DamageCauser);
+		enemy->InitTarget();
+		enemy->SetAlerted(false);
+		enemy->ClearAttackTimer();
 		Die();
 	}
 	else
 	{
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
-		
 	}
-
 	
 	UE_LOG(LogTemp, Display, L"Player Current HP : %f", Stat.HP);
 	return DamageAmount;
 }
 
-void ACPlayer::SaveGameData()
+void ACPlayer::SaveGameData(int32 SaveType)
 {
 	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
-
+	
 	SaveGameInstance->SaveData = {
 		Stat,
+		0,
 		GetActorLocation(),
-		GetActorRotation()
+		GetActorRotation(),
+		StartPoint,
+		DeathLocation
 	};
+
+	if (SaveType == 1)//죽었을때 수정해야하는 부분
+	{
+		SaveGameInstance->SaveData.Location = StartPoint;
+		SaveGameInstance->SaveData.LostExp = Stat.Exp; //현재경험치를 LostExp로 저장, 평소에는 0이 기본
+		SaveGameInstance->SaveData.Status.Exp = 0;
+		SaveGameInstance->SaveData.Status.HP = Stat.MaxHP;
+		SaveGameInstance->SaveData.DeathLocation = GetActorLocation();
+	}
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
 }
 
@@ -426,9 +438,16 @@ void ACPlayer::LoadGameData()
 	if (LoadGameInstance)
 	{
 		FSaveData Data = LoadGameInstance->SaveData;
-		Stat = LoadGameInstance->SaveData.Status;
+		Stat = Data.Status;
 		SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
+		StartPoint = Data.StartPoint;
+		if (Data.LostExp != 0) {
+			TSubclassOf<ALostExp> BPLostExp;
+			UHelpers::GetClassDynamic<ALostExp>(&BPLostExp, "Blueprint'/Game/Dungeon/BP_LostExp.BP_LostExp_C'");
+			auto actor = GetWorld()->SpawnActor<ALostExp>(BPLostExp);
+			actor->Init(Data.LostExp,Data.DeathLocation);
+		}
 
 		SetMovementState(EMovementState::EMS_Normal);
 		GetMesh()->bPauseAnims = false;

@@ -61,6 +61,16 @@ public:
 	}
 
 	template<typename T>
+	static void GetClassDynamic(TSubclassOf<T>* OutClass, FString InPath)
+	{
+		TSubclassOf<T> cclass = StaticLoadClass(T::StaticClass(), NULL, *InPath);
+
+		verifyf(!!cclass, L"!! class");
+
+		*OutClass = cclass;
+	}
+
+	template<typename T>
 	static void FindActors(class UWorld* InWorld, TArray<T*>& OutActors)
 	{
 		TArray<AActor*> actors;

@@ -103,6 +103,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ACPlayer* GetTarget() { return (!!CombatTarget) ? CombatTarget : nullptr; }
+	FORCEINLINE void InitTarget() {  CombatTarget = nullptr; }
+
 	
 	FVector GetCombatTargetLocation() const;
 
@@ -118,6 +120,7 @@ public:
 public:
 
 	void SetAttackTimer();
+	void ClearAttackTimer();
 	virtual void Attack();
 	void Hit(const FVector& ParticleSpawnLocation);
 	virtual void Die();

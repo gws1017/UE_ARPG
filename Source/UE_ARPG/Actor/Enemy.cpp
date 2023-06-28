@@ -120,6 +120,11 @@ void AEnemy::SetAttackTimer()
 
 }
 
+void AEnemy::ClearAttackTimer()
+{
+	GetWorldTimerManager().ClearTimer(AttackTimer);
+}
+
 void AEnemy::Attack()
 {
 	CheckFalse(Alive());

@@ -26,7 +26,7 @@ void ALevelUpObject::OverlapBoxBeginOverlap(UPrimitiveComponent* OverlappedCompo
 
 	if (OverlapPlayer)
 	{
-		OverlapPlayer->GetController<ACPlayerController>()->SetReadylevelUpUI(true);
+		OverlapPlayer->GetController<ACPlayerController>()->SetReadyInteraction(true);
 	}
 }
 
@@ -36,7 +36,7 @@ void ALevelUpObject::OverlapBoxEndOverlap(UPrimitiveComponent* OverlappedCompone
 
 	if (OverlapPlayer)
 	{
-		OverlapPlayer->GetController<ACPlayerController>()->SetReadylevelUpUI(false);
+		OverlapPlayer->GetController<ACPlayerController>()->SetReadyInteraction(false);
 	}
 }
 
