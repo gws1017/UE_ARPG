@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Status")
 		FVector SpawnLocation;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class AEnemySpawner* Spawner;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AI")
 		class ACPlayer* CombatTarget;
 	UPROPERTY(VisibleAnyWhere, Category = "AI")
@@ -92,6 +95,8 @@ public:
 	//AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject
 public:
 
+	FORCEINLINE void SetSpawner(class AEnemySpawner* obj ) { Spawner = obj; }
+	
 	FORCEINLINE void SetAlerted(bool value) { bAlerted = value; }
 	FORCEINLINE bool GetAlerted() { return bAlerted; }
 

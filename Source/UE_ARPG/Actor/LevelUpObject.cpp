@@ -1,6 +1,7 @@
 #include "Actor/LevelUpObject.h"
 #include "Actor/CPlayer.h"
 #include "Actor/CPlayerController.h"
+#include "Actor/EnemySpawner.h"
 #include "UI/LevelUpUI.h"
 #include "Global.h"
 
@@ -56,6 +57,13 @@ void ALevelUpObject::OnInteraction()
 		ACPlayer* player = Cast<ACPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		player->SetHP(player->GetMaxHP());
 		player->SetStartPoint(player->GetActorLocation());
+		TArray<AEnemySpawner*> SpawnerArray;
+		UHelpers::FindActors<AEnemySpawner>(GetWorld(), SpawnerArray);
+		for (auto spawner : SpawnerArray)
+		{
+			spawner->RespawnMonster();
+			CLog::Print("RE");
+		}
 	}
 	
 }
