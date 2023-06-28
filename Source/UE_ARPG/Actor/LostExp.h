@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/IInteraction.h"
 #include "LostExp.generated.h"
 
 UCLASS()
-class UE_ARPG_API ALostExp : public AActor
+class UE_ARPG_API ALostExp : public AActor, public IInteraction
 {
 	GENERATED_BODY()
 	

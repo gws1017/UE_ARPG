@@ -17,7 +17,6 @@ void ACPlayerController::BeginPlay()
 	PauseMenuUI = Cast<UPauseMenuUI>(CreateWidget(GetWorld(), PauseMenuUIClass));
 	RestartMenuUI = Cast<URestartMenuUI>(CreateWidget(GetWorld(), RestartMenuUIClass));
 	PlayerHUDOverlay = Cast<UHUDOverlay>(CreateWidget(GetWorld(), HUDOverlayClass));
-	LevelUpUI = Cast<ULevelUpUI>(CreateWidget(GetWorld(), LevelUpUIClass));
 	PlayerInstance = Cast<ACPlayer>(GetPawn());
 
 	
@@ -36,28 +35,17 @@ void ACPlayerController::BeginPlay()
 
 void ACPlayerController::TogglePauseMenu()
 {
-	if (bVisiblePauseMenu) 
-		RemoveGameUI(PauseMenuUI);
-	
-	else
-		ShowGameUI(PauseMenuUI);
-	bVisiblePauseMenu = !bVisiblePauseMenu;
+	ToggleUI(bVisiblePauseMenu, PauseMenuUI);
 }
 
-void ACPlayerController::ToggleLevelUpUI()
+void ACPlayerController::ToggleUI(bool& Visiblilty, UUserWidget* widget)
 {
-	if (bReadyInteraction) {
-		if (bVisibleLevelUpUI)
-			RemoveGameUI(LevelUpUI);
-		else
-		{
-			ShowGameUI(LevelUpUI);
-			GetPlayer()->SetHP(GetPlayer()->GetMaxHP());
-			GetPlayer()->SetStartPoint(GetPlayer()->GetActorLocation());
-			//몬스터 되살리는 코드여기에
-		}
-		bVisibleLevelUpUI = !bVisibleLevelUpUI;
-	}
+	if (Visiblilty)
+		RemoveGameUI(widget);
+	else
+		ShowGameUI(widget);
+
+	Visiblilty = !Visiblilty;
 }
 
 

@@ -26,11 +26,6 @@ public:
 		class TSubclassOf<UPauseMenuUI> PauseMenuUIClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
-		class ULevelUpUI* LevelUpUI;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-		class TSubclassOf<ULevelUpUI> LevelUpUIClass;
-
-	UPROPERTY(BlueprintReadOnly, Category = "UI")
 		class URestartMenuUI* RestartMenuUI;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 		class TSubclassOf<URestartMenuUI> RestartMenuUIClass;
@@ -41,10 +36,6 @@ public:
 		class TSubclassOf<UHUDOverlay> HUDOverlayClass;
 
 	bool bVisiblePauseMenu = false;
-	bool bVisibleLevelUpUI = false;
-	
-	bool bReadyInteraction = false;
-
 	bool bGameInputMode = true;
 
 public:
@@ -53,15 +44,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void TogglePauseMenu();
 	UFUNCTION(BlueprintCallable)
-		void ToggleLevelUpUI();
+		void ToggleUI(bool& Visiblilty, class UUserWidget* widget);
 
 public:
 
 	FORCEINLINE UHUDOverlay* GetHUD() { return PlayerHUDOverlay; }
 	FORCEINLINE bool GetGameMode() { return bGameInputMode; }
-
-	FORCEINLINE bool IsReadyInteraction() { return bReadyInteraction; }
-	FORCEINLINE void SetReadyInteraction(bool val) { bReadyInteraction = val; }
 
 	ACPlayer* GetPlayer();
 
