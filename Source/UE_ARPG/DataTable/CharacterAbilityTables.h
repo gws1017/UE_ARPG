@@ -31,8 +31,6 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
 		float DmgIncrease;
 
-	//계산 공식이 있어서 실제로는 사용안하는 값
-	//공식외에 직접 기입하는 방식채용시 이 값을 사용
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Data")
 		int32 LevelUpExp;
 
