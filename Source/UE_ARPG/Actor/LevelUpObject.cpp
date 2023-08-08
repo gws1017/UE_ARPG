@@ -62,7 +62,6 @@ void ALevelUpObject::OnInteraction()
 		for (auto spawner : SpawnerArray)
 		{
 			spawner->RespawnMonster();
-			CLog::Print("RE");
 		}
 	}
 	

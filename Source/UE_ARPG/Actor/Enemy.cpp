@@ -2,6 +2,7 @@
 #include "Actor/Weapon.h"
 #include "Actor/CPlayer.h"
 #include "AI/Controller/EnemyController.h"
+#include "Actor/EnemySpawner.h"
 #include "Global.h"
 
 #include "Animation/AnimMontage.h"
@@ -151,6 +152,8 @@ void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 
 void AEnemy::Die()
 {
+	if(Spawner)
+		Spawner->DecrementMonsterCount();
 	if (CombatTarget)
 	{
 		CombatTarget->SetTarget(NULL);

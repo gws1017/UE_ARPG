@@ -1,4 +1,5 @@
 #include "Actor/EnemySpawner.h"
+#include "Actor/Enemy.h"
 #include "Global.h"
 
 #include "Components/BoxComponent.h"
@@ -20,14 +21,18 @@ void AEnemySpawner::SpawnMonster()
 {
 	FActorSpawnParameters param;
 	verifyf(Monster,L"Actor class invalid");
-	AActor* actor = GetWorld()->SpawnActor<AActor>(Monster,GetActorLocation(), GetActorRotation(), param);
-	SpawnArray.Add(actor);
-
+	AEnemy* actor = GetWorld()->SpawnActor<AEnemy>(Monster,GetActorLocation(), GetActorRotation(), param);
+	if (actor)
+	{
+		actor->SetSpawner(this);
+		MonsterCount++;
+	}
+	
 }
 
 void AEnemySpawner::RespawnMonster()
 {
-	if (SpawnArray.Num() == 0)
+	if (MonsterCount == 0)
 	{
 		CLog::Print("Respawn");
 		SpawnMonster();

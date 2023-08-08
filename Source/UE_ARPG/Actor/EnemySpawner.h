@@ -17,11 +17,10 @@ private:
 		class UBoxComponent* SpawnBox;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-		TSubclassOf<class AActor> Monster;
+		TSubclassOf<class AEnemy> Monster;
 
 	UPROPERTY(VisibleAnywhere, Category = "Spawning")
-		TArray<class AActor*> SpawnArray;
-
+		int32 MonsterCount = 0;
 
 public:	
 	// Sets default values for this actor's properties
@@ -37,4 +36,6 @@ public:
 		void SpawnMonster();
 	UFUNCTION()
 		void RespawnMonster();
+	UFUNCTION()
+		void DecrementMonsterCount() { if(MonsterCount > 0)MonsterCount--; }
 };
