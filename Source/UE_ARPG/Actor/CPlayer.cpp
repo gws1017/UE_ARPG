@@ -439,6 +439,7 @@ void ACPlayer::LoadGameData()
 	{
 		FSaveData Data = LoadGameInstance->SaveData;
 		Stat = Data.Status;
+		Stat.Stamina = Stat.MaxStamina;
 		SetActorLocation(Data.Location);
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
@@ -446,7 +447,9 @@ void ACPlayer::LoadGameData()
 			TSubclassOf<ALostExp> BPLostExp;
 			UHelpers::GetClassDynamic<ALostExp>(&BPLostExp, "Blueprint'/Game/Dungeon/BP_LostExp.BP_LostExp_C'");
 			auto actor = GetWorld()->SpawnActor<ALostExp>(BPLostExp);
-			actor->Init(Data.LostExp,Data.DeathLocation);
+			FVector Loc = Data.DeathLocation;
+			Loc.Z -= 90.f;
+			actor->Init(Data.LostExp, Loc);
 		}
 
 		SetMovementState(EMovementState::EMS_Normal);

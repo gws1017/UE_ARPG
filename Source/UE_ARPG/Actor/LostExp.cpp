@@ -13,12 +13,14 @@ ALostExp::ALostExp()
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", OverlapBox);
 
 	UStaticMesh* mesh;
-	UHelpers::GetAsset<UStaticMesh>(&mesh,"StaticMesh'/Engine/EngineMeshes/Sphere.Sphere'");
+	UHelpers::GetAsset<UStaticMesh>(&mesh, "StaticMesh'/Engine/EngineMeshes/Sphere.Sphere'");
 	UMaterialInstanceConstant* material;
-	UHelpers::GetAsset<UMaterialInstanceConstant>(&material,"MaterialInstanceConstant'/Engine/BasicShapes/BasicShapeMaterial_Inst.BasicShapeMaterial_Inst'");
+	UHelpers::GetAsset<UMaterialInstanceConstant>(&material, "MaterialInstanceConstant'/Engine/BasicShapes/BasicShapeMaterial_Inst.BasicShapeMaterial_Inst'");
 
 	Mesh->SetStaticMesh(mesh);
 	Mesh->SetMaterial(0, material);
+
+	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 void ALostExp::BeginPlay()
@@ -68,7 +70,7 @@ void ALostExp::Init(int32 LostExp, const FVector& Location)
 {
 	Exp = LostExp;
 	FVector Loc = Location;
-	Loc.Z = 100.f + (Mesh->GetStaticMesh()->GetBounds().GetBox().GetExtent() 
+	Loc.Z += (Mesh->GetStaticMesh()->GetBounds().GetBox().GetExtent() 
 		* Mesh->GetRelativeScale3D()).Z;
 	SetActorLocation(Loc);
 }
