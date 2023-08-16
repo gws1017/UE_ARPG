@@ -1,7 +1,6 @@
 #include "Actor/Weapon.h"
 #include "Actor/Enemy.h"
 #include "Actor/CPlayer.h"
-#include "Interface/ICharacter.h"
 #include "Global.h"
 
 #include "Engine/World.h"
@@ -35,6 +34,7 @@ AWeapon::AWeapon()
 	RadialVector = CreateDefaultSubobject<URadialVector>(TEXT("RadialVector"));
 	MetaData = CreateDefaultSubobject<UFieldSystemMetaDataFilter>(TEXT("MetaData"));
 
+	
 	AudioComponent->SetAutoActivate(false);
 }
 
@@ -103,15 +103,13 @@ bool AWeapon::IsSameTagWithTarget(AActor* other,const FName& tag)
 
 void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AudioComponent->Sound)
-		AudioComponent->Play();
+	
 
 	IgnoreActors.AddUnique(Owner);
 
 	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
 	if (IsSameTagWithTarget(OtherActor,"Player")) return;
 
-	CreateField(GetActorLocation());
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
 		IICharacter* other = Cast<IICharacter>(OtherActor);
@@ -121,6 +119,7 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 			AdditionalDamage = Cast<ACPlayer>(Owner)->GetStrDamage();
 
 		IgnoreActors.AddUnique(OtherActor);
+		CreateField(GetActorLocation());
 
 		other->Hit(GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
@@ -166,6 +165,8 @@ void AWeapon::UnEquip()
 
 void AWeapon::ActivateCollision()
 {
+	if (AudioComponent->Sound)
+		AudioComponent->Play();
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	IgnoreActors.Empty();
 }

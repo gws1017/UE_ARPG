@@ -11,7 +11,7 @@ public class UE_ARPG : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", "CoreUObject", "Engine", "InputCore" ,"AIModule",
 			"AnimGraphRuntime", "GameplayTasks","UMG", "Niagara",
-			"FieldSystemEngine" });
+			"FieldSystemEngine", "GeometryCollectionEngine" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

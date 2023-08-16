@@ -3,7 +3,10 @@
 #include "Global.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/Character.h"
+
+#include "Sound/SoundCue.h"
 
 
 ALongSword::ALongSword()
@@ -19,5 +22,9 @@ ALongSword::ALongSword()
 	UHelpers::GetAsset<UAnimMontage>(&DrawMontage, "AnimMontage'/Game/Character/Montage/Sword_Draw_Montage.Sword_Draw_Montage'");
 	UHelpers::GetAsset<UAnimMontage>(&SheathMontage, "AnimMontage'/Game/Character/Montage/Sword_Sheath_Montage.Sword_Sheath_Montage'");
 	
+	USoundCue* sound;
+	UHelpers::GetAsset(&sound, "SoundCue'/Game/Audio/whoosh_Cue.whoosh_Cue'");
+	AudioComponent->Sound = sound;
+
 	Damage = 5;
 }
