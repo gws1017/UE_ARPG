@@ -53,7 +53,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Animation")
 		class UAnimMontage* HitMontage;
 
-	
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
+		class UAudioComponent* AudioComponent;
 
 	FTimerHandle AttackTimer;
 	FTimerHandle AlertTimer;

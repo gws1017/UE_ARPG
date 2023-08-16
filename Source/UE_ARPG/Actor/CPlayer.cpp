@@ -11,7 +11,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Sound/SoundCue.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
@@ -48,11 +47,9 @@ ACPlayer::ACPlayer()
 	UHelpers::GetAsset<UAnimMontage>(&RollMontage, "AnimMontage'/Game/Character/Montage/Roll_Montage.Roll_Montage'");
 
 
-	UHelpers::CreateComponent<UAudioComponent>(this, &AttackAudioComponent,"AttackSound", GetRootComponent());
-	UHelpers::GetAsset<USoundCue>(&AttackSoundCue, "SoundCue'/Game/Audio/SwordAttackCue.SwordAttackCue'");
+	UHelpers::CreateComponent<UAudioComponent>(this, &AudioComponent,"AttackSound", GetRootComponent());
 
-	AttackAudioComponent->SetSound(AttackSoundCue);
-	AttackAudioComponent->SetAutoActivate(false);
+	AudioComponent->SetAutoActivate(false);
 
 	SpringArm->SetRelativeLocation(FVector(0, 0, 30));
 	SpringArm->TargetArmLength = 200.f;
@@ -132,12 +129,13 @@ void ACPlayer::DecrementStamina(float Amount)
 	Stat.Stamina = FMath::Clamp(Stat.Stamina-Amount, 0.f, Stat.MaxStamina);
 }
 
-void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
 {
 	AEnemy* enemy = Cast<AEnemy>(OtherActor);
 	if (!!enemy)
 	{
-		AttackAudioComponent->Play();
 		enemy->Hit(Weapon->GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
 	}
@@ -309,6 +307,9 @@ bool ACPlayer::Alive()
 void ACPlayer::Hit(const FVector& ParticleSpawnLocation)
 {
 	CheckFalse(Alive());
+
+	if (AudioComponent->Sound)
+		AudioComponent->Play();
 
 	ResetCombo();
 	SetMovementState(EMovementState::EMS_Hit);

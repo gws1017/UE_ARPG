@@ -8,6 +8,7 @@
 #include "Animation/AnimMontage.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "AIController.h"
 
@@ -18,6 +19,10 @@ AEnemy::AEnemy()
 	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	UHelpers::CreateComponent<USphereComponent>(this, &CombatSphere, "CombatSphere", GetRootComponent());
 	
+	UHelpers::CreateComponent<UAudioComponent>(this, &AudioComponent, "AttackSound", GetRootComponent());
+
+	AudioComponent->SetAutoActivate(false);
+
 	AIControllerClass = AEnemyController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	WeaponInstigator = GetController();
@@ -145,6 +150,8 @@ void AEnemy::Attack()
 
 void AEnemy::Hit(const FVector& ParticleSpawnLocation)
 {
+	if (AudioComponent->Sound)
+		AudioComponent->Play();
 	if(HitParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, ParticleSpawnLocation, FRotator(0.f), false);
 	PlayAnimMontage(HitMontage);

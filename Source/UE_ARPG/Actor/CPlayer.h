@@ -105,9 +105,7 @@ protected:
 		class UAnimMontage* RollMontage;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
-		class USoundCue* AttackSoundCue;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
-		class UAudioComponent* AttackAudioComponent;
+		class UAudioComponent* AudioComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Combat")
 		class AEnemy* Target;
