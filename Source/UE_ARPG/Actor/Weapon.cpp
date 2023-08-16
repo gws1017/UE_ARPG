@@ -7,15 +7,20 @@
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
+
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
+
 #include "Animation/AnimMontage.h"
 
+#include "Field/FieldSystemObjects.h"
+#include "Field/FieldSystemComponent.h"
 
 
 AWeapon::AWeapon()
-	:Damage(5), AdditionalDamage(0),StaminaCost(10)
+	:Damage(5), AdditionalDamage(0),StaminaCost(10),
+	RadialFalloffMagnitude(1000000.f), RadialVectorMagnitude(15000000.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -24,6 +29,11 @@ AWeapon::AWeapon()
 	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &Mesh, "Mesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
 	UHelpers::CreateComponent<UAudioComponent>(this, &AudioComponent, "AttackSound", GetRootComponent());
+	UHelpers::CreateComponent<UFieldSystemComponent>(this, &FieldSystemComponent, "FieldSystemComponent", GetRootComponent());
+
+	RadialFalloff = CreateDefaultSubobject<URadialFalloff>(TEXT("RadialFalloff"));
+	RadialVector = CreateDefaultSubobject<URadialVector>(TEXT("RadialVector"));
+	MetaData = CreateDefaultSubobject<UFieldSystemMetaDataFilter>(TEXT("MetaData"));
 
 	AudioComponent->SetAutoActivate(false);
 }
@@ -34,8 +44,7 @@ void AWeapon::BeginPlay()
 
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 	//이거 안해줘서 자꾸터졌다
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -102,6 +111,7 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
 	if (IsSameTagWithTarget(OtherActor,"Player")) return;
 
+	CreateField(GetActorLocation());
 	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
 		IICharacter* other = Cast<IICharacter>(OtherActor);
@@ -114,10 +124,21 @@ void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 		other->Hit(GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
-
 	}
 
 }
+void AWeapon::CreateField(const FVector& FieldLocation)
+{
+	MetaData->ObjectType = EFieldObjectType::Field_Object_Destruction;
+	RadialFalloff->SetRadialFalloff(RadialFalloffMagnitude, 0.8f, 1.0f, 0.f, 200.f, FieldLocation, Field_Falloff_Linear);
+	RadialVector->SetRadialVector(RadialVectorMagnitude, FieldLocation);
+
+	FieldSystemComponent->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
+	FieldSystemComponent->ApplyPhysicsField(true, EFieldPhysicsType::Field_LinearForce, MetaData, RadialVector);
+
+	DrawDebugSphere(GetWorld(), FieldLocation, 25.f, 12, FColor::White, true, 30.f, 0, 1.f);
+}
+
 
 void AWeapon::Equip()
 {

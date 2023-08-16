@@ -49,6 +49,24 @@ protected:
 		float StaminaCost;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		bool bEquipped;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		bool bEquipping;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Field")
+		class UFieldSystemComponent* FieldSystemComponent;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Field")
+		class URadialFalloff* RadialFalloff;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Field")
+		class URadialVector* RadialVector;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Field")
+		class UFieldSystemMetaDataFilter* MetaData;
+	UPROPERTY(EditAnywhere, Category = "Weapon || Field")
+		float RadialFalloffMagnitude;
+	UPROPERTY(EditAnywhere, Category = "Weapon || Field")
+		float RadialVectorMagnitude;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		TArray<AActor*> IgnoreActors;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
@@ -57,11 +75,6 @@ protected:
 		class AController* WeaponInstigator;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		class ACharacter* OwnerCharacter;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		bool bEquipped;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-		bool bEquipping;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Sound")
 		class UAudioComponent* AudioComponent;
@@ -89,6 +102,10 @@ public:
 
 	void ActivateCollision();
 	void DeactivateCollision();
+
+	UFUNCTION()
+		void CreateField(const FVector& FieldLocation);
+
 protected:
 
 	bool IsSameTagWithTarget(AActor* other, const FName& tag);
