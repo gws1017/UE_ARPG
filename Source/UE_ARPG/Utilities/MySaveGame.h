@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "Actor/CPlayer.h"
 #include "MySaveGame.generated.h"
+
+struct FPlayerStatus;
 
 USTRUCT(BlueprintType)
 struct FSaveData {
@@ -10,7 +13,7 @@ struct FSaveData {
 public:
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
-		struct FPlayerStatus Status;
+		FPlayerStatus Status;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveData")
 		int32 LostExp;
