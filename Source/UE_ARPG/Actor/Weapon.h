@@ -24,31 +24,47 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USceneComponent* Scene; 
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Component")
 		class USkeletalMeshComponent* Mesh;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Component")
 		class UBoxComponent* WeaponCollision;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Montage")
 		class UAnimMontage* DrawMontage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Montage")
 		class UAnimMontage* SheathMontage;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Socket")
 		FName WeaponSocket = "SwordSocket";
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Socket")
 		FName SheathSocket = "SheathSocket";
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		float Damage;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		float AdditionalDamage;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		float StaminaCost;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		TArray<AActor*> IgnoreActors;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		class AController* WeaponInstigator;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		class ACharacter* OwnerCharacter;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		bool bEquipped;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+		bool bEquipping;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon || Sound")
+		class UAudioComponent* AudioComponent;
 public:	
 	AWeapon();
 
@@ -73,10 +89,12 @@ public:
 
 	void ActivateCollision();
 	void DeactivateCollision();
+protected:
 
+	bool IsSameTagWithTarget(AActor* other, const FName& tag);
 public:
 	UFUNCTION()
-		void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
 
@@ -89,11 +107,5 @@ public:
 	FORCEINLINE class UBoxComponent* GetWeaponCollision() { return WeaponCollision; }
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
-
-protected:
-	class ACharacter* OwnerCharacter;
-
-	bool bEquipped;
-	bool bEquipping;
 
 };

@@ -44,7 +44,6 @@ void AEnemySkeletonMelee::BeginPlay()
 {
 	Super::BeginPlay();
 	Weapon = AWeapon::Spawn<ASkeletonSword>(GetWorld(), this);
-	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &AEnemySkeletonMelee::WeaponBeginOverlap);
 
 }
 
@@ -109,16 +108,6 @@ void AEnemySkeletonMelee::CombatSphereOnOverlapEnd(UPrimitiveComponent* Overlapp
 	}
 }
 
-void AEnemySkeletonMelee::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	ACPlayer* player = Cast<ACPlayer>(OtherActor);
-	if (!!player)
-	{
-		//피격 이펙트 및 사운드 추가부분
-		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		TargetApplyDamage(player, Weapon->GetDamage(),Weapon->GetActorLocation());
-	}
-}
 
 void AEnemySkeletonMelee::Attack()
 {

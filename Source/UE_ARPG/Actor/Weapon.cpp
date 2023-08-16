@@ -9,12 +9,13 @@
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
 #include "Animation/AnimMontage.h"
 
 
 
 AWeapon::AWeapon()
-	:Damage(5),StaminaCost(10)
+	:Damage(5), AdditionalDamage(0),StaminaCost(10)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -22,7 +23,9 @@ AWeapon::AWeapon()
 	
 	UHelpers::CreateComponent<USkeletalMeshComponent>(this, &Mesh, "Mesh", Scene);
 	UHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollision, "ComatCollision", Scene);
-	
+	UHelpers::CreateComponent<UAudioComponent>(this, &AudioComponent, "AttackSound", GetRootComponent());
+
+	AudioComponent->SetAutoActivate(false);
 }
 
 void AWeapon::BeginPlay()
@@ -33,7 +36,7 @@ void AWeapon::BeginPlay()
 	WeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	WeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	WeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
+	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::BoxBeginOverlap);
 	//이거 안해줘서 자꾸터졌다
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	//이 무기를 가진 캐릭터의 컨트롤러를 등록함
@@ -84,16 +87,33 @@ void AWeapon::End_Collision()
 	DeactivateCollision();
 }
 
-void AWeapon::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool AWeapon::IsSameTagWithTarget(AActor* other,const FName& tag)
 {
-	if (!!OtherActor)
+	return Owner->ActorHasTag(tag) && other->ActorHasTag(tag);
+}
+
+void AWeapon::BoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (AudioComponent->Sound)
+		AudioComponent->Play();
+
+	IgnoreActors.AddUnique(Owner);
+
+	if (IsSameTagWithTarget(OtherActor, "Enemy")) return;
+	if (IsSameTagWithTarget(OtherActor,"Player")) return;
+
+	if (!!OtherActor && !IgnoreActors.Contains(OtherActor))
 	{
 		IICharacter* other = Cast<IICharacter>(OtherActor);
 		
 		CheckNull(other);
-		//피격 이펙트 및 사운드 추가부분
-		//사운드는 무기에서 얻고 피격 이펙트는 맞는 대상에서 가져온다
-		UGameplayStatics::ApplyDamage(OtherActor, Damage, WeaponInstigator, this, DamageTypeClass);
+		if (Owner->ActorHasTag("Player"))
+			AdditionalDamage = Cast<ACPlayer>(Owner)->GetStrDamage();
+
+		IgnoreActors.AddUnique(OtherActor);
+
+		other->Hit(GetActorLocation());
+		UGameplayStatics::ApplyDamage(OtherActor, Damage + AdditionalDamage, WeaponInstigator, Owner, DamageTypeClass);
 
 	}
 
@@ -126,6 +146,7 @@ void AWeapon::UnEquip()
 void AWeapon::ActivateCollision()
 {
 	WeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	IgnoreActors.Empty();
 }
 
 void AWeapon::DeactivateCollision()

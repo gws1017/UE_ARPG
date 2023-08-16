@@ -26,7 +26,7 @@ AEnemy::AEnemy()
 	AIControllerClass = AEnemyController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	WeaponInstigator = GetController();
-
+	Tags.Add("Enemy");
 }
 
 void AEnemy::BeginPlay()

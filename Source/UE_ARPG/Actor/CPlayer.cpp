@@ -56,6 +56,7 @@ ACPlayer::ACPlayer()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
+	Tags.Add("Player");
 }
 
 void ACPlayer::BeginPlay()
@@ -63,7 +64,6 @@ void ACPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	Weapon = AWeapon::Spawn<ALongSword>(GetWorld(), this);
-	Weapon->GetWeaponCollision()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayer::WeaponBeginOverlap);
 	PlayerController = GetController<ACPlayerController>();
 	LoadGameData();
 }
@@ -127,18 +127,6 @@ void ACPlayer::IncreamentExp(int32 e)
 void ACPlayer::DecrementStamina(float Amount)
 {
 	Stat.Stamina = FMath::Clamp(Stat.Stamina-Amount, 0.f, Stat.MaxStamina);
-}
-
-void ACPlayer::WeaponBeginOverlap(UPrimitiveComponent* OverlappedComponent, 
-	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
-	AEnemy* enemy = Cast<AEnemy>(OtherActor);
-	if (!!enemy)
-	{
-		enemy->Hit(Weapon->GetActorLocation());
-		UGameplayStatics::ApplyDamage(OtherActor, GetDamage(), GetController(), Weapon, TSubclassOf<UDamageType>());
-	}
 }
 
 bool ACPlayer::CanMove()
@@ -393,9 +381,12 @@ float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	{
 		Stat.HP = FMath::Clamp(Stat.HP - DamageAmount, 0.0f, Stat.MaxHP);
 		AEnemy* enemy = Cast<AEnemy>(DamageCauser);
-		enemy->InitTarget();
-		enemy->SetAlerted(false);
-		enemy->ClearAttackTimer();
+		if (enemy)
+		{
+			enemy->InitTarget();
+			enemy->SetAlerted(false);
+			enemy->ClearAttackTimer();
+		}
 		Die();
 	}
 	else
