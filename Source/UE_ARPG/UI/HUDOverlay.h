@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Actor/CPlayer.h"
 #include "HUDOverlay.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class UE_ARPG_API UHUDOverlay : public UUserWidget
 {

@@ -1,5 +1,4 @@
 #include "UI/HUDOverlay.h"
-#include "Actor/CPlayer.h"
 #include "Global.h"
 
 #include "Components/HorizontalBox.h"
