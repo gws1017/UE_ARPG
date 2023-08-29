@@ -198,6 +198,7 @@ public:
 	FORCEINLINE void SetMovementState(EMovementState state) { MovementState = state; }
 	FORCEINLINE void SetTarget(class AEnemy* target) { Target = target; }
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AWeapon* GetWeapon() override { return Weapon; }
 	FORCEINLINE class AEnemy* GetTarget() { return Target; }
 

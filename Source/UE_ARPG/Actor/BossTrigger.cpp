@@ -1,5 +1,7 @@
 #include "Actor/BossTrigger.h"
 #include "Actor/CPlayer.h"
+#include "Actor/Enemy.h"
+#include "Actor/\Weapon.h"
 #include "Actor/CPlayerController.h"
 #include "UI/HUDOverlay.h"
 
@@ -9,6 +11,11 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Sound/SoundCue.h"
+
+#include "MovieSceneSequencePlayer.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
+#include "LevelSequence.h"
 
 ABossTrigger::ABossTrigger()
 {
@@ -47,14 +54,43 @@ void ABossTrigger::BeginPlay()
 	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &ABossTrigger::OnComponentBeginOverlap);
 }
 
-void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABossTrigger::PlayBossCutScene(ACPlayer* player)
 {
-	ACPlayer* player = Cast<ACPlayer>(OtherActor);
+	CheckNull(BossCutScene);
+	DisableInput(player->GetController<APlayerController>());
 
-	CheckNull(player);
+	FMovieSceneSequencePlaybackSettings setting;
+	ALevelSequenceActor* OutActor;
+	ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), BossCutScene, setting, OutActor);
 	
+	TArray<AActor*> StopActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),AEnemy::StaticClass(), StopActors);
+	
+	StopActors.Add(player);
+	StopActors.Add(player->GetWeapon());
+
+	for (auto actor : StopActors)
+	{
+		actor->SetActorHiddenInGame(true);
+		actor->SetActorTickEnabled(false);
+	}
+	float EndTime = static_cast<float>(SequencePlayer->GetEndTime().AsSeconds());
+
+	SequencePlayer->Play();
+	GetWorldTimerManager().SetTimer(CutSceneTimer, [this,StopActors,player]() {
+			for (auto actor : StopActors)
+			{
+				actor->SetActorHiddenInGame(false);
+				actor->SetActorTickEnabled(true);
+			}
+			FinishBossCutScene(player);
+		}, EndTime, false);
+}
+
+void ABossTrigger::FinishBossCutScene(ACPlayer* player)
+{
 	UHUDOverlay* HUD = player->GetController<ACPlayerController>()->GetHUD();
-	if(!!HUD)
+	if (!!HUD)
 		HUD->ShowBossHPBar();
 
 	ShowMesh();
@@ -63,8 +99,18 @@ void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	if (!!GI)
 	{
 		GI->PlayBGM(BossBattleMusic);
-		//CLog::Print("Play Battle Music");
 	}
-	if (TriggerBox->OnComponentBeginOverlap.IsBound()) 
+}
+
+void ABossTrigger::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACPlayer* player = Cast<ACPlayer>(OtherActor);
+
+	CheckNull(player);
+	
+	PlayBossCutScene(player);
+
+	if (TriggerBox->OnComponentBeginOverlap.IsBound())
 		TriggerBox->OnComponentBeginOverlap.Clear();
 }
+

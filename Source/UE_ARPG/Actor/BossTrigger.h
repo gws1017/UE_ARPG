@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "BossTrigger.generated.h"
 
+class ULevelSequence;
+class ACPlayer;
 /**
  * 
  */
@@ -22,6 +24,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UStaticMeshComponent* WallMesh;
+
+	
+	UPROPERTY(EditAnywhere, Category = "Sequence")
+		ULevelSequence* BossCutScene;
+
+	FTimerHandle CutSceneTimer;
+	
 public:
 		ABossTrigger();
 
@@ -31,9 +40,12 @@ public:
 		void HideMesh();
 		void ShowMesh();
 
+private:
+
+	void PlayBossCutScene(ACPlayer* player);
+	void FinishBossCutScene(ACPlayer* player);
+
 public:
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-
 };

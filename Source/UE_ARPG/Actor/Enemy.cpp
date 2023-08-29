@@ -83,7 +83,7 @@ bool AEnemy::IsHitActorAreaAttack(const FVector& start, const FVector& end, floa
 
 	TArray<FHitResult> HitResults;
 	bool result = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), start, end, radius,
-		ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true);
+		ObjectTypes, false, IgnoreActors, bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None, HitResults, true);
 
 
 	CheckFalseResult(result, result);

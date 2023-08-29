@@ -202,7 +202,7 @@ void ABoss::AttackDropDownEnd()
 		}
 	}
 
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, GetActorLocation(), FRotator::ZeroRotator);
+	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), AttackParticle, GetActorLocation(), FRotator::ZeroRotator);
 
 }
 

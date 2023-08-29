@@ -42,6 +42,8 @@ protected:
 		bool bAlerted;
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 		bool bRanged;
+	UPROPERTY(EditAnywhere, Category = "AI")
+		bool bShowDebug = false;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 		TSubclassOf<class UDamageType> DamageTypeClass;
