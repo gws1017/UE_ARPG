@@ -13,16 +13,20 @@ class UE_ARPG_API ALostExp : public AActor, public IInteraction
 private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
-		class UBoxComponent* OverlapBox;
+		class USphereComponent* OverlapSphere;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		class UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere)
+		class UNiagaraComponent* ItemEffect;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Exp")
 		class ACPlayer* PlayerInstance;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Exp")
 		int32 Exp;
-
+	UPROPERTY(EditAnywhere)
+		float HeightOffset;
 
 public:	
 	ALostExp();
@@ -33,9 +37,9 @@ protected:
 public:
 
 	UFUNCTION()
-		void OverlapBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void OverlapSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-		void OverlapBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OverlapSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void OnInteraction();
 
