@@ -7,12 +7,14 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraComponent.h"
 
 
 ALevelUpObject::ALevelUpObject()
 {
 	UHelpers::CreateComponent<UBoxComponent>(this, &OverlapBox, "OverlapBox", GetRootComponent());
 	UHelpers::CreateComponent<UStaticMeshComponent>(this, &Mesh, "StaticMesh", OverlapBox);
+	UHelpers::CreateComponent<UNiagaraComponent>(this, &ItemEffect, "Effect", OverlapBox);
 }
 
 void ALevelUpObject::BeginPlay()

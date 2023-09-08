@@ -18,6 +18,9 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Component")
 		class UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditDefaultsOnly)
+		class UNiagaraComponent* ItemEffect;
+
 public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "UI")
