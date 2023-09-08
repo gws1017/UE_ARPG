@@ -1,5 +1,4 @@
 #include "UI/LevelUpUI.h"
-#include "Actor/CPlayer.h"
 #include "MyGameInstance.h"
 #include "DataTable/CharacterAbilityTables.h"
 #include "UI/OKUI.h"
@@ -76,9 +75,9 @@ void ULevelUpUI::LevelUp()
 void ULevelUpUI::SelectAbility()
 {
 	for (auto ability : AbilityArray) {
-		ability->SetBrushColor(FLinearColor::Black);
+		ability->SetBrushColor( FLinearColor(0.f,0.f,0.f,0.f) );
 	}
-	AbilityArray[SelectUINumber]->SetBrushColor(FLinearColor::White);
+	AbilityArray[SelectUINumber]->SetBrushColor(FLinearColor(0.7f,0.7f,0.7f,1.0f));
 }
 
 void ULevelUpUI::OnUpKey()

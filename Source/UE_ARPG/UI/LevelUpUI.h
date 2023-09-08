@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Actor/CPlayer.h"
 #include "LevelUpUI.generated.h"
 
 /**

@@ -39,7 +39,7 @@ void UAN_PlayFootStepSound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 	if (result)
 	{
 		EPhysicalSurface SurfaceType =  UGameplayStatics::GetSurfaceType(HitResult);
-		if (BPSoundList)
+		if (BPSoundList && SurfaceType)
 		{
 			AMaterialSoundList* SoundList = Cast<AMaterialSoundList>(BPSoundList->GetDefaultObject());
 			UGameplayStatics::PlaySoundAtLocation(
