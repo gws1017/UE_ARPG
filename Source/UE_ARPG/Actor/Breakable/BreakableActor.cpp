@@ -21,7 +21,8 @@ ABreakableActor::ABreakableActor()
 void ABreakableActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	//GeometryCollectionComponent->SetRelativeScale3D(FVector(UKismetMathLibrary::RandomFloatInRange(0.7, 1.0)));
+
 }
 
 void ABreakableActor::Hit(const FVector& ParticleSpawnLocation)
