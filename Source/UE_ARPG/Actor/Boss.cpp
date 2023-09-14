@@ -56,8 +56,8 @@ ABoss::ABoss() :
 
 	GetCharacterMovement()->MaxWalkSpeed = 300;
 
-	MaxHP = 50;
-	HP = 50;
+	MaxHP = 100;
+	HP = MaxHP;
 	Exp = 3000;
 	AIControllerClass = AEnemyBTController::StaticClass();
 	//BossPhase = 1;
