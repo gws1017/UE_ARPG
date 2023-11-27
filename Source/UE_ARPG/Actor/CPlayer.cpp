@@ -16,9 +16,9 @@
 #include "Components/AudioComponent.h"
 
 ACPlayer::ACPlayer()
-	: Stat{15,15,50,50,0,1,1,1,1,20000}, StartPoint{0, 0, 190},
+	: Stat{15,15,50,50,0,1,1,1,1,0}, StartPoint{150, 0, 190},
 	StaminaRegenRate(2.f),RollStamina(10.f),
-	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerState::EPS_Normal)
+	MovementState(EMovementState::EMS_Normal), PlayerStat(EPlayerStat::EPS_Normal)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -374,7 +374,7 @@ void ACPlayer::LevelUp(const FPlayerStatus& data)
 
 float ACPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageAmount <= 0.f || EPlayerState::EPS_Invincible == PlayerStat)
+	if (DamageAmount <= 0.f || EPlayerStat::EPS_Invincible == PlayerStat)
 		return DamageAmount;
 
 	if (Stat.HP - DamageAmount <= 0.f)
@@ -436,12 +436,14 @@ void ACPlayer::LoadGameData()
 		SetActorRotation(Data.Rotation);
 		StartPoint = Data.StartPoint;
 		if (Data.LostExp != 0) {
-			TSubclassOf<ALostExp> BPLostExp;
-			UHelpers::GetClassDynamic<ALostExp>(&BPLostExp, "Blueprint'/Game/Dungeon/BP_LostExp.BP_LostExp_C'");
-			auto actor = GetWorld()->SpawnActor<ALostExp>(BPLostExp);
-			FVector Loc = Data.DeathLocation;
-			Loc.Z -= 90.f;
-			actor->Init(Data.LostExp, Loc);
+			if (LostExpClass)
+			{
+				ALostExp* actor = GetWorld()->SpawnActor<ALostExp>(LostExpClass);
+				FVector Loc = Data.DeathLocation;
+				Loc.Z -= 90.f;
+				actor->Init(Data.LostExp, Loc);
+			}
+			else CLog::Log("LostExp BP is not valid");
 		}
 
 		SetMovementState(EMovementState::EMS_Normal);

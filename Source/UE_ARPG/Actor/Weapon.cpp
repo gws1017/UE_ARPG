@@ -1,6 +1,7 @@
 #include "Actor/Weapon.h"
 #include "Actor/Enemy.h"
 #include "Actor/CPlayer.h"
+#include "Actor/CPlayerController.h"
 #include "Global.h"
 
 #include "Engine/World.h"

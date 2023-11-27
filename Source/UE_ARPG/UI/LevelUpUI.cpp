@@ -125,7 +125,8 @@ void ULevelUpUI::OnClickOKBtn()
 {
 	OKUI = Cast<UOKUI>(CreateWidget(GetWorld(), OKUIIClass));
 
-	if (OKUI) {
+	if (OKUI) 
+	{
 		OKUI->ClickOKBtnFunction.BindUFunction(this, "LevelUp");
 		OKUI->AddToViewport();
 	}

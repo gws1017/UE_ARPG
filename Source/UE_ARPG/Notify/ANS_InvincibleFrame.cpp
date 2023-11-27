@@ -16,7 +16,7 @@ void UANS_InvincibleFrame::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
 	CheckNull(player);
 	CLog::Log("Invincible On");
-	player->SetPlayerState(EPlayerState::EPS_Invincible);
+	player->SetPlayerState(EPlayerStat::EPS_Invincible);
 }
 
 void UANS_InvincibleFrame::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -27,6 +27,6 @@ void UANS_InvincibleFrame::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 	ACPlayer* player = Cast<ACPlayer>(MeshComp->GetOwner());
 	CheckNull(player);
 	CLog::Log("Invincible Off");
-	player->SetPlayerState(EPlayerState::EPS_Normal);
+	player->SetPlayerState(EPlayerStat::EPS_Normal);
 
 }

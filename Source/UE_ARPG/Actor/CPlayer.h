@@ -18,7 +18,7 @@ enum class EMovementState : uint8
 };
 
 UENUM(BlueprintType)
-enum class EPlayerState : uint8
+enum class EPlayerStat : uint8
 {
 	EPS_Normal UMETA(DisplayName = "Normal"),
 	EPS_Invincible UMETA(DisplayName = "Invincible"),
@@ -113,7 +113,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
 		EMovementState MovementState;
 	UPROPERTY(VisibleAnywhere, Category = "Enums")
-		EPlayerState PlayerStat;
+		EPlayerStat PlayerStat;
 	
 	UPROPERTY(VisibleAnywhere)
 		bool bHit = false;
@@ -127,6 +127,9 @@ protected:
 		class AWeapon* Weapon;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Controller")
 		class ACPlayerController* PlayerController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BP Class")
+		TSubclassOf<class ALostExp> LostExpClass;
 
 	bool bRunning = false;
 
@@ -194,7 +197,7 @@ public:
 		void LoadGameData();
 public:
 	//Getter & Setter
-	FORCEINLINE void SetPlayerState(EPlayerState state) { PlayerStat = state; }
+	FORCEINLINE void SetPlayerState(EPlayerStat state) { PlayerStat = state; }
 	FORCEINLINE void SetMovementState(EMovementState state) { MovementState = state; }
 	FORCEINLINE void SetTarget(class AEnemy* target) { Target = target; }
 
@@ -240,7 +243,7 @@ public:
 
 	FORCEINLINE bool IsValidTarget() { return (!!Target); }
 	FORCEINLINE bool IsHit() { return bHit; }
-	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerState::EPS_Invincible; }
+	FORCEINLINE bool IsInvincible() { return PlayerStat == EPlayerStat::EPS_Invincible; }
 	FORCEINLINE void SetBlending(bool value) { bBlending = value; }
 	FORCEINLINE bool IsBlending() { return bBlending; }
 };
